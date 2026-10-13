@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the 5-digit (4 fingers + thumb) right-hand MJCF from the stock AH_Right model.
+"""Generate the 5-digit (4 fingers + thumb) MJCF from the stock AH_Right (or AH_Left) model.
 
 The pinky (finger5) is a rigid copy of the ring finger (finger3): every finger3 part that is
 fixed to the palm (servos, finger frames, bushings, closing sites) and both of its motor chains
@@ -11,8 +11,9 @@ relates to the middle finger in the stock hand.
 finger5 is appended after the thumb, so qpos[0:68], ctrl[0:8] and mocap[0:4] keep the stock
 layout; finger5 adds qpos[68:85], ctrl[8:10] and mocap[4].
 
-Usage:  python build_5f_model.py            (writes AHSimulation/AH_Right_5F/mjcf)
-        python build_5f_model.py --keyframe (also regenerates keyframes.xml by settling at ctrl=0)
+Usage:  python build_5f_model.py              (writes AHSimulation/AH_Right_5F/mjcf)
+        python build_5f_model.py --side left  (writes AHSimulation/AH_Left_5F/mjcf)
+        add --keyframe to regenerate keyframes.xml by settling at ctrl=0
 """
 
 import argparse
@@ -27,14 +28,18 @@ import numpy as np
 
 HERE = Path(__file__).resolve().parent
 SIM_DIR = HERE.parent / "AHSimulation"
-SRC = SIM_DIR / "AH_Right" / "mjcf"
-DST = SIM_DIR / "AH_Right_5F" / "mjcf"
+CAD_STL = HERE.parent.parent.parent / "cad" / "five_finger" / "stl"
+# Widened palm plates come from cad/five_finger/make_5f_plate.py (the stock plates have 3 finger mounts).
+SIDES = {
+    "right": dict(src=SIM_DIR / "AH_Right" / "mjcf", dst=SIM_DIR / "AH_Right_5F" / "mjcf", root="r_wrist_interface",
+                  plate="r_hand_plate", plate_src=CAD_STL / "R-Hand_Plate_5F.stl"),
+    "left": dict(src=SIM_DIR / "AH_Left" / "mjcf", dst=SIM_DIR / "AH_Left_5F" / "mjcf", root="l_wrist_interface",
+                 plate="l_hand_plate", plate_src=CAD_STL / "L-Hand_Plate_5F.stl"),
+}
+SRC, DST = SIDES["right"]["src"], SIDES["right"]["dst"]
 
-# Widened palm plate from cad/five_finger/make_5f_plate.py (the stock plate only has 3 finger mounts).
-PLATE_MESH = "r_hand_plate_5f.stl"
-PLATE_MESH_SRC = HERE.parent.parent.parent / "cad" / "five_finger" / "stl" / "R-Hand_Plate_5F.stl"
-
-# Root-level parts (identified by their "Part ..." comment) of finger2 and finger3, in matching order.
+# Root-level parts (by their "Part ..." comment) of finger2/finger3 in the right model, and the
+# finger5 names they get; build_robot() finds them geometrically and checks against these.
 F2_PARTS = ["scs0009_5", "scs0009_3", "finger_frame_1_2", "finger_frame_2", "bushing_0608_04", "bushing_0608_04_4"]
 F3_PARTS = ["scs0009_7", "scs0009_6", "finger_frame_1_3", "finger_frame_2_2", "bushing_0608_04_3", "bushing_0608_04_7"]
 # Instance names for the new finger5 parts (continuing the onshape-to-robot numbering).
@@ -184,30 +189,56 @@ def indent(tree):
 
 # ---------------------------------------------------------------- build
 def finger_step_transform(root_body):
-    """Rigid transform taking finger2 onto finger3, checked on every fixed part and chain root."""
-    geoms = part_geoms(root_body)
-    p2 = get_pose(geoms["finger_frame_1_2"][1])
-    p3 = get_pose(geoms["finger_frame_1_3"][1])
+    """Rigid transform taking finger2 onto finger3 (from the finger pivot sites), the finger3 parts
+    fixed to the palm (the parts that are an exact image of a finger2 part) and their finger5 names.
+    The step is checked on every matched part, closing site and chain root."""
+    p2 = get_pose(child_by_name(root_body, "site", F2_SITES[0]))
+    p3 = get_pose(child_by_name(root_body, "site", F3_SITES[0]))
     qD = quat_mul(p3[1], quat_conj(p2[1]))
     tD = p3[0] - rotate(qD, p2[0])
     T = (tD, qD)
-    pairs = [(geoms[a][1], geoms[b][1]) for a, b in zip(F2_PARTS, F3_PARTS)]
+
+    geoms = part_geoms(root_body)
+    matched = [(n2, n3) for n3, (_, g3) in geoms.items() for n2, (_, g2) in geoms.items()
+               if n2 != n3 and g2.get("mesh") == g3.get("mesh") and same_pose(apply(T, get_pose(g2)), get_pose(g3))]
+    assert len(matched) == 6 and len({n3 for _, n3 in matched}) == 6, f"finger2/finger3 parts not found: {matched}"
+    pairs = [(geoms[a][1], geoms[b][1]) for a, b in matched]
     pairs += [(child_by_name(root_body, "site", a), child_by_name(root_body, "site", b)) for a, b in zip(F2_SITES, F3_SITES)]
     pairs += [(child_by_name(root_body, "body", a), child_by_name(root_body, "body", b)) for a, b in zip(F2_BODIES, F3_BODIES)]
     for e2, e3 in pairs:
         assert same_pose(apply(T, get_pose(e2)), get_pose(e3)), f"finger2->finger3 step is not rigid for {e2.attrib}"
+
+    # finger5 names continue the per-mesh instance numbering; the part nearest the motor1 horn first
+    horn = get_pose(child_by_name(root_body, "body", F3_BODIES[0]))[0]
+    used = {}
+    for name, (_, g) in geoms.items():
+        mesh = g.get("mesh")
+        suffix = name[len(mesh) + 1:] if name.startswith(mesh + "_") else ""
+        used[mesh] = max(used.get(mesh, 1), int(suffix) if suffix.isdigit() else 1)
+    order = ["scs0009", "finger_frame_1", "finger_frame_2", "bushing_0608_04"]  # servos, frames, bushings
+    f3 = sorted((n3 for _, n3 in matched),
+                key=lambda n: (order.index(geoms[n][1].get("mesh")), np.linalg.norm(get_pose(geoms[n][1])[0] - horn)))
+    new = {}
+    for n3 in f3:
+        mesh = geoms[n3][1].get("mesh")
+        used[mesh] += 1
+        new[n3] = f"{mesh}_{used[mesh]}"
+
     angle = 2 * np.degrees(np.arctan2(np.linalg.norm(qD[1:]), qD[0]))
     print(f"finger2->finger3 step: {angle:.3f} deg about {np.round(qD[1:] / np.linalg.norm(qD[1:]), 4)}, "
           f"t = {np.round(tD * 1000, 3)} mm (verified on {len(pairs)} elements)")
-    return T
+    return T, new
 
 
-def build_robot(plate_mesh):
-    tree = parse(SRC / "robot.xml")
+def build_robot(side, plate_mesh):
+    src, dst = side["src"], side["dst"]
+    tree = parse(src / "robot.xml")
     mj = tree.getroot()
     root_body = mj.find("worldbody/body")
-    assert root_body.get("name") == "r_wrist_interface"
-    T = finger_step_transform(root_body)
+    assert root_body.get("name") == side["root"]
+    T, f5_names = finger_step_transform(root_body)
+    if side["root"] == "r_wrist_interface":
+        assert f5_names == dict(zip(F3_PARTS, F5_PARTS)), f5_names
 
     geoms = part_geoms(root_body)
     children = list(root_body)
@@ -215,7 +246,7 @@ def build_robot(plate_mesh):
     insert_at = first_body - 1  # before the comment that precedes the first body
 
     new_fixed = [ET.Comment(" finger5 (pinky): fixed parts, copied from finger3 and moved by the finger2->finger3 step ")]
-    for f3, f5 in zip(F3_PARTS, F5_PARTS):
+    for f3, f5 in f5_names.items():
         _, geom = geoms[f3]
         g = copy.deepcopy(geom)
         set_pose(g, apply(T, get_pose(geom)))
@@ -260,26 +291,23 @@ def build_robot(plate_mesh):
 
     if plate_mesh:  # same part frame as the stock plate, but in mm like the other cad/ exports
         for mesh in mj.find("asset").iter("mesh"):
-            if mesh.get("file") == "r_hand_plate.stl":
-                mesh.set("name", "r_hand_plate")
+            if mesh.get("file") == side["plate"] + ".stl":
+                mesh.set("name", side["plate"])
                 mesh.set("file", plate_mesh)
                 mesh.set("scale", "0.001 0.001 0.001")
 
     indent(tree)
     text = ET.tostring(mj, encoding="unicode").replace(" />", "/>")
-    header = (
-        '<?xml version="1.0" ?>\n'
-        "<!-- Generated using onshape-to-robot -->\n"
-        "<!-- Onshape https://cad.onshape.com/documents/430ff184cf3dd9557aaff2be/w/e3658b7152c139971d22c688/e/a5789448a382c9e7e5c5750a -->\n"
+    header = "".join((src / "robot.xml").read_text().splitlines(keepends=True)[:3]) + (
         "<!-- 5-digit variant: finger5 (pinky) added by Demo/AHSimulation/five_finger/build_5f_model.py. Do not edit by hand. -->\n"
     )
-    (DST / "robot.xml").write_text(header + text + "\n")
+    (dst / "robot.xml").write_text(header + text + "\n")
     return T
 
 
-def build_scene(T):
-    text = (SRC / "scene.xml").read_text()
-    tree = parse(SRC / "scene.xml")
+def build_scene(side, T):
+    text = (side["src"] / "scene.xml").read_text()
+    tree = parse(side["src"] / "scene.xml")
     f3 = child_by_name(tree.getroot().find("worldbody"), "body", "finger3_target")
     pos, quat = apply(T, get_pose(f3))
     target5 = (
@@ -290,24 +318,25 @@ def build_scene(T):
     anchor = "    </worldbody>"
     assert anchor in text
     text = text.replace(anchor, target5 + anchor)
-    (DST / "scene.xml").write_text(text)
+    (side["dst"] / "scene.xml").write_text(text)
 
 
-def write_keyframe(qpos):
-    (DST / "keyframes.xml").write_text(
+def write_keyframe(dst, qpos):
+    (dst / "keyframes.xml").write_text(
         "<mujoco>\n  <keyframe>\n    <key name=\"zero\"\n         qpos=\""
         + " ".join(f"{x:.6g}" for x in qpos)
         + "\"\n         />\n  </keyframe>\n</mujoco>\n"
     )
 
 
-def settle_keyframe():
+def settle_keyframe(side):
     """Settle the new model at ctrl = 0 from the stock keyframe (+ finger3's values for finger5)."""
-    stock = mujoco.MjModel.from_xml_path(str(SRC / "scene.xml"))
+    src, dst = side["src"], side["dst"]
+    stock = mujoco.MjModel.from_xml_path(str(src / "scene.xml"))
     q_stock = stock.key_qpos[0].copy()
 
-    (DST / "keyframes.xml").write_text("<mujoco><keyframe/></mujoco>\n")  # the old 68-value key would not compile
-    m = mujoco.MjModel.from_xml_path(str(DST / "scene.xml"))
+    (dst / "keyframes.xml").write_text("<mujoco><keyframe/></mujoco>\n")  # the old 68-value key would not compile
+    m = mujoco.MjModel.from_xml_path(str(dst / "scene.xml"))
     d = mujoco.MjData(m)
 
     def qadr(model, joint):
@@ -323,34 +352,37 @@ def settle_keyframe():
     print(f"settled keyframe: max |qvel| = {np.abs(d.qvel).max():.2e}, "
           f"stock part max |dq| = {np.abs(d.qpos[:stock.nq] - q_stock).max():.2e}, "
           f"finger5 vs finger3 max |dq| = {np.abs(d.qpos[stock.nq:] - d.qpos[f3]).max():.2e}")
-    write_keyframe(d.qpos)
+    write_keyframe(dst, d.qpos)
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--keyframe", action="store_true", help="regenerate keyframes.xml by settling at ctrl=0")
     ap.add_argument("--stock-plate", action="store_true", help="use the stock 3-finger palm plate mesh")
+    ap.add_argument("--side", choices=SIDES, default="right")
     args = ap.parse_args()
+    side = SIDES[args.side]
+    src, dst = side["src"], side["dst"]
 
-    (DST / "assets").mkdir(parents=True, exist_ok=True)
-    for stl in SRC.glob("assets/*.stl"):
-        shutil.copy2(stl, DST / "assets" / stl.name)
+    (dst / "assets").mkdir(parents=True, exist_ok=True)
+    for stl in src.glob("assets/*.stl"):
+        shutil.copy2(stl, dst / "assets" / stl.name)
     for f in ("joints_properties.xml", "additional.xml"):
-        shutil.copy2(SRC / f, DST / f)
+        shutil.copy2(src / f, dst / f)
 
     plate = None
-    if not args.stock_plate and PLATE_MESH_SRC.exists():
-        shutil.copy2(PLATE_MESH_SRC, DST / "assets" / PLATE_MESH)
-        plate = PLATE_MESH
-    print(f"palm plate mesh: {plate or 'r_hand_plate.stl (stock, 3 fingers + thumb)'}")
+    if not args.stock_plate and side["plate_src"].exists():
+        plate = side["plate"] + "_5f.stl"
+        shutil.copy2(side["plate_src"], dst / "assets" / plate)
+    print(f"palm plate mesh: {plate or side['plate'] + '.stl (stock, 3 fingers + thumb)'}")
 
-    T = build_robot(plate)
-    build_scene(T)
-    if args.keyframe or not (DST / "keyframes.xml").exists():
-        settle_keyframe()
+    T = build_robot(side, plate)
+    build_scene(side, T)
+    if args.keyframe or not (dst / "keyframes.xml").exists():
+        settle_keyframe(side)
 
-    m = mujoco.MjModel.from_xml_path(str(DST / "scene.xml"))
-    print(f"wrote {DST.relative_to(HERE.parent.parent.parent)}: nbody={m.nbody} njnt={m.njnt} nq={m.nq} "
+    m = mujoco.MjModel.from_xml_path(str(dst / "scene.xml"))
+    print(f"wrote {dst.relative_to(HERE.parent.parent.parent)}: nbody={m.nbody} njnt={m.njnt} nq={m.nq} "
           f"nu={m.nu} neq={m.neq} nkey={m.nkey} nmocap={m.nmocap}")
 
 

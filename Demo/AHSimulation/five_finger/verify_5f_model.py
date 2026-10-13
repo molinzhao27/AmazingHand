@@ -91,14 +91,27 @@ class Hand:
 
         # root-body geoms in XML order -> part names from the "Part ..." comments
         root_xml = parse(mjcf_dir / "robot.xml").getroot().find("worldbody/body")
+        self.side = "left" if root_xml.get("name").startswith("l_") else "right"
         names = [n for n, _ in sorted(part_geoms(root_xml).items(), key=lambda kv: list(root_xml).index(kv[1][1]))]
-        root = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_BODY, "r_wrist_interface")
-        assert len(names) + len(extra_parts or ()) == m.body_geomnum[root]
+        root = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_BODY, root_xml.get("name"))
+        assert root == ROOT_BODY and len(names) + len(extra_parts or ()) == m.body_geomnum[root]
         self.part_geom = {n: m.body_geomadr[root] + i for i, n in enumerate(names)}
         for name in extra_parts or ():
             self.part_geom[name] = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_GEOM, name)
+        if self.side == "left":  # left parts are numbered differently: use the mirrored right part's name
+            five = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_ACTUATOR, "finger5_motor1") >= 0
+            ref = Hand(SIM_DIR / ("AH_Right_5F" if five else "AH_Right") / "mjcf")
+            mine, theirs = self._centroids(), ref._centroids()
+            mapped = {}
+            for name, (mesh, c) in mine.items():
+                dist, rname = min((np.linalg.norm(c * [1, -1, 1] - rc), rn) for rn, (rmesh, rc) in theirs.items()
+                                  if rmesh.removeprefix("r_") == mesh.removeprefix("l_"))
+                assert dist < 1e-3, f"no mirrored right part for {name} ({dist * 1e3:.2f} mm)"
+                mapped[rname] = self.part_geom[name]
+            assert len(mapped) == len(mine)
+            self.part_geom = mapped
 
-        self.geoms, self.qidx, self.vidx, self.ctrl, self.eqs = {}, {}, {}, {}, {}
+        self.geoms, self.qidx, self.ctrl, self.eqs = {}, {}, {}, {}
         for dig in self.digits:
             f, tops = CHAINS[dig]
             bodies = set()
@@ -110,13 +123,23 @@ class Hand:
             self.geoms[dig] = (moving, fixed)
             jnts = [j for j in range(m.njnt) if m.jnt_bodyid[j] in bodies]
             self.qidx[dig] = np.concatenate([np.arange(m.jnt_qposadr[j], m.jnt_qposadr[j] + _qlen(m, j)) for j in jnts])
-            self.vidx[dig] = np.concatenate([np.arange(m.jnt_dofadr[j], m.jnt_dofadr[j] + _vlen(m, j)) for j in jnts])
             self.ctrl[dig] = [mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_ACTUATOR, f"{f}_motor{k}") for k in (1, 2)]
-            site_ids = {s for g in [bodies] for s in range(m.nsite) if m.site_bodyid[s] in bodies}
+            site_ids = {s for s in range(m.nsite) if m.site_bodyid[s] in bodies}
             self.eqs[dig] = [e for e in range(m.neq) if m.eq_obj1id[e] in site_ids or m.eq_obj2id[e] in site_ids]
         self.palm = [self.part_geom[p] for p in PALM_PARTS]
         assert all(m.eq_type[e] == mujoco.mjtEq.mjEQ_CONNECT and m.eq_objtype[e] == mujoco.mjtObj.mjOBJ_SITE
                    for e in range(m.neq))
+
+    def _centroids(self):
+        """Mesh name and world centroid of each root part's vertices (root parts do not depend on qpos)."""
+        mujoco.mj_kinematics(self.m, self.d)
+        out = {}
+        for name, g in self.part_geom.items():
+            mid = self.m.geom_dataid[g]
+            v = self.m.mesh_vert[self.m.mesh_vertadr[mid]:self.m.mesh_vertadr[mid] + self.m.mesh_vertnum[mid]]
+            out[name] = (mujoco.mj_id2name(self.m, mujoco.mjtObj.mjOBJ_MESH, mid),
+                         self.d.geom_xpos[g] + self.d.geom_xmat[g].reshape(3, 3) @ v.mean(0))
+        return out
 
     def _under(self, b, top):
         while b > 0:
@@ -137,10 +160,6 @@ class Hand:
 
 def _qlen(m, j):
     return {mujoco.mjtJoint.mjJNT_BALL: 4, mujoco.mjtJoint.mjJNT_FREE: 7}.get(m.jnt_type[j], 1)
-
-
-def _vlen(m, j):
-    return {mujoco.mjtJoint.mjJNT_BALL: 3, mujoco.mjtJoint.mjJNT_FREE: 6}.get(m.jnt_type[j], 1)
 
 
 # ------------------------------------------------------------------ 1. structure
@@ -232,10 +251,11 @@ def run_sequence(h, segments, label, stats):
 
 
 def pose_ctrl(h, pose):
+    """Right-hand pose (deg) -> ctrl; on a left hand the abduction is mirrored: (m1, m2) -> (-m2, -m1)."""
     c = np.zeros(h.m.nu)
     for dig, (a1, a2) in pose.items():
         if dig in h.digits:
-            c[h.ctrl[dig]] = np.radians([a1, a2])
+            c[h.ctrl[dig]] = np.radians([a1, a2] if h.side == "right" else [-a2, -a1])
     return c
 
 
@@ -571,7 +591,8 @@ def check_demo_poses(h, spacing):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--model", default="AH_Right_5F", help="folder under AHSimulation/ (AH_Right for the stock baseline)")
+    ap.add_argument("--model", default="AH_Right_5F",
+                    help="folder under AHSimulation/: AH_Right_5F, AH_Left_5F, or AH_Right / AH_Left for the stock baseline")
     ap.add_argument("--grid", type=int, default=9, help="grid points per motor for the interference check")
     ap.add_argument("--coarse", type=float, default=1.0, help="surface sampling spacing in mm (all pose pairs)")
     ap.add_argument("--fine", type=float, default=0.3, help="surface sampling spacing in mm (pose pairs closer than 3 mm)")

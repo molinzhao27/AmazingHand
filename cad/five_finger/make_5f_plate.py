@@ -20,7 +20,9 @@ the two cannot drift apart). The new plate is the union of:
         the pinky unit down to the plate's foot on the wrist interface.
 
 Writes cad/five_finger/step/R-Hand_Plate_5F.step, cad/five_finger/stl/R-Hand_Plate_5F.stl (mm,
-same frame as the stock parts) and cad/five_finger/R-Hand_Plate_5F_preview.png.
+same frame as the stock parts) and cad/five_finger/R-Hand_Plate_5F_preview.png, plus the left
+plate L-Hand_Plate_5F: the stock L-Hand_Plate is exactly the R-Hand_Plate mirrored about x = -50
+(checked here), so the left 5-finger plate is the right one mirrored the same way.
 """
 
 import sys
@@ -36,8 +38,12 @@ sys.path.insert(0, str(REPO / "Demo" / "AHSimulation" / "five_finger"))
 from build_5f_model import SRC, get_pose, parse, part_geoms, quat_conj, quat_mul, rotate  # noqa: E402
 
 STOCK_STEP = REPO / "cad" / "step" / "Amazing Hand Parts - R-Hand_Plate.step"
+STOCK_STEP_L = REPO / "cad" / "step" / "Amazing Hand Parts - L-Hand_Plate.step"
 OUT_STEP = HERE / "step" / "R-Hand_Plate_5F.step"
 OUT_STL = HERE / "stl" / "R-Hand_Plate_5F.stl"
+OUT_STEP_L = HERE / "step" / "L-Hand_Plate_5F.step"
+OUT_STL_L = HERE / "stl" / "L-Hand_Plate_5F.stl"
+MIRROR_X = -50.0  # L-Hand_Plate = R-Hand_Plate mirrored about the plane x = MIRROR_X
 
 # Seam between the middle and ring units (plate frame, mm): passes between the two servo pairs,
 # between the middle unit's right screw hole / pivot boss and the ring unit's, and between the
@@ -193,14 +199,27 @@ def preview(stock, plate, path):
     plt.savefig(path, dpi=60)
 
 
+def mirror(shape):
+    return shape.mirror("YZ", cq.Vector(MIRROR_X, 0, 0))
+
+
+def export(shape, step, stl):
+    step.parent.mkdir(parents=True, exist_ok=True)
+    stl.parent.mkdir(parents=True, exist_ok=True)
+    cq.exporters.export(cq.Workplane().add(shape), str(step))
+    cq.exporters.export(cq.Workplane().add(shape), str(stl), tolerance=0.02, angularTolerance=0.15)
+    print(f"wrote {step.relative_to(REPO)}, {stl.relative_to(REPO)}")
+
+
 def main():
     stock, plate = build()
-    OUT_STEP.parent.mkdir(parents=True, exist_ok=True)
-    OUT_STL.parent.mkdir(parents=True, exist_ok=True)
-    cq.exporters.export(cq.Workplane().add(plate), str(OUT_STEP))
-    cq.exporters.export(cq.Workplane().add(plate), str(OUT_STL), tolerance=0.02, angularTolerance=0.15)
+    export(plate, OUT_STEP, OUT_STL)
     preview(stock, plate, HERE / "R-Hand_Plate_5F_preview.png")
-    print(f"wrote {OUT_STEP.relative_to(REPO)}, {OUT_STL.relative_to(REPO)}")
+
+    stock_l = cq.importers.importStep(str(STOCK_STEP_L)).val()
+    diff = mirror(stock).cut(stock_l).Volume() + stock_l.cut(mirror(stock)).Volume()
+    assert diff < 1.0, f"L-Hand_Plate is not the mirrored R-Hand_Plate ({diff:.1f} mm3 differ)"
+    export(mirror(plate), OUT_STEP_L, OUT_STL_L)
 
 
 if __name__ == "__main__":

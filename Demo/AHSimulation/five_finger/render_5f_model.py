@@ -4,7 +4,7 @@
 Writes JPEG contact sheets to five_finger/renders/: one sheet per pose with six camera angles,
 plus a stock-vs-5-finger comparison.
 
-Usage: python render_5f_model.py [--out DIR] [--size 480]
+Usage: python render_5f_model.py [--model AH_Right_5F|AH_Left_5F] [--out DIR] [--size 480]
 """
 
 import argparse
@@ -51,8 +51,10 @@ def settle(h, pose):
 
 def shoot(h, renderer, view, size):
     az, el, dist = VIEWS[view]
+    if h.side == "left":  # mirror the camera too (the left hand is the right one mirrored in y)
+        az = -az % 360
     cam = mujoco.MjvCamera()
-    cam.lookat[:] = LOOKAT
+    cam.lookat[:] = LOOKAT * ([1, -1, 1] if h.side == "left" else 1)
     cam.azimuth, cam.elevation, cam.distance = az, el, dist
     opt = mujoco.MjvOption()
     opt.geomgroup[:] = [1, 1, 1, 0, 0, 0]  # hide group 3 (closing sites live there too)
@@ -83,19 +85,21 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--out", type=Path, default=HERE / "renders")
     ap.add_argument("--size", type=int, default=480, help="height of one view in pixels")
+    ap.add_argument("--model", default="AH_Right_5F", choices=["AH_Right_5F", "AH_Left_5F"])
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
+    prefix = "" if args.model == "AH_Right_5F" else "left_"
 
-    h, r = make_hand("AH_Right_5F", args.size)
+    h, r = make_hand(args.model, args.size)
     for i, (name, pose) in enumerate(POSES.items()):
         settle(h, pose)
         tiles = [label(shoot(h, r, v, args.size), f"{name} - {v}") for v in VIEWS]
         sheet = np.concatenate([np.concatenate(tiles[:3], 1), np.concatenate(tiles[3:], 1)], 0)
-        fname = args.out / f"5f_{i:02d}_{name.split(' (')[0].replace(' ', '_').replace('+', '_')}.jpg"
+        fname = args.out / f"{prefix}5f_{i:02d}_{name.split(' (')[0].replace(' ', '_').replace('+', '_')}.jpg"
         Image.fromarray(sheet).save(fname, quality=88)
         print("wrote", fname.relative_to(HERE))
 
-    stock, rs = make_hand("AH_Right", args.size)
+    stock, rs = make_hand(args.model.replace("_5F", ""), args.size)
     rows = []
     for pose_name in ("OpenHand", "CloseHand"):
         row = []
@@ -104,7 +108,7 @@ def main():
             for v in ("palm", "back"):
                 row.append(label(shoot(hand, rend, v, args.size), f"{tag} - {pose_name} - {v}"))
         rows.append(np.concatenate(row, 1))
-    fname = args.out / "compare_stock_vs_5f.jpg"
+    fname = args.out / f"{prefix}compare_stock_vs_5f.jpg"
     Image.fromarray(np.concatenate(rows, 0)).save(fname, quality=88)
     print("wrote", fname.relative_to(HERE))
 
