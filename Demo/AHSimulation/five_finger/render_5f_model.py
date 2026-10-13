@@ -4,7 +4,8 @@
 Writes JPEG contact sheets to five_finger/renders/: one sheet per pose with six camera angles,
 plus a stock-vs-5-finger comparison.
 
-Usage: python render_5f_model.py [--model AH_Right_5F|AH_Left_5F] [--out DIR] [--size 480]
+Usage: python render_5f_model.py [--model AH_Right_5F|AH_Left_5F] [--shells] [--out DIR] [--size 480]
+       --shells adds the 5-finger palm/back shells and grip pads (cad/five_finger/stl)
 """
 
 import argparse
@@ -17,6 +18,7 @@ from PIL import Image, ImageDraw
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+from check_shells import shells  # noqa: E402
 from verify_5f_model import DEMO_POSES_5F, SIM_DIR, Hand, pose_ctrl  # noqa: E402
 
 VIEWS = {  # name: (azimuth, elevation, distance)
@@ -68,8 +70,17 @@ def label(img, text):
     return np.asarray(im)
 
 
-def make_hand(model, size):
-    h = Hand(SIM_DIR / model / "mjcf")
+SHELL_RGBA = {"top_shell": [0.94, 0.94, 0.95, 1], "palm_shell": [0.86, 0.87, 0.89, 1]}
+PAD_RGBA = [0.33, 0.34, 0.36, 1]
+
+
+def make_hand(model, size, with_shells=False):
+    extra = shells("5f", "L" if "Left" in model else "R") if with_shells else None
+    h = Hand(SIM_DIR / model / "mjcf", extra)
+    for name in extra or ():
+        g = h.part_geom[name]
+        h.m.geom_matid[g] = -1
+        h.m.geom_rgba[g] = SHELL_RGBA.get(name, PAD_RGBA)
     h.m.vis.global_.offwidth = max(h.m.vis.global_.offwidth, size * 2)
     h.m.vis.global_.offheight = max(h.m.vis.global_.offheight, size * 2)
     floor = mujoco.mj_name2id(h.m, mujoco.mjtObj.mjOBJ_GEOM, "floor")
@@ -86,12 +97,14 @@ def main():
     ap.add_argument("--out", type=Path, default=HERE / "renders")
     ap.add_argument("--size", type=int, default=480, help="height of one view in pixels")
     ap.add_argument("--model", default="AH_Right_5F", choices=["AH_Right_5F", "AH_Left_5F"])
+    ap.add_argument("--shells", action="store_true")
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
-    prefix = "" if args.model == "AH_Right_5F" else "left_"
+    prefix = ("" if args.model == "AH_Right_5F" else "left_") + ("shells_" if args.shells else "")
 
-    h, r = make_hand(args.model, args.size)
-    for i, (name, pose) in enumerate(POSES.items()):
+    h, r = make_hand(args.model, args.size, args.shells)
+    poses = {k: v for k, v in POSES.items() if k in ("OpenHand", "CloseHand", "SpreadHand", "Perfect")} if args.shells else POSES
+    for i, (name, pose) in enumerate(poses.items()):
         settle(h, pose)
         tiles = [label(shoot(h, r, v, args.size), f"{name} - {v}") for v in VIEWS]
         sheet = np.concatenate([np.concatenate(tiles[:3], 1), np.concatenate(tiles[3:], 1)], 0)
@@ -99,6 +112,8 @@ def main():
         Image.fromarray(sheet).save(fname, quality=88)
         print("wrote", fname.relative_to(HERE))
 
+    if args.shells:
+        return
     stock, rs = make_hand(args.model.replace("_5F", ""), args.size)
     rows = []
     for pose_name in ("OpenHand", "CloseHand"):

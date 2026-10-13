@@ -321,6 +321,37 @@ def build_scene(side, T):
     (side["dst"] / "scene.xml").write_text(text)
 
 
+# 5-finger palm/back shells and grip pads from cad/five_finger/make_5f_shells.py: (part, rgba)
+SHELL_PARTS = [("Top_Shell", "0.94 0.94 0.95 1"), ("Palm_Shell", "0.86 0.87 0.89 1"),
+               ("Palm_Pad_Band", "0.33 0.34 0.36 1"), ("Palm_Pad_Palm", "0.33 0.34 0.36 1")]
+
+
+def build_shell_scene(side):
+    """scene_shells.xml: scene.xml plus the shells and pads as static visual meshes on the palm."""
+    letter = "R" if side["root"].startswith("r_") else "L"
+    srcs = [CAD_STL / f"{letter}-{part}_5F.stl" for part, _ in SHELL_PARTS]
+    if not all(p.exists() for p in srcs):
+        print("shells not found, skipping scene_shells.xml (run cad/five_finger/make_5f_shells.py)")
+        return
+    root = parse(side["dst"] / "robot.xml").getroot().find("worldbody/body")
+    pos, quat = get_pose(part_geoms(root)[side["plate"]][1])  # all CAD parts share the plate's frame
+    assets, geoms = [], []
+    for (part, rgba), src in zip(SHELL_PARTS, srcs):
+        name = f"{letter.lower()}_{part.lower()}_5f"
+        shutil.copy2(src, side["dst"] / "assets" / f"{name}.stl")
+        assets.append(f'        <mesh name="{name}" file="{name}.stl" scale="0.001 0.001 0.001"/>')
+        geoms.append(f'          <geom type="mesh" mesh="{name}" rgba="{rgba}" contype="0" conaffinity="0" group="2"/>')
+    text = (side["dst"] / "scene.xml").read_text()
+    shells = ("    <asset>\n" + "\n".join(assets) + "\n    </asset>\n\n"
+              "    <worldbody>\n"
+              f'        <!-- palm/back shells and grip pads (static: the palm is fixed to the world) -->\n'
+              f'        <body name="shells" pos="{fmt(pos)}" quat="{fmt(quat)}">\n' + "\n".join(geoms) + "\n        </body>\n"
+              "    </worldbody>\n")
+    anchor = '    <include file="keyframes.xml"/>'
+    assert anchor in text
+    (side["dst"] / "scene_shells.xml").write_text(text.replace(anchor, shells + anchor))
+
+
 def write_keyframe(dst, qpos):
     (dst / "keyframes.xml").write_text(
         "<mujoco>\n  <keyframe>\n    <key name=\"zero\"\n         qpos=\""
@@ -378,6 +409,7 @@ def main():
 
     T = build_robot(side, plate)
     build_scene(side, T)
+    build_shell_scene(side)
     if args.keyframe or not (dst / "keyframes.xml").exists():
         settle_keyframe(side)
 

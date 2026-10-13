@@ -172,6 +172,37 @@ def build():
     return stock, plate
 
 
+def check_features(stock, plate):
+    """Every small hole/pin of the stock plate must be unchanged, and every ring-side one must have
+    an exact copy on the pinky unit (probed at 8 x 3 points inside each feature)."""
+    from OCP.BRepAdaptor import BRepAdaptor_Surface
+    from OCP.GeomAbs import GeomAbs_Cylinder
+
+    a = np.radians(ANGLE)
+    R = np.array([[np.cos(a), -np.sin(a)], [np.sin(a), np.cos(a)]])
+    lu = (L_TOP - L_BOT) / np.linalg.norm(L_TOP - L_BOT)
+    n_ring = np.array([lu[1], -lu[0]])
+    lo_B = np.array([np.cos(np.radians(B_ANGLE)), np.sin(np.radians(B_ANGLE))])
+    n_up = np.array([-lo_B[1], lo_B[0]])
+    n_feat, n_copied = 0, 0
+    for f in stock.Faces():
+        s = BRepAdaptor_Surface(f.wrapped)
+        if s.GetType() != GeomAbs_Cylinder or s.Cylinder().Radius() > 1.6 or abs(s.Cylinder().Axis().Direction().Z()) < 0.99:
+            continue
+        c = s.Cylinder()
+        xy = np.array([c.Axis().Location().X(), c.Axis().Location().Y()])
+        r, bb = c.Radius(), f.BoundingBox()
+        probes = [(xy + 0.8 * r * np.array([np.cos(t), np.sin(t)]), z)
+                  for t in np.linspace(0, 2 * np.pi, 8, endpoint=False) for z in np.linspace(bb.zmin + 0.1, bb.zmax - 0.1, 3)]
+        ref = [stock.isInside(cq.Vector(p[0], p[1], z)) for p, z in probes]
+        assert ref == [plate.isInside(cq.Vector(p[0], p[1], z)) for p, z in probes], f"feature at {xy} changed"
+        n_feat += 1
+        if np.dot(xy - L_BOT, n_ring) > r and np.dot(xy - B_POINT, n_up) > r:  # inside the copied unit C
+            assert ref == [plate.isInside(cq.Vector(*(R @ p + T), z)) for p, z in probes], f"copy of {xy} differs"
+            n_copied += 1
+    print(f"feature check: {n_feat} stock holes/pins unchanged, {n_copied} copied exactly onto the pinky unit")
+
+
 def preview(stock, plate, path):
     import matplotlib
     matplotlib.use("Agg")
@@ -213,6 +244,7 @@ def export(shape, step, stl):
 
 def main():
     stock, plate = build()
+    check_features(stock, plate)
     export(plate, OUT_STEP, OUT_STL)
     preview(stock, plate, HERE / "R-Hand_Plate_5F_preview.png")
 

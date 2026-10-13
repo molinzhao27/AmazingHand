@@ -75,8 +75,9 @@ class Hand:
         self.dir = mjcf_dir
         if extra_parts:
             spec = mujoco.MjSpec.from_file(str(mjcf_dir / "scene.xml"))
-            palm = spec.body("r_wrist_interface")
-            plate = [g for g in palm.geoms if g.meshname == "r_hand_plate"][0]
+            root_name = parse(mjcf_dir / "robot.xml").getroot().find("worldbody/body").get("name")
+            palm = spec.body(root_name)
+            plate = [g for g in palm.geoms if g.meshname == root_name[0] + "_hand_plate"][0]
             for name, path in extra_parts.items():
                 spec.add_mesh(name=name, file=str(Path(path).resolve()), scale=[1e-3] * 3)
                 palm.add_geom(name=name, type=mujoco.mjtGeom.mjGEOM_MESH, meshname=name, pos=plate.pos,
@@ -102,13 +103,15 @@ class Hand:
             five = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_ACTUATOR, "finger5_motor1") >= 0
             ref = Hand(SIM_DIR / ("AH_Right_5F" if five else "AH_Right") / "mjcf")
             mine, theirs = self._centroids(), ref._centroids()
-            mapped = {}
+            mapped = {name: self.part_geom[name] for name in extra_parts or ()}  # keep their own names
             for name, (mesh, c) in mine.items():
+                if name in (extra_parts or ()):
+                    continue
                 dist, rname = min((np.linalg.norm(c * [1, -1, 1] - rc), rn) for rn, (rmesh, rc) in theirs.items()
                                   if rmesh.removeprefix("r_") == mesh.removeprefix("l_"))
                 assert dist < 1e-3, f"no mirrored right part for {name} ({dist * 1e3:.2f} mm)"
                 mapped[rname] = self.part_geom[name]
-            assert len(mapped) == len(mine)
+            assert len(mapped) == len(mine), (len(mapped), len(mine))
             self.part_geom = mapped
 
         self.geoms, self.qidx, self.ctrl, self.eqs = {}, {}, {}, {}
