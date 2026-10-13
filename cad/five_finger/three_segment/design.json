@@ -1,0 +1,152 @@
+{
+  "units": "mm, deg",
+  "frame": "finger design frame of the stock CAD: origin MCP/abduction-axis intersection, x lateral (pin axes), y distal along the straight finger, z dorsal; points are (y, z) in the straight pose",
+  "geometry": {
+    "L1": 47.0,
+    "L2": 26.0,
+    "L3_tip": 13.847,
+    "L3_end": 18.497,
+    "O_M": [
+      0.0,
+      0.0
+    ],
+    "O_L": [
+      0.0,
+      -6.0
+    ],
+    "PIP": [
+      47.0,
+      0.0
+    ],
+    "DIP": [
+      73.0,
+      0.0
+    ],
+    "P4": [
+      43.2,
+      3.95
+    ],
+    "A": [
+      45.65,
+      -5.85
+    ],
+    "B": [
+      65.45,
+      3.65
+    ],
+    "tip": [
+      86.847,
+      -4.436
+    ],
+    "P4_in_link_frame": [
+      44.32,
+      -6.99
+    ],
+    "link_length": 44.331,
+    "crank_P2": 5.481,
+    "crank_A": 6.004,
+    "crank_B": 8.386,
+    "coupler_L2": 21.961
+  },
+  "drive": {
+    "psi_straight_deg": -14.25,
+    "f_straight_deg": -55.98,
+    "f_full_deg": 90.0,
+    "stock_f_straight_deg": -37.5
+  },
+  "predicted": {
+    "mcp_at_f90": 88.83,
+    "pip_at_f90": 78.14,
+    "dip_at_f90": 54.43,
+    "mcp_at_fm90": -14.85,
+    "pip_at_fm90": -20.9,
+    "dip_at_fm90": -17.19
+  },
+  "minimal_variant": {
+    "L1": 52.0,
+    "L2": 21.0,
+    "A": [
+      52.45,
+      -5.6
+    ],
+    "B": [
+      66.25,
+      4.0
+    ],
+    "mcp_at_f90": 75.43,
+    "pip_at_f90": 68.76,
+    "dip_at_f90": 47.54
+  },
+  "pins": {
+    "diameter": 2.0,
+    "note": "stock parallel pins: 2x16 (MCP, PIP, A: through the 16 mm P1 fork), 2x10 (Link pivot, P4), 2x14 (DIP, B: through the 14 mm P3 fork)"
+  },
+  "cad": {
+    "stl": {
+      "link3s": "Link_3S.stl",
+      "p1": "P1_Proximal_3S.stl",
+      "p2": "P2_Middle_3S.stl",
+      "p3": "P3_Distal_3S.stl",
+      "l2": "L2_Coupler_3S.stl",
+      "p1_shell": "P1_Shell_3S.stl",
+      "p2_pad": "P2_Pad_3S.stl",
+      "p3_shell": "P3_Shell_3S.stl"
+    },
+    "step": {
+      "link3s": "Link_3S.step",
+      "p1": "P1_Proximal_3S.step",
+      "p2": "P2_Middle_3S.step",
+      "p3": "P3_Distal_3S.step",
+      "l2": "L2_Coupler_3S.step",
+      "p1_shell": "P1_Shell_3S.step",
+      "p2_pad": "P2_Pad_3S.step",
+      "p3_shell": "P3_Shell_3S.step"
+    },
+    "bodies": {
+      "p1": [
+        "p1",
+        "p1_shell"
+      ],
+      "p2": [
+        "p2",
+        "p2_pad"
+      ],
+      "p3": [
+        "p3",
+        "p3_shell"
+      ],
+      "l2": [
+        "l2"
+      ]
+    },
+    "layers_mm": {
+      "centre": [
+        -1.9,
+        1.9
+      ],
+      "p2_walls": [
+        2.15,
+        5.0
+      ],
+      "outer_forks": [
+        5.25,
+        8.1
+      ]
+    },
+    "holes_mm": {
+      "press": 1.95,
+      "running": 2.15,
+      "screw_pilot": 2.0,
+      "screw_clear": 2.8
+    },
+    "clearance_mm": 0.6,
+    "link_cut_y": 7.5,
+    "lateral_offset_mm": {
+      "link_and_new_parts": 0.35,
+      "stock_proximal": -0.25,
+      "p1_mcp_end_shift": -0.6
+    },
+    "p1_join_y": 7.0,
+    "tip_end_y": 91.497
+  }
+}

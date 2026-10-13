@@ -1,0 +1,128 @@
+== 3-phalanx finger prototype: verification (model/finger_3seg.xml)
+
+-- 1. structure
+  nbody 12, njnt 10, nq 19, nv 16, nu 2, neq 6 (stock finger: nbody 10, nq 17, neq 5)
+  names unique; actuators: finger1_motor1 ctrlrange [-90.  90.], finger1_motor2 ctrlrange [-90.  90.]
+  loop closures: closing_1 (1)_1 <-> closing_1 (1)_2; closing_1 (1)_1_z <-> closing_1 (1)_2_z; closing_3 (1)_1 <-> closing_3 (1)_2; closing_3 (1)_1_z <-> closing_3 (1)_2_z; closing_ball1_1 <-> closing_ball1_2; closing_dip (1)_1 <-> closing_dip (1)_2
+  moving finger mass beyond the gimbal (Link + phalanges + coupler + shells): 23.5 g (stock 18.4 g)
+  keyframe (settled at ctrl = 0): max loop error 0.0001 mm
+
+-- 2. kinematics along the flexion line (m1 = f, m2 = -f), settled, up and down
+  sim vs planar design (given the sim's own Link angle): max |dMCP| 0.023, |dPIP| 0.201, |dDIP| 0.375 deg; up/down hysteresis 1.886 deg; loop error max 0.0126 mm
+  drive unchanged: Link angle psi(f) differs from the stock finger by max 0.223 deg; abduction by max 0.016 deg
+  straight finger (MCP = 0) at f = -55.9 deg (design -55.98); there PIP -0.02, DIP -0.03 deg
+      f     psi     MCP     PIP     DIP  MCP+PIP+DIP | stock MCP  PIP  MCP+PIP
+   -90.0  -26.87  -15.08  -21.39  -17.87    -54.34   |   -30.33 -32.37  -62.70
+   -75.0  -24.89  -12.55  -17.26  -13.63    -43.44   |   -27.94 -29.53  -57.47
+   -55.0  -13.61    0.71    0.86    0.61      2.18   |   -14.87 -15.21  -30.08
+   -45.0   -6.06    8.94   10.67    7.48     27.09   |    -6.48  -6.57  -13.05
+   -30.0    6.26   21.58   24.84   17.29     63.71   |     6.57   6.59   13.16
+   -15.0   18.90   33.80   37.83   26.42     98.04   |    19.26  19.28   38.54
+     0.0   31.31   45.21   49.30   34.62    129.13   |    31.11  31.07   62.18
+    15.0   43.15   55.71   59.02   41.56    156.29   |    41.97  41.67   83.64
+    30.0   54.17   65.27   66.76   46.96    178.99   |    51.77  50.83  102.59
+    45.0   64.08   73.78   72.36   50.73    196.87   |    60.40  58.29  118.69
+    60.0   72.44   80.97   75.85   52.99    209.81   |    67.61  63.82  131.43
+    75.0   78.56   86.25   77.57   54.07    217.90   |    72.88  67.29  140.17
+    90.0   81.52   88.83   78.14   54.42    221.39   |    75.43  68.76  144.19
+  ranges straight -> full flexion: MCP 0 -> 88.8 (target 90), PIP 0 -> 78.1 (target 100), DIP 0 -> 54.4 (target 70) deg; total curl 221 deg (stock 144, human fist ~260)
+  coupling: PIP/MCP slope 0.871, DIP/PIP slope 0.699; DIP/PIP at full flexion 0.696
+  hyperextension end (f = -90): MCP -15.1, PIP -21.4, DIP -17.9 deg (stock MCP -30.3, PIP -32.4)
+
+-- 3. stability (3-phalanx)
+  each actuator alone 0 -> max -> min -> 0    9.0 s  max|qvel|    3.3 rad/s  loop err max  0.011 mm (settled 0.0009)  |q_motor - ctrl| settled  0.10 deg  warnings none
+  range corners                              12.0 s  max|qvel|    2.2 rad/s  loop err max  0.031 mm (settled 0.0038)  |q_motor - ctrl| settled  0.09 deg  warnings none
+  60 abrupt random full-range steps          36.0 s  max|qvel|   87.0 rad/s  loop err max  0.760 mm (settled 0.0032)  |q_motor - ctrl| settled  0.20 deg  warnings none
+   baseline, stock finger:
+  each actuator alone 0 -> max -> min -> 0    9.0 s  max|qvel|    3.3 rad/s  loop err max  0.007 mm (settled 0.0004)  |q_motor - ctrl| settled  0.06 deg  warnings none
+  range corners                              12.0 s  max|qvel|    2.2 rad/s  loop err max  0.014 mm (settled 0.0006)  |q_motor - ctrl| settled  0.06 deg  warnings none
+  60 abrupt random full-range steps          36.0 s  max|qvel|   86.6 rad/s  loop err max  0.561 mm (settled 0.0015)  |q_motor - ctrl| settled  0.14 deg  warnings none
+
+-- 4. grid over (m1, m2) and fingertip workspace
+  3-phalanx  25x25: abduction -38.5..38.4, MCP -14.6..88.8, PIP -20.5..78.1, DIP -16.8..54.4 deg; loop err settled max 0.0107 mm; motor tracking max 0.241 deg
+             tip workspace: x -20.8..23.8, y -31.8..87.2, z -67.2..35.0 mm; convex hull 119.0 cm^3; max reach from MCP 87.3 mm; closest approach to the MCP 51.4 mm
+  stock      25x25: abduction -38.5..38.4, MCP -30.3..75.4, PIP -32.3..68.8 deg; loop err settled max 0.0039 mm; motor tracking max 0.188 deg
+             tip workspace: x -35.8..40.6, y -17.8..87.0, z -74.2..55.1 mm; convex hull 222.1 cm^3; max reach from MCP 87.1 mm; closest approach to the MCP 69.4 mm
+  3-phalanx  working range only (MCP >= -3 deg, i.e. not hyperextended): 595 grid poses, tip convex hull 94.7 cm^3, lateral x -20.8..23.8 mm
+  stock      working range only (MCP >= -3 deg, i.e. not hyperextended): 542 grid poses, tip convex hull 125.4 cm^3, lateral x -35.8..40.6 mm
+  flexion line, fully flexed tip (y, z): 3-phalanx (-31.8, -40.4), stock (-17.8, -67.1) mm; enclosed area of the tip path + palm line: 3-phalanx 6562, stock 6877 mm^2
+
+-- 5. self-collision (exact mesh booleans, manifold3d), 13x13 grid + flexion line
+  stock baseline: Link/Proximal/Distal (+shells) vs every other part: 242 poses, 165 part pairs checked [69 s]
+    pairs with overlap > 0.05 mm^3 in some pose: 18
+      finger_frame_1@r_wrist_interface       x proximal@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b max  185.37 mm^3 in  43/242 poses
+      distal@parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999 x proximal@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b max   71.90 mm^3 in 242/242 poses
+      bushing_0608_04@r_wrist_interface      x proximal@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b max   49.22 mm^3 in  27/242 poses
+      link@rotule_ball                       x gimbal@std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default max   48.33 mm^3 in  37/242 poses
+      distal_shell@parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999 x proximal_shell@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b max   39.59 mm^3 in  37/242 poses
+      r_hand_plate@r_wrist_interface         x proximal_shell@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b max   24.10 mm^3 in  26/242 poses
+      gimbal@std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default x proximal@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b max   21.43 mm^3 in  19/242 poses
+      link@rotule_ball                       x rotule_lever@m2_rod_l18                max    9.25 mm^3 in 242/242 poses
+      rotule_lever@ball_link                 x link@rotule_ball                       max    8.92 mm^3 in 242/242 poses
+      distal_shell@parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999 x proximal@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b max    7.04 mm^3 in  20/242 poses
+      bushing_0608_04@r_wrist_interface      x proximal@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b max    4.70 mm^3 in  39/242 poses
+      std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default@std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default x proximal_shell@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b max    3.75 mm^3 in  13/242 poses
+      bushing_0608_04@r_wrist_interface      x link@rotule_ball                       max    1.69 mm^3 in  12/242 poses
+      bushing_0608_04@r_wrist_interface      x proximal_shell@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b max    1.48 mm^3 in  28/242 poses
+    closest non-overlapping pairs (min gap over all poses; 0.25 mm = the lateral running gap between layers):
+      link@rotule_ball                       x distal@parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999 min gap  0.000 mm (at (m1 -90, m2 -90))
+      rotule_lever@ball_link                 x proximal@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b min gap  0.000 mm (at (m1 +90, m2 -90))
+      finger_frame_1@r_wrist_interface       x link@rotule_ball                       min gap  0.000 mm (at f -87.5)
+      link@rotule_ball                       x parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b min gap  0.141 mm (at f -87.5)
+      finger_frame_1@r_wrist_interface       x proximal_shell@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b min gap  0.157 mm (at (m1 -30, m2 +90))
+      gimbal@std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default x proximal_shell@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b min gap  0.177 mm (at (m1 -60, m2 +75))
+      link@rotule_ball                       x proximal@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b min gap  0.373 mm (at (m1 +15, m2 +45))
+      proximal@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b x rotule_lever@m2_rod_l18                min gap  0.470 mm (at (m1 +90, m2 -90))
+      proximal_shell@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b x rotule_lever@m2_rod_l18                min gap  0.480 mm (at f +90.0)
+      link@rotule_ball                       x parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b min gap  0.520 mm (at (m1 +90, m2 -90))
+      rotule_lever@ball_link                 x proximal_shell@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b min gap  0.576 mm (at f +90.0)
+      rotule_ball@rotule_ball                x proximal@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b min gap  1.213 mm (at (m1 +90, m2 -90))
+      rotule_ball@rotule_ball                x proximal_shell@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b min gap  1.629 mm (at (m1 +90, m2 -90))
+      rotule_ball@rotule_ball                x proximal_shell@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b min gap  1.629 mm (at (m1 +90, m2 -90))
+  3-phalanx: new parts vs every other part: 242 poses, 444 part pairs checked [62 s]
+    pairs with overlap > 0.05 mm^3 in some pose: 4
+      finger_frame_1@r_wrist_interface       x p1@p1                                  max   70.28 mm^3 in  20/242 poses  -> only in hyperextension (MCP < -3 deg): the stop against the palm-fixed parts, as stock
+      link3s@rotule_ball                     x rotule_lever@m2_rod_l18                max    9.23 mm^3 in 242/242 poses  -> same as stock (overlaps in every pose: mesh artefact of the stock ball joints)
+      rotule_lever@ball_link                 x link3s@rotule_ball                     max    8.91 mm^3 in 242/242 poses  -> same as stock (overlaps in every pose: mesh artefact of the stock ball joints)
+      bushing_0608_04@r_wrist_interface      x p1@p1                                  max    0.79 mm^3 in  19/242 poses  -> only in hyperextension (MCP < -3 deg): the stop against the palm-fixed parts, as stock
+    closest non-overlapping pairs (min gap over all poses; 0.25 mm = the lateral running gap between layers):
+      rotule_lever@ball_link                 x p1@p1                                  min gap  0.000 mm (at (m1 +75, m2 -90))
+      bushing_0608_04@r_wrist_interface      x p1@p1                                  min gap  0.000 mm (at f -90.0)
+      link3s@rotule_ball                     x gimbal@std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default min gap  0.000 mm (at (m1 +90, m2 -90))
+      gimbal@std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default x p1@p1                                  min gap  0.001 mm (at (m1 +90, m2 -90))
+      link3s@rotule_ball                     x p2@p2                                  min gap  0.250 mm (at (m1 +75, m2 +90))
+      link3s@rotule_ball                     x p1@p1                                  min gap  0.250 mm (at f -90.0)
+      p2@p2                                  x p1@p1                                  min gap  0.250 mm (at (m1 +30, m2 +45))
+      p2@p2                                  x p3@p3                                  min gap  0.250 mm (at (m1 +45, m2 +90))
+      p2@p2                                  x l2@l2                                  min gap  0.250 mm (at (m1 -90, m2 -60))
+      p2_pad@p2                              x p1@p1                                  min gap  0.416 mm (at (m1 -15, m2 -60))
+      p2_pad@p2                              x l2@l2                                  min gap  0.582 mm (at f +17.5)
+      rotule_ball@rotule_ball                x p1@p1                                  min gap  0.656 mm (at (m1 +90, m2 -90))
+      finger_frame_1@r_wrist_interface       x p1_shell@p1                            min gap  0.772 mm (at f -90.0)
+      p1@p1                                  x l2@l2                                  min gap  0.814 mm (at (m1 +90, m2 +15))
+    stock baseline for comparison: 3 stock pairs overlap in the stock working range (MCP >= -3 deg), e.g. distal x proximal (199 poses); link x rotule_lever (199 poses); rotule_lever x link (199 poses)
+
+-- 6. statics
+  holdable fingertip force at SCS0009 stall (0.226 N m), along the fingertip motion / normal to the pad:
+    3-phalanx f  -55.0:   3.63 /   3.65 N (2.06 mm/deg)   |   stock f  -37.5:   4.04 /   4.06 N (1.86 mm/deg)
+    3-phalanx f   +0.0:   5.62 /   7.06 N (1.35 mm/deg)   |   stock f   +0.0:   4.97 /   5.04 N (1.52 mm/deg)
+    3-phalanx f  +30.0:   9.13 /  16.69 N (0.83 mm/deg)   |   stock f  +30.0:   6.79 /   7.13 N (1.12 mm/deg)
+    3-phalanx f  +60.0:  17.25 /  67.57 N (0.45 mm/deg)   |   stock f  +60.0:  11.39 /  12.60 N (0.67 mm/deg)
+    3-phalanx f  +75.0:  29.72 / 218.73 N (0.26 mm/deg)   |   stock f  +75.0:  19.29 /  21.87 N (0.41 mm/deg)
+    3-phalanx f  +90.0: 115.51 / 1683.76 N (0.06 mm/deg)   |   stock f  +90.0:  76.17 /  88.09 N (0.09 mm/deg)
+  loads for a 5 N push on the fingertip pad (sim constraint forces; motor torque vs 0.226 N m stall):
+    f  -56: 3-phalanx motor torques [ 0.309 -0.279] N m; pin forces: P4 (Link/P2) 67.7, PIP 77.4, DIP 13.6, A/B (coupler L2) 10.7 | B closure 10.7, MCP closure 33.7, rod-2 ball 98.7 N
+            stock    motor torques [ 0.256 -0.231] N m; pin forces: P4 45.5, PIP 43.8 | MCP closure 21.9, rod-2 ball 81.6 N
+    f   +0: 3-phalanx motor torques [ 0.155 -0.143] N m; pin forces: P4 (Link/P2) 40.9, PIP 53.8, DIP 13.0, A/B (coupler L2) 8.2 | B closure 8.2, MCP closure 22.9, rod-2 ball 28.7 N
+            stock    motor torques [ 0.222 -0.206] N m; pin forces: P4 29.0, PIP 31.3 | MCP closure 15.6, rod-2 ball 41.3 N
+    f  +30: 3-phalanx motor torques [ 0.064 -0.059] N m; pin forces: P4 (Link/P2) 41.8, PIP 53.4, DIP 13.5, A/B (coupler L2) 8.5 | B closure 8.5, MCP closure 23.1, rod-2 ball 14.2 N
+            stock    motor torques [ 0.156 -0.145] N m; pin forces: P4 30.3, PIP 34.0 | MCP closure 16.9, rod-2 ball 34.8 N
+    f  +60: 3-phalanx motor torques [ 0.015 -0.014] N m; pin forces: P4 (Link/P2) 43.9, PIP 53.9, DIP 13.8, A/B (coupler L2) 8.8 | B closure 8.8, MCP closure 23.8, rod-2 ball 5.5 N
+            stock    motor torques [ 0.088 -0.083] N m; pin forces: P4 34.3, PIP 38.7 | MCP closure 19.3, rod-2 ball 33.6 N
+  strength check (PLA, 2 mm steel pins), loads scaled from 5 N to the pad force the servos can hold there:
+    f  -56: pad force at stall   3.7 N -> largest pin force  56.5 N; bearing stress on a 2 mm pin in a 2.85 mm PLA wall   5.0 MPa (two walls), in the 3.8 mm Link/L2 eye   7.4 MPa; L2 axial stress  0.5 MPa (PLA ~40-50 MPa, ~15-25 across layers)
+    f   +0: pad force at stall   7.3 N -> largest pin force  78.2 N; bearing stress on a 2 mm pin in a 2.85 mm PLA wall   6.9 MPa (two walls), in the 3.8 mm Link/L2 eye  10.3 MPa; L2 axial stress  0.8 MPa (PLA ~40-50 MPa, ~15-25 across layers)
+    f  +30: pad force at stall  17.5 N -> largest pin force 187.3 N; bearing stress on a 2 mm pin in a 2.85 mm PLA wall  16.4 MPa (two walls), in the 3.8 mm Link/L2 eye  24.6 MPa; L2 axial stress  2.0 MPa (PLA ~40-50 MPa, ~15-25 across layers)
+    f  +60: pad force at stall  76.2 N -> largest pin force 822.4 N; bearing stress on a 2 mm pin in a 2.85 mm PLA wall  72.1 MPa (two walls), in the 3.8 mm Link/L2 eye 108.2 MPa; L2 axial stress  8.8 MPa (PLA ~40-50 MPa, ~15-25 across layers)
+
+VERDICT: PASS - sim matches the design (<0.5 deg), stable without warnings, no new-part interference(s) in the working range (MCP >= -3 deg)  [140 s]

@@ -1,0 +1,13 @@
+<mujoco model="scene_3seg">
+  <include file="finger_3seg.xml" />
+  <visual>
+    <headlight diffuse="0.6 0.6 0.6" ambient="0.3 0.3 0.3" specular="0 0 0" />
+    <global azimuth="200" elevation="-15" offwidth="1920" offheight="1440" />
+  </visual>
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072" />
+  </asset>
+  <keyframe>
+    <key name="zero" qpos="7.22646174e-05 0.999999999 2.85933945e-05 1.2807391e-06 2.17277209e-05 0.999999999 2.85338408e-05 1.29127064e-06 1.92074826e-05 -7.07945819e-05 -6.30589042e-05 7.02834169e-05 -7.27327735e-05 -5.28057391e-05 -6.70931585e-05 0.999999999 -2.61429981e-05 -1.31152347e-11 -2.16121292e-05" />
+  </keyframe>
+</mujoco>

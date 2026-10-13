@@ -1,0 +1,13 @@
+<mujoco model="scene_stock">
+  <include file="finger_stock.xml" />
+  <visual>
+    <headlight diffuse="0.6 0.6 0.6" ambient="0.3 0.3 0.3" specular="0 0 0" />
+    <global azimuth="200" elevation="-15" offwidth="1920" offheight="1440" />
+  </visual>
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072" />
+  </asset>
+  <keyframe>
+    <key name="zero" qpos="3.37982445e-05 1 1.31679616e-05 6.54708536e-07 1.0214074e-05 1 1.29643295e-05 6.59969855e-07 8.31306951e-06 -3.1622585e-05 -3.6298444e-05 -3.84886632e-05 -3.10979894e-05 1 -1.23910502e-05 -5.53567576e-12 -1.00248728e-05" />
+  </keyframe>
+</mujoco>

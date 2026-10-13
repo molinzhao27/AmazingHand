@@ -1,0 +1,47 @@
+== 3-phalanx coupling synthesis (planar, mm, finger design frame: y distal, z dorsal)
+drive map: stock Link angle psi(f) at a = 0 from analyze_stock_finger.py, f = -90..+90 deg -> psi -26.7..81.5 deg
+fixed: P1 47.0, P2 26.0, P3 (to tip site) 13.847 mm; targets at f = +90: {'mcp': 90.0, 'pip': 100.0, 'dip': 70.0}; coupling targets PIP = 1.111 MCP, DIP = 0.70 PIP
+
+loop 1 optimum x = psi_s -14.267 deg, P4 - PIP = (-3.787, 3.935) mm; cost 597.113; f_straight -56.0, MCP90 88.8, PIP90 78.5, margins 46.1 / 25.0 deg  [4 s]
+loop 2 optimum x = A - PIP (-1.372, -5.846), B - DIP (-7.534, 3.664) mm; cost 0.744  [15 s]
+
+-- trade-off: straight pose later in the servo travel = more abduction room but less flexion
+   f_straight  psi_s   MCP90  PIP90  MCP+PIP  min transmission  abduction cmd room  ~abduction at straight
+       -68.7   -22.0    95.2   78.5    173.6              43.4          21.3 deg           9.9 deg
+       -61.6   -18.0    91.9   78.5    170.4              34.2          28.4 deg          13.2 deg
+       -55.6   -14.0    88.6   78.5    167.1              24.3          34.4 deg          16.0 deg
+       -50.1   -10.0    84.4   78.5    162.9              24.5          39.9 deg          18.5 deg
+       -45.0    -6.0    80.3   78.5    158.8              23.9          45.0 deg          20.9 deg
+       -40.0    -2.0    76.6   75.7    152.3              23.4          50.0 deg          23.3 deg
+       -37.5     0.0    74.7   74.1    148.9              23.3          52.5 deg          24.4 deg
+
+== RECOMMENDED: 3 phalanges, 2 servos, new Link arm + DIP coupler (dimensions rounded to 0.05)
+  segments: P1 MCP-PIP 47.00, P2 PIP-DIP 26.00, P3 DIP-tip site 13.85 mm (MCP->tip 86.85; ratios 1 : 0.55 : 0.43 to the fingertip end incl. the TPU cap)
+  loop 1: Link pivot O_L [ 0. -6.], MCP O_M [0. 0.]; P4 [43.2   3.95] (PIP->P4 5.48 mm); Link pivot->P4 44.33 mm
+          straight pose at Link angle psi_s = -14.25 deg (stock: 0) -> f_straight = -56.0 deg (stock -37.5); new Link arm rotated 14.25 deg vs the stock arm about the Link pivot; P4 in the Link frame [44.32 -6.99]
+  loop 2: A [45.65 -5.85] (PIP->A 6.00), B [65.45  3.65] (DIP->B 8.39), coupler L2 = |AB| 21.96 mm
+  at f = +90 (full servo travel): MCP 88.8, PIP 78.1, DIP 54.4 deg (targets 90 / 100 / 70)
+  at f = -90: MCP -14.8, PIP -20.9, DIP -17.2 deg (hyperextension end of the servo travel)
+  coupling slopes over straight..full: PIP/MCP 0.870, DIP/PIP 0.699; rms dev. from PIP=1.11MCP 9.56 deg, from DIP=0.7PIP 0.16 deg
+  transmission mu_in1   flexion range   60.1.. 130.3 deg, whole servo range   35.6.. 130.3 (dead point = 0/180)
+  transmission mu_out1  flexion range   55.7.. 132.9 deg, whole servo range   55.7.. 154.9 (dead point = 0/180)
+  transmission mu_in2   flexion range   54.3.. 128.0 deg, whole servo range   54.3.. 140.5 (dead point = 0/180)
+  transmission mu_out2  flexion range   70.4.. 127.6 deg, whole servo range   70.4.. 155.1 (dead point = 0/180)
+  centre-layer clearances over the whole servo range (mm, > 0 = clear): A_vs_P4boss 4.94, L2_vs_PIPpin 0.82, L2_vs_DIPpin 4.90, L2_vs_P4boss 3.68, A_vs_link 5.69, PIP_vs_link 0.93, L2_vs_link 4.45
+
+== ALTERNATIVE (minimal change): stock Link + stock 52 mm proximal geometry, DIP coupler added
+  segments: P1 MCP-PIP 52.00, P2 PIP-DIP 21.00, P3 DIP-tip site 13.85 mm (MCP->tip 86.85; ratios 1 : 0.40 : 0.39 to the fingertip end incl. the TPU cap)
+  loop 1: Link pivot O_L [ 0. -6.], MCP O_M [0. 0.]; P4 [49.216  5.315] (PIP->P4 6.00 mm); Link pivot->P4 50.50 mm
+          straight pose at Link angle psi_s = 0.00 deg (stock: 0) -> f_straight = -37.5 deg (stock -37.5); new Link arm rotated -0.00 deg vs the stock arm about the Link pivot; P4 in the Link frame [49.216  5.315]
+  loop 2: A [52.45 -5.6 ] (PIP->A 5.62), B [66.25  4.  ] (DIP->B 7.85), coupler L2 = |AB| 16.81 mm
+  at f = +90 (full servo travel): MCP 75.4, PIP 68.8, DIP 47.5 deg (targets 90 / 100 / 70)
+  at f = -90: MCP -30.3, PIP -32.4, DIP -25.2 deg (hyperextension end of the servo travel)
+  coupling slopes over straight..full: PIP/MCP 0.916, DIP/PIP 0.698; rms dev. from PIP=1.11MCP 8.37 deg, from DIP=0.7PIP 0.26 deg
+  transmission mu_in1   flexion range   75.8.. 138.0 deg, whole servo range   39.2.. 138.0 (dead point = 0/180)
+  transmission mu_out1  flexion range   48.9.. 117.2 deg, whole servo range   48.9.. 150.1 (dead point = 0/180)
+  transmission mu_in2   flexion range   50.2.. 119.9 deg, whole servo range   50.2.. 137.7 (dead point = 0/180)
+  transmission mu_out2  flexion range   68.3.. 114.1 deg, whole servo range   68.3.. 154.8 (dead point = 0/180)
+  centre-layer clearances over the whole servo range (mm, > 0 = clear): A_vs_P4boss 6.28, L2_vs_PIPpin 0.78, L2_vs_DIPpin 4.29, L2_vs_P4boss 4.73, A_vs_link 6.38, PIP_vs_link 0.77, L2_vs_link 5.38
+
+wrote /Users/molin/Documents/AmazingHand/.claude/worktrees/priceless-hypatia-125ced/cad/five_finger/three_segment/design.json
+figures: synthesis_coupling.png, synthesis_kinematic_diagram.png  [23 s]

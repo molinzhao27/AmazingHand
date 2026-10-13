@@ -1,0 +1,58 @@
+== Stock AmazingHand finger (index, from AH_Right_5F) - kinematics, workspace, force
+model: nq=17 nv=14 neq=5 (connect constraints) nu=2, timestep 0.002 s
+cross-check vs finger1 of AH_Right_5F at 6 poses: max tip difference 0.0000 mm
+
+-- pivots in the finger design frame (mm; x lateral, y distal, z dorsal), straight pose
+  O_M_g    [5. 0. 0.]
+  O_L_g    [ 2.25 -0.   -6.  ]
+  O_L_l    [ 1.9 -0.  -6. ]
+  P4_l     [-1.9   49.216  5.315]
+  P4_d     [-2.25  49.216  5.315]
+  PIP_d    [ 4.3 52.   0. ]
+  PIP_p    [ 5.25 52.    0.  ]
+  O_M_p    [5.25 0.   0.  ]
+  ball1_l  [ -8.05    3.596 -11.051]
+  ball2_l  [  8.05    3.596 -11.051]
+  tip_d    [ 0.    86.847 -4.436]
+  four-bar: ground MCP-LinkPivot 6.00 mm, Link 50.50, Proximal 52.00, Distal crank PIP-P4 6.00
+  tip site: 35.13 mm from the PIP; MCP->tip 87.13 mm along the straight finger
+
+-- pure flexion sweep (m1 = f, m2 = -f), f = -90..+90 deg, up and down
+  straight finger (MCP = 0) at f = -37.5 deg; PIP there -0.01 deg
+  f  -90.0: psi  -26.70  MCP  -30.33  PIP  -32.37  MCP+PIP  -62.70  abd -0.16 deg  tip [ 0.9 64.8 55.2] mm  eq 0.0009 mm
+  f  -60.0: psi  -16.98  MCP  -18.76  PIP  -19.32  MCP+PIP  -38.09  abd  0.04 deg  tip [ 0.6 79.4 34.7] mm  eq 0.0012 mm
+  f  -45.0: psi   -6.03  MCP   -6.48  PIP   -6.57  MCP+PIP  -13.05  abd  0.11 deg  tip [ 0.5 86.6  9.4] mm  eq 0.0013 mm
+  f  -37.5: psi    0.04  MCP    0.04  PIP    0.03  MCP+PIP    0.07  abd  0.15 deg  tip [ 0.5 86.8 -4.5] mm  eq 0.0012 mm
+  f  -30.0: psi    6.28  MCP    6.57  PIP    6.59  MCP+PIP   13.16  abd  0.17 deg  tip [  0.4  84.6 -18.2] mm  eq 0.0011 mm
+  f    0.0: psi   31.33  MCP   31.11  PIP   31.07  MCP+PIP   62.18  abd  0.22 deg  tip [  0.5  56.9 -59.8] mm  eq 0.0009 mm
+  f   30.0: psi   54.18  MCP   51.77  PIP   50.83  MCP+PIP  102.59  abd  0.18 deg  tip [  0.6  20.3 -73.9] mm  eq 0.0009 mm
+  f   45.0: psi   64.09  MCP   60.40  PIP   58.29  MCP+PIP  118.69  abd  0.12 deg  tip [  0.7   5.1 -73.7] mm  eq 0.0008 mm
+  f   60.0: psi   72.44  MCP   67.61  PIP   63.82  MCP+PIP  131.43  abd  0.04 deg  tip [  0.7  -6.6 -71.3] mm  eq 0.0007 mm
+  f   75.0: psi   78.56  MCP   72.88  PIP   67.29  MCP+PIP  140.17  abd -0.05 deg  tip [  0.7 -14.3 -68.6] mm  eq 0.0005 mm
+  f   90.0: psi   81.52  MCP   75.43  PIP   68.76  MCP+PIP  144.19  abd -0.15 deg  tip [  0.7 -17.8 -67.1] mm  eq 0.0002 mm
+  range over the drive: MCP -30.4..75.4, PIP -32.5..68.8, psi -26.8..81.5 deg; up/down hysteresis 0.436 deg
+  from straight to fully flexed: MCP 0 -> 75.4, PIP -0.0 -> 68.8 deg (PIP/MCP slope 0.917); Link turns 81.5 deg for MCP 75.4 deg
+  planar crossed four-bar prediction from psi vs sim: max |dMCP| 0.006 deg, max |dPIP| 0.056 deg  -> the coupling IS this four-bar
+  instant-centre estimate for a crossed four-bar with short ground g and short crank c: PIP/MCP ~ g/c = 1.000, MCP/psi ~ 1
+
+-- abduction (m1 = a + f, m2 = a - f)
+  f =  -37.5: a -52..52 -> abduction -23.3..23.4 deg (slope 0.465), MCP varies 0.1..12.6 deg
+  f =    0.0: a -90..90 -> abduction -38.5..38.4 deg (slope 0.501), MCP varies 26.3..31.8 deg
+  f =   45.0: a -45..45 -> abduction -17.6..17.8 deg (slope 0.404), MCP varies 51.8..60.5 deg
+
+-- grid 25x25 over (m1, m2), step 7.5 deg
+  abduction range -38.5..38.4 deg; psi -26.7..81.5; MCP -30.3..75.4; PIP -32.3..68.8
+  settled loop-closure error max 0.0039 mm; Jacobian null-space residual max 3.49e-07
+  linear fit abduction ~ 0.490 a + -0.000 f + 0.12 (a=(m1+m2)/2, f=(m1-m2)/2); rms 2.39 deg
+  fingertip (site tip1) workspace: x -35.8..40.6, y -17.8..87.0, z -74.2..55.1 mm; convex hull of the reachable tip surface 222.1 cm^3
+
+-- fingertip force from servo torque (Jacobian transpose through all loops), a = 0
+  SCS0009 stall torque 0.2256 N m (2.3 kg.cm @ 6 V). F = force on the tip along n;
+  motor torques tau = J^T F; the holdable force is stall / max_i |J_i . n| (J in m/rad).
+  f  -37.5: tip speed 1.864 mm/deg of f; holdable force along the motion 4.04 N, normal to the distal pad 4.06 N
+  f    0.0: tip speed 1.524 mm/deg of f; holdable force along the motion 4.97 N, normal to the distal pad 5.04 N
+  f   45.0: tip speed 0.906 mm/deg of f; holdable force along the motion 8.41 N, normal to the distal pad 9.06 N
+  f   75.0: tip speed 0.405 mm/deg of f; holdable force along the motion 19.29 N, normal to the distal pad 21.87 N
+  f   90.0: tip speed 0.092 mm/deg of f; holdable force along the motion 76.17 N, normal to the distal pad 88.09 N
+
+figures: stock_abduction_force.png, stock_command_maps.png, stock_coupling.png, stock_kinematic_diagram.png  [3 s]

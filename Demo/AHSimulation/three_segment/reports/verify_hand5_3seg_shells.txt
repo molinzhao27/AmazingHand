@@ -1,0 +1,42 @@
+== 7. palm/back shells and grip pads (the existing ones, cad/five_finger/stl) vs every digit, 13x13 grid per digit (method of five_finger/check_shells.py)
+  index  vs palm_shell min  0.04 mm at (+60,-60) [p1_shell (p1_1)]; touching at 12/169 poses: (+60,-90), (+60,-75), (+60,-60), (+75,-90), (+75,-75), (+75,-60), (+75,-45), (+90,-90)
+  index  vs top_shell  min   inf mm at (-90,-90); touching at 0/169 poses
+  index  vs pad_band   min  3.88 mm at (+90,-90) [p1_shell (p1_1)]; touching at 0/169 poses
+  index  vs pad_palm   min   inf mm at (-90,-90); touching at 0/169 poses
+  middle vs palm_shell min  0.03 mm at (+90,-60) [p1_shell (p1_2)]; touching at 12/169 poses: (+60,-90), (+60,-75), (+60,-60), (+75,-90), (+75,-75), (+75,-60), (+75,-45), (+90,-90)
+  middle vs top_shell  min   inf mm at (-90,-90); touching at 0/169 poses
+  middle vs pad_band   min  2.07 mm at (+90,-90) [p1_shell (p1_2)]; touching at 0/169 poses
+  middle vs pad_palm   min   inf mm at (-90,-90); touching at 0/169 poses
+  ring   vs palm_shell min  0.03 mm at (+60,-90) [p1_shell (p1_3)]; touching at 12/169 poses: (+60,-90), (+60,-75), (+60,-60), (+75,-90), (+75,-75), (+75,-60), (+75,-45), (+90,-90)
+  ring   vs top_shell  min   inf mm at (-90,-90); touching at 0/169 poses
+  ring   vs pad_band   min  1.85 mm at (+90,-90) [p1_shell (p1_3)]; touching at 0/169 poses
+  ring   vs pad_palm   min  4.17 mm at (-30,+45) [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed (rotule_ball_6)]; touching at 0/169 poses
+  thumb  vs palm_shell min  1.11 mm at (-90,-90) [proximal (parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b_4)]; touching at 0/169 poses
+  thumb  vs top_shell  min   inf mm at (-90,-90); touching at 0/169 poses
+  thumb  vs pad_band   min  2.31 mm at (+90,-90) [distal_shell (parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999_4)]; touching at 0/169 poses
+  thumb  vs pad_palm   min   inf mm at (-90,-90); touching at 0/169 poses
+  pinky  vs palm_shell min  0.03 mm at (+60,-60) [p1_shell (p1_5)]; touching at 12/169 poses: (+60,-90), (+60,-75), (+60,-60), (+75,-90), (+75,-75), (+75,-60), (+75,-45), (+90,-90)
+  pinky  vs top_shell  min   inf mm at (-90,-90); touching at 0/169 poses
+  pinky  vs pad_band   min  1.89 mm at (+90,-90) [p1_shell (p1_5)]; touching at 0/169 poses
+  pinky  vs pad_palm   min  4.11 mm at (-90,-90) [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed (custom_servo_horn_5)]; touching at 0/169 poses
+== 7b. palm/back shells and grip pads (regenerated around the 3-phalanx fingers, cad/five_finger/three_segment/stl/palm_shells) vs every digit, 13x13 grid per digit (method of five_finger/check_shells.py)
+  index  vs palm_shell min  1.86 mm at (+90,-90) [p1_shell (p1_1)]; touching at 0/169 poses
+  index  vs top_shell  min   inf mm at (-90,-90); touching at 0/169 poses
+  index  vs pad_band   min   inf mm at (-90,-90); touching at 0/169 poses
+  index  vs pad_palm   min   inf mm at (-90,-90); touching at 0/169 poses
+  middle vs palm_shell min  2.16 mm at (+90,-90) [p1_shell (p1_2)]; touching at 0/169 poses
+  middle vs top_shell  min   inf mm at (-90,-90); touching at 0/169 poses
+  middle vs pad_band   min   inf mm at (-90,-90); touching at 0/169 poses
+  middle vs pad_palm   min   inf mm at (-90,-90); touching at 0/169 poses
+  ring   vs palm_shell min  2.01 mm at (+90,-90) [p1_shell (p1_3)]; touching at 0/169 poses
+  ring   vs top_shell  min   inf mm at (-90,-90); touching at 0/169 poses
+  ring   vs pad_band   min  4.53 mm at (-90,+75) [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed (rotule_ball_6)]; touching at 0/169 poses
+  ring   vs pad_palm   min  4.17 mm at (-15,+30) [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed (rotule_ball_6)]; touching at 0/169 poses
+  thumb  vs palm_shell min  1.11 mm at (-90,-90) [proximal (parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b_4)]; touching at 0/169 poses
+  thumb  vs top_shell  min   inf mm at (-90,-90); touching at 0/169 poses
+  thumb  vs pad_band   min  4.81 mm at (+90,-90) [distal_shell (parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999_4)]; touching at 0/169 poses
+  thumb  vs pad_palm   min   inf mm at (-90,-90); touching at 0/169 poses
+  pinky  vs palm_shell min  1.61 mm at (-15, +0) [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed (rotule_ball_10)]; touching at 0/169 poses
+  pinky  vs top_shell  min   inf mm at (-90,-90); touching at 0/169 poses
+  pinky  vs pad_band   min  4.16 mm at (+15, +0) [rotule_lever (ball_link_9)]; touching at 0/169 poses
+  pinky  vs pad_palm   min  4.11 mm at (-90,-90) [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed (custom_servo_horn_5)]; touching at 0/169 poses
