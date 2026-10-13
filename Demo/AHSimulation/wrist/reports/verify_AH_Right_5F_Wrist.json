@@ -1,0 +1,185 @@
+{
+ "moving_mass_g": 503.35133999999994,
+ "hand_mass_g": 471.8805600000001,
+ "stability": {
+  "alone_OpenHand": {
+   "time": 15.0,
+   "vmax": 1.130333,
+   "rod_err": 2.3e-05,
+   "rod_err_settled": 2.3e-05,
+   "finger_err": 3e-06,
+   "warnings": {}
+  },
+  "corners_OpenHand": {
+   "time": 12.0,
+   "vmax": 4.882143,
+   "rod_err": 6.2e-05,
+   "rod_err_settled": 3.9e-05,
+   "finger_err": 3e-06,
+   "warnings": {}
+  },
+  "rom_OpenHand": {
+   "time": 25.2,
+   "vmax": 1.554664,
+   "rod_err": 4e-06,
+   "rod_err_settled": 3e-06,
+   "finger_err": 3e-06,
+   "warnings": {}
+  },
+  "alone_CloseHand": {
+   "time": 15.0,
+   "vmax": 1.12645,
+   "rod_err": 2.3e-05,
+   "rod_err_settled": 2.3e-05,
+   "finger_err": 9e-06,
+   "warnings": {}
+  },
+  "corners_CloseHand": {
+   "time": 12.0,
+   "vmax": 4.852887,
+   "rod_err": 6.2e-05,
+   "rod_err_settled": 3.9e-05,
+   "finger_err": 9e-06,
+   "warnings": {}
+  },
+  "rom_CloseHand": {
+   "time": 25.2,
+   "vmax": 1.547642,
+   "rod_err": 4e-06,
+   "rod_err_settled": 3e-06,
+   "finger_err": 9e-06,
+   "warnings": {}
+  },
+  "random": {
+   "time": 36.0,
+   "vmax": 90.960842,
+   "rod_err": 6.8e-05,
+   "rod_err_settled": 2.4e-05,
+   "finger_err": 0.000865,
+   "warnings": {}
+  }
+ },
+ "misalignment_deg": {
+  "rod1_top": 26.7,
+  "rod1_bottom": 1.7,
+  "rod2_top": 26.2,
+  "rod2_bottom": 1.2
+ },
+ "rod_vs_fork_lugs_mm": [
+  3.63,
+  1.72
+ ],
+ "rom": {
+  "rectangle_reachable": true,
+  "servo_max_deg": 54.9,
+  "open_loop_err_max_deg": 2.68,
+  "closed_loop_err_max_deg": 0.06,
+  "linkage_flex": [
+   -70,
+   70
+  ],
+  "linkage_dev": [
+   -35,
+   35
+  ]
+ },
+ "static_worst_hand": {
+  "torque": 0.486,
+  "where": "('forearm horizontal, thumb down', (-60.0, 15.0))"
+ },
+ "static_worst_payload": {
+  "torque": 0.977,
+  "where": "('forearm horizontal, thumb down', (-60.0, 15.0))"
+ },
+ "static_neutral_hand": 0.247,
+ "static_neutral_payload": 0.495,
+ "inertia_hand": [
+  0.005374283888471819,
+  0.0057779405383456064
+ ],
+ "inertia_payload": [
+  0.013179501029552315,
+  0.013899608538345605
+ ],
+ "clearance_rom_min_mm": {
+  "hand (+ shells, pads) / forearm (shells, fork, frame, servos)": null,
+  "hand (+ shells, pads) / gimbal ring": null,
+  "hand (+ shells, pads) / rod 1 (links + rod)": null,
+  "hand (+ shells, pads) / rod 2 (links + rod)": null,
+  "hand adapter / forearm (shells, fork, frame, servos)": 1.06,
+  "adapter studs / forearm (shells, fork, frame, servos)": 3.7,
+  "hand adapter / gimbal ring": 0.73,
+  "gimbal ring / fork": 0.73,
+  "rod 1 (links + rod) / forearm w/o servos": 1.25,
+  "rod 2 (links + rod) / forearm w/o servos": 1.25,
+  "rod 1 (links + rod) / servo 1": 1.38,
+  "rod 2 (links + rod) / servo 2": 1.55,
+  "rod 1 (links + rod) / servo 2": null,
+  "rod 2 (links + rod) / servo 1": null,
+  "rod 1 (links + rod) / hand adapter": 0.75,
+  "rod 2 (links + rod) / hand adapter": 0.68,
+  "rod 1 (links + rod) / gimbal ring": null,
+  "rod 2 (links + rod) / gimbal ring": null,
+  "rod 1 (links + rod) / rod 2 (links + rod)": null,
+  "rod 1 (links + rod) / horn arm 2": null,
+  "rod 2 (links + rod) / horn arm 1": null,
+  "horn arm 1 / forearm w/o servos": 0.78,
+  "horn arm 2 / forearm w/o servos": 0.78,
+  "horn arm 1 / horn arm 2": null,
+  "horn arm 1 / servo 2": null,
+  "horn arm 2 / servo 1": null
+ },
+ "clearance_stops_min_mm": {
+  "hand (+ shells, pads) / forearm (shells, fork, frame, servos)": 1.98,
+  "hand (+ shells, pads) / gimbal ring": null,
+  "hand (+ shells, pads) / rod 1 (links + rod)": null,
+  "hand (+ shells, pads) / rod 2 (links + rod)": null,
+  "hand adapter / forearm (shells, fork, frame, servos)": 0.06,
+  "adapter studs / forearm (shells, fork, frame, servos)": 1.43,
+  "hand adapter / gimbal ring": 0.74,
+  "gimbal ring / fork": 0.73,
+  "rod 1 (links + rod) / forearm w/o servos": 0.08,
+  "rod 2 (links + rod) / forearm w/o servos": 0.12,
+  "rod 1 (links + rod) / servo 1": 0.05,
+  "rod 2 (links + rod) / servo 2": 0.03,
+  "rod 1 (links + rod) / servo 2": null,
+  "rod 2 (links + rod) / servo 1": null,
+  "rod 1 (links + rod) / hand adapter": 0.21,
+  "rod 2 (links + rod) / hand adapter": 0.13,
+  "rod 1 (links + rod) / gimbal ring": null,
+  "rod 2 (links + rod) / gimbal ring": null,
+  "rod 1 (links + rod) / rod 2 (links + rod)": null,
+  "rod 1 (links + rod) / horn arm 2": null,
+  "rod 2 (links + rod) / horn arm 1": null,
+  "horn arm 1 / forearm w/o servos": 0.78,
+  "horn arm 2 / forearm w/o servos": 0.78,
+  "horn arm 1 / horn arm 2": null,
+  "horn arm 1 / servo 2": null,
+  "horn arm 2 / servo 1": null
+ },
+ "thumb_touching": [
+  [
+   [
+    -90.0,
+    90.0
+   ],
+   [
+    60,
+    0.0
+   ],
+   0.72
+  ],
+  [
+   [
+    -90.0,
+    90.0
+   ],
+   [
+    60,
+    15.0
+   ],
+   0.02
+  ]
+ ],
+ "thumb_min_mm": 0.02
+}

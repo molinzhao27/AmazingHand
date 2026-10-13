@@ -1,0 +1,20 @@
+Printability (STL, mm). Thickness = distance along -normal from random surface points to the opposite face.
+R-Wrist_Hand_Adapter   watertight=True faces=  6582 vol=  19.9 cm3  thickness p1=1.25 p5=2.32 median=7.70 mm, samples < 1.2 mm:  0.3 %  | print flange face down (lugs up); the three 1.4 mm pad pockets bridge, gussets carry the lever bar: overhang > 45 deg     96 mm2, horizontal ceilings    754 mm2 (of   9439)
+Wrist_Gimbal_Ring      watertight=True faces=  2934 vol=   1.6 cm3  thickness p1=1.89 p5=2.62 median=4.50 mm, samples < 1.2 mm:  0.9 %  | print flat: overhang > 45 deg     52 mm2, horizontal ceilings     12 mm2 (of   1270)
+R-Wrist_Fork           watertight=True faces=  9928 vol=  24.9 cm3  thickness p1=1.25 p5=3.32 median=5.00 mm, samples < 1.2 mm:  0.1 %  | print cap face down, lugs up; bearing seats are teardrops: overhang > 45 deg     69 mm2, horizontal ceilings     13 mm2 (of  13382)
+R-Forearm_Front        watertight=True faces= 10328 vol=  60.4 cm3  thickness p1=1.50 p5=2.26 median=2.50 mm, samples < 1.2 mm:  0.1 %  | print standing on the elbow end: overhang > 45 deg     26 mm2, horizontal ceilings     39 mm2 (of  50358)
+R-Forearm_Back         watertight=True faces=  6552 vol=  72.8 cm3  thickness p1=2.00 p5=2.00 median=2.50 mm, samples < 1.2 mm:  0.0 %  | print standing on the elbow end: overhang > 45 deg     32 mm2, horizontal ceilings     31 mm2 (of  61023)
+R-Wrist_Servo_Frame    watertight=True faces=  1608 vol=  30.7 cm3  thickness p1=2.25 p5=2.25 median=3.00 mm, samples < 1.2 mm:  0.1 %  | print base down (the face that lies on the forearm's front wall): overhang > 45 deg    239 mm2, horizontal ceilings    387 mm2 (of  21089)
+Wrist_Horn_Arm         watertight=True faces=  2504 vol=   2.4 cm3  thickness p1=1.50 p5=1.70 median=4.00 mm, samples < 1.2 mm:  0.0 %  | print flat, stud face down (nut pocket up): overhang > 45 deg      0 mm2, horizontal ceilings      0 mm2 (of   1963)
+Elbow_Flange           watertight=True faces=  6448 vol=  80.9 cm3  thickness p1=2.50 p5=6.00 median=6.00 mm, samples < 1.2 mm:  0.0 %  | print flat, underside down: overhang > 45 deg      0 mm2, horizontal ceilings     96 mm2 (of  31005)
+
+Interference at the neutral pose: volume of the boolean intersection of every pair (mm3).
+  Wrist_Gimbal_Ring / pin_d3x10_+x: 1.946 mm3  expected (press fit / ball in its socket)
+  Wrist_Gimbal_Ring / pin_d3x10_-x: 1.946 mm3  expected (press fit / ball in its socket)
+  Wrist_Gimbal_Ring / pin_d3x10_+z: 1.946 mm3  expected (press fit / ball in its socket)
+  Wrist_Gimbal_Ring / pin_d3x10_-z: 1.946 mm3  expected (press fit / ball in its socket)
+  stud_top_1 / link_top_1: 110.653 mm3  expected (press fit / ball in its socket)
+  stud_arm_1 / link_bot_1: 110.653 mm3  expected (press fit / ball in its socket)
+  stud_top_2 / link_top_2: 110.653 mm3  expected (press fit / ball in its socket)
+  stud_arm_2 / link_bot_2: 110.653 mm3  expected (press fit / ball in its socket)
+  (pairs not listed: no intersection)

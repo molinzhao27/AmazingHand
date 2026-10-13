@@ -1,0 +1,128 @@
+--- a/Demo/AHControl/src/main.rs
++++ b/Demo/AHControl/src/main.rs
+@@ -75,34 +75,60 @@
+     let serial_port = serialport::new(serialport, baudrate)
+         .timeout(Duration::from_millis(10))
+         .open()?;
++    // Both servo families share the TTL bus, but they lay out registers differently (SCS0009: big-endian,
++    // 1024 steps / 300 deg; STS3215: little-endian, 4096 steps / turn), so each family gets its own
++    // controller on a second handle of the same port (one thread, so their packets never interleave).
++    let sts_port = serial_port.try_clone()?;
+ 
+     let mut controller = servo::feetech::scs0009::Scs0009Controller::new()
+         .with_protocol_v1()
+         .with_serial_port(serial_port);
++    let mut sts = servo::feetech::sts3215::Sts3215Controller::new()
++        .with_protocol_v1()
++        .with_serial_port(sts_port);
+ 
+-    if motors_conf.motors[0].motor1.model != *"SCS0009" {
+-        return Err(eyre!("Only SCS0009 motors are supported for now...").into());
+-    };
++    for m in &motors_conf.motors {
++        for model in [&m.motor1.model, &m.motor2.model] {
++            if model != "SCS0009" && model != "STS3215" {
++                return Err(eyre!("{}: unsupported servo model {} (SCS0009 or STS3215)", m.finger_name, model).into());
++            }
++        }
++    }
+ 
+     // let output = DataId::from("pull_position".to_owned());
+     let mut finger_names: Vec<String> = vec![];
+     let mut motor_ids: Vec<u8> = vec![];
+     let mut motor_offsets: Vec<f64> = vec![];
++    let mut sts_ids: Vec<u8> = vec![];
++    let mut sts_offsets: Vec<f64> = vec![];
+     let motors = &motors_conf.motors;
+     for motors in motors {
+         finger_names.push(motors.finger_name.clone());
+-        motor_ids.push(motors.motor1.id);
+-        motor_ids.push(motors.motor2.id);
+-        motor_offsets.push(motors.motor1.offset);
+-        motor_offsets.push(motors.motor2.offset);
++        for m in [&motors.motor1, &motors.motor2] {
++            if m.model == "STS3215" {
++                sts_ids.push(m.id);
++                sts_offsets.push(m.offset);
++            } else {
++                motor_ids.push(m.id);
++                motor_offsets.push(m.offset);
++            }
++        }
+     }
+     let motors_on: Vec<u8> = vec![1; motor_ids.len()];
+     let motors_off: Vec<u8> = vec![0; motor_ids.len()];
++    let sts_on: Vec<bool> = vec![true; sts_ids.len()]; // STS3215 torque_enable is a bool register in rustypot
++    let sts_off: Vec<bool> = vec![false; sts_ids.len()];
+ 
+     //torque enable
+     controller.sync_write_torque_enable(&motor_ids, &motors_on)?;
++    if !sts_ids.is_empty() {
++        sts.sync_write_torque_enable(&sts_ids, &sts_on)?;
++    }
+     thread::sleep(Duration::from_millis(1000));
+     controller.sync_write_goal_position(&motor_ids, &motor_offsets)?;
++    if !sts_ids.is_empty() {
++        sts.sync_write_goal_position(&sts_ids, &sts_offsets)?;
++    }
+     thread::sleep(Duration::from_millis(1000));
+     let (mut _node, mut events) =
+         // DoraNode::init_from_node_id(NodeId::from("hand_controller".to_string()))?;
+@@ -119,6 +145,8 @@
+ 
+                     let mut motors_ids: Vec<u8> = Vec::new();
+                     let mut motors_goalpos: Vec<f64> = Vec::new();
++                    let mut sts_goal_ids: Vec<u8> = Vec::new();
++                    let mut sts_goalpos: Vec<f64> = Vec::new();
+ 
+                     for (_idx, finger) in motors.iter().enumerate() {
+                         // println!("conf: {:?} {:?}", idx, finger.finger_name);
+@@ -141,19 +169,23 @@
+                             //     ],
+                             // )?;
+ 
+-                            motors_ids.push(finger.motor1.id);
+-                            motors_ids.push(finger.motor2.id);
+-
+                             let mut m1goal = buffer[finger1_idx[0] as usize] + finger.motor1.offset;
+                             if finger.motor1.invert {
+                                 m1goal = -m1goal;
+                             }
+-                            motors_goalpos.push(m1goal);
+                             let mut m2goal = buffer[finger1_idx[1] as usize] + finger.motor2.offset;
+                             if finger.motor2.invert {
+                                 m2goal = -m2goal;
+                             }
+-                            motors_goalpos.push(m2goal);
++                            for (m, goal) in [(&finger.motor1, m1goal), (&finger.motor2, m2goal)] {
++                                if m.model == "STS3215" {
++                                    sts_goal_ids.push(m.id);
++                                    sts_goalpos.push(goal);
++                                } else {
++                                    motors_ids.push(m.id);
++                                    motors_goalpos.push(goal);
++                                }
++                            }
+ 
+                             // controller.write_goal_position(
+                             //     finger.motor1.id,
+@@ -168,6 +200,9 @@
+                         }
+                     }
+                     controller.sync_write_goal_position(&motors_ids, &motors_goalpos)?;
++                    if !sts_goal_ids.is_empty() {
++                        sts.sync_write_goal_position(&sts_goal_ids, &sts_goalpos)?;
++                    }
+                     // let parameters = MetadataParameters::default();
+                     // let e: Vec<f64> = Vec::new(); //TODO return actual positions
+                     // node.send_output(output.clone(), parameters, e.into_arrow())?;
+@@ -184,6 +219,9 @@
+     println!("Quitting");
+     //torque off
+     controller.sync_write_torque_enable(&motor_ids, &motors_off)?;
++    if !sts_ids.is_empty() {
++        sts.sync_write_torque_enable(&sts_ids, &sts_off)?;
++    }
+     thread::sleep(Duration::from_millis(1000));
+     Ok(())
+ }
