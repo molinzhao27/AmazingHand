@@ -833,7 +833,7 @@
     <mesh file="rotule_lever.stl"/>
     <mesh file="plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5.stl"/>
     <mesh file="rotule_ball.stl"/>
-    <mesh file="r_hand_plate.stl"/>
+    <mesh file="r_hand_plate_5f.stl" name="r_hand_plate" scale="0.001 0.001 0.001"/>
     <mesh file="std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default.stl"/>
     <mesh file="gimbal.stl"/>
     <mesh file="distal_shell.stl"/>

@@ -30,7 +30,7 @@ SIM_DIR = HERE.parent / "AHSimulation"
 SRC = SIM_DIR / "AH_Right" / "mjcf"
 DST = SIM_DIR / "AH_Right_5F" / "mjcf"
 
-# Palm plate mesh used by the 5-finger model. Swapped for the widened plate once it exists.
+# Widened palm plate from cad/five_finger/make_5f_plate.py (the stock plate only has 3 finger mounts).
 PLATE_MESH = "r_hand_plate_5f.stl"
 PLATE_MESH_SRC = HERE.parent.parent.parent / "cad" / "five_finger" / "stl" / "R-Hand_Plate_5F.stl"
 
@@ -258,11 +258,12 @@ def build_robot(plate_mesh):
         rename_subtree(c)
         equality.append(c)
 
-    if plate_mesh:
+    if plate_mesh:  # same part frame as the stock plate, but in mm like the other cad/ exports
         for mesh in mj.find("asset").iter("mesh"):
             if mesh.get("file") == "r_hand_plate.stl":
                 mesh.set("name", "r_hand_plate")
                 mesh.set("file", plate_mesh)
+                mesh.set("scale", "0.001 0.001 0.001")
 
     indent(tree)
     text = ET.tostring(mj, encoding="unicode").replace(" />", "/>")
