@@ -1,0 +1,20 @@
+model AH_Right_5F with stock shells; digits ['index', 'middle', 'ring', 'thumb', 'pinky']
+palm-fixed parts vs shells (bolted parts may touch by design):
+  plate                  palm_shell 0.00 mm [r_hand_plate] TOUCH/OVERLAP, top_shell 0.00 mm [r_hand_plate] TOUCH/OVERLAP
+  wrist interface        palm_shell 0.00 mm [r_wrist_interface] TOUCH/OVERLAP, top_shell 0.00 mm [r_wrist_interface] TOUCH/OVERLAP
+  index servos+frames    palm_shell 0.19 mm [scs0009] TOUCH/OVERLAP, top_shell 0.15 mm [scs0009] TOUCH/OVERLAP
+  middle servos+frames   palm_shell > 5 mm, top_shell 1.00 mm [scs0009_3]
+  ring servos+frames     palm_shell 0.28 mm [scs0009_6], top_shell 0.12 mm [scs0009_6] TOUCH/OVERLAP
+  thumb servos+frames    palm_shell 0.35 mm [finger_frame_1_4], top_shell 2.19 mm [scs0009_2]
+  pinky servos+frames    palm_shell 0.00 mm [scs0009_9] TOUCH/OVERLAP, top_shell 0.01 mm [scs0009_9] TOUCH/OVERLAP
+moving parts vs shells over the 81 grid poses:
+  index  vs palm_shell min  0.43 mm at (-90,+90) [proximal_shell (parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b)]; touching at 0/81 poses
+  index  vs top_shell  min  2.53 mm at (-90,+90) [proximal_shell (parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b)]; touching at 0/81 poses
+  middle vs palm_shell min  1.23 mm at (+90,+68) [rotule_lever (ball_link_2)]; touching at 0/81 poses
+  middle vs top_shell  min  4.93 mm at (-90,+90) [proximal_shell (parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b_2)]; touching at 0/81 poses
+  ring   vs palm_shell min  0.02 mm at (+90, +0) [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed (rotule_ball_6)]; touching at 36/81 poses: (-90,-22), (-90, +0), (-90,+22), (-90,+45), (-68,-22), (-68, +0), (-68,+22), (-68,+45)
+  ring   vs top_shell  min  3.37 mm at (-90,+90) [proximal_shell (parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b_3)]; touching at 0/81 poses
+  thumb  vs palm_shell min  0.01 mm at (-68,+68) [proximal_shell (parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b_4)]; touching at 6/81 poses: (-90,+45), (-90,+68), (-90,+90), (-68,+68), (-68,+90), (-45,+90)
+  thumb  vs top_shell  min   inf mm at (-90,-90); touching at 0/81 poses
+  pinky  vs palm_shell min  0.01 mm at (-22,+45) [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed (custom_servo_horn_5)]; touching at 81/81 poses: (-90,-90), (-90,-68), (-90,-45), (-90,-22), (-90, +0), (-90,+22), (-90,+45), (-90,+68)
+  pinky  vs top_shell  min   inf mm at (-90,-90); touching at 0/81 poses
