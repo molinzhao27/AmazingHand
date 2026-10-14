@@ -27,6 +27,7 @@ R-Palm_Shell_5F, R-Palm_Pad_Band_5F, R-Palm_Pad_Palm_5F and their mirrored L-* v
 hand (the stock left shells are exactly the right ones mirrored about x = -50 mm).
 
 Usage: python make_5f_shells.py [--vox 0.5] [--grid 19] [--cache keepout.npz]
+       python make_5f_shells.py --model AH_Right_5F_3S --out cad/five_finger/stl_3s   (other finger variants)
 """
 
 import argparse
@@ -49,6 +50,7 @@ import verify_5f_model as V  # noqa: E402
 from build_5f_model import child_by_name, get_pose, parse  # noqa: E402
 
 OUT_STL = HERE / "stl"
+MODEL = "AH_Right_5F"  # hand model (folder under Demo/AHSimulation/AHSimulation) the shells are fitted to
 LO = np.array([-40.0, -104.0, -62.0])  # voxel grid bounds (plate frame, mm)
 HI = np.array([128.0, 22.0, 42.0])
 # plate pose in the MuJoCo root frame: part-studio frame (mm) <-> MJCF (m)
@@ -81,12 +83,53 @@ def log(*a):
     print(*a, flush=True)
 
 
+def geom_points(m, g, h):
+    """Surface samples (geom frame, m) of a mesh or primitive geom, spaced <= h (m)."""
+    t = m.geom_type[g]
+    if t == mujoco.mjtGeom.mjGEOM_MESH:
+        return V.sample_mesh(m, m.geom_dataid[g], h)
+    size = m.geom_size[g]
+    if t == mujoco.mjtGeom.mjGEOM_SPHERE:
+        n = max(8, int(np.ceil(4 * np.pi * size[0] ** 2 / h ** 2)))
+        p = np.random.default_rng(0).normal(size=(n, 3))
+        return size[0] * p / np.linalg.norm(p, axis=1, keepdims=True)
+    if t in (mujoco.mjtGeom.mjGEOM_CYLINDER, mujoco.mjtGeom.mjGEOM_CAPSULE):
+        r, hl = size[0], size[1]
+        a = np.linspace(0, 2 * np.pi, max(8, int(np.ceil(2 * np.pi * r / h))), endpoint=False)
+        z = np.linspace(-hl, hl, max(2, int(np.ceil(2 * hl / h)) + 1))
+        side = np.stack(np.broadcast_arrays(r * np.cos(a)[:, None], r * np.sin(a)[:, None], z[None, :]), -1).reshape(-1, 3)
+        rr = np.linspace(0, r, max(2, int(np.ceil(r / h)) + 1))
+        disc = np.stack(np.broadcast_arrays(rr[:, None] * np.cos(a)[None, :], rr[:, None] * np.sin(a)[None, :], 0 * a[None, :]), -1).reshape(-1, 3)
+        ends = [disc + [0, 0, hl], disc - [0, 0, hl]] if t == mujoco.mjtGeom.mjGEOM_CYLINDER else \
+            [geom_points_sphere(r, h) + [0, 0, hl], geom_points_sphere(r, h) - [0, 0, hl]]
+        return np.concatenate([side, *ends])
+    if t == mujoco.mjtGeom.mjGEOM_BOX:
+        axes = [np.linspace(-s_, s_, max(2, int(np.ceil(2 * s_ / h)) + 1)) for s_ in size]
+        pts = []
+        for i in range(3):
+            j, k = [a_ for a_ in range(3) if a_ != i]
+            for sgn in (-1, 1):
+                grid = np.zeros((len(axes[j]), len(axes[k]), 3))
+                grid[..., i] = sgn * size[i]
+                grid[..., j] = axes[j][:, None]
+                grid[..., k] = axes[k][None, :]
+                pts.append(grid.reshape(-1, 3))
+        return np.concatenate(pts)
+    raise ValueError(f"geom type {t} not supported")
+
+
+def geom_points_sphere(r, h):
+    n = max(8, int(np.ceil(4 * np.pi * r ** 2 / h ** 2)))
+    p = np.random.default_rng(0).normal(size=(n, 3))
+    return r * p / np.linalg.norm(p, axis=1, keepdims=True)
+
+
 # ------------------------------------------------------------------ 1. keep-out volumes
 def keepout(n_grid, vox):
     """Voxelised K_enc (enclose), K_free (fingers' moving parts, stay clear) and K_thumb (the
     thumb's moving parts, stay clear) in the plate frame."""
     shape = np.ceil((HI - LO) / vox).astype(int)
-    h = V.Hand(V.SIM_DIR / "AH_Right_5F" / "mjcf")
+    h = V.Hand(V.SIM_DIR / MODEL / "mjcf")
     m, d = h.m, h.d
     R = np.zeros(9)
     mujoco.mju_quat2Mat(R, PLATE_QUAT)
@@ -101,10 +144,10 @@ def keepout(n_grid, vox):
     cache = {}
 
     def mark(grid, g):
-        mid = m.geom_dataid[g]
-        if mid not in cache:
-            cache[mid] = V.sample_mesh(m, mid, vox * 0.7e-3)
-        P = ((d.geom_xpos[g] + cache[mid] @ d.geom_xmat[g].reshape(3, 3).T) - PLATE_POS) @ R * 1000
+        key = (m.geom_dataid[g], m.geom_type[g], *np.round(m.geom_size[g], 6))
+        if key not in cache:
+            cache[key] = geom_points(m, g, vox * 0.7e-3)
+        P = ((d.geom_xpos[g] + cache[key] @ d.geom_xmat[g].reshape(3, 3).T) - PLATE_POS) @ R * 1000
         idx = np.floor((P - LO) / vox).astype(int)
         idx = idx[np.all((idx >= 0) & (idx < shape), axis=1)]
         grid[idx[:, 0], idx[:, 1], idx[:, 2]] = True
@@ -156,7 +199,7 @@ def vmax(*fields):
 
 def knuckle_cap(G):
     """Top edge of the shells: a smooth curve CAP_BELOW_KNUCKLE under the four finger pivots."""
-    root = parse(V.SIM_DIR / "AH_Right_5F" / "mjcf" / "robot.xml").getroot().find("worldbody/body")
+    root = parse(V.SIM_DIR / MODEL / "mjcf" / "robot.xml").getroot().find("worldbody/body")
     R = np.zeros(9)
     mujoco.mju_quat2Mat(R, PLATE_QUAT)
     piv = []
@@ -368,17 +411,22 @@ def save(man, path):
     # a few marching-cubes sliver vertices may coincide once written as float32 (touching, not
     # open, edges; slicers handle them) - report them rather than hide them
     touching = len(tm.vertices) - len(np.unique(tm.vertices.astype(np.float32), axis=0))
-    log(f"wrote {path.relative_to(REPO)}: {len(tm.faces)} faces, volume {tm.volume / 1000:.1f} cm3, "
+    shown = path.relative_to(REPO) if path.resolve().is_relative_to(REPO) else path
+    log(f"wrote {shown}: {len(tm.faces)} faces, volume {tm.volume / 1000:.1f} cm3, "
         f"bbox {np.round(tm.bounds, 1).tolist()}" + (f", {touching} float32-coincident vertices" if touching else ""))
     return tm
 
 
 def main():
+    global MODEL, OUT_STL
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--vox", type=float, default=0.5, help="voxel size, mm")
     ap.add_argument("--grid", type=int, default=19, help="poses per motor for the swept volumes")
     ap.add_argument("--cache", type=Path, help="npz cache for the keep-out volumes")
+    ap.add_argument("--model", default=MODEL, help="5-digit hand model to fit the shells to (e.g. AH_Right_5F_3S)")
+    ap.add_argument("--out", type=Path, default=OUT_STL, help="output folder for the STLs")
     args = ap.parse_args()
+    MODEL, OUT_STL = args.model, args.out
     t0 = time.time()
     if args.cache and args.cache.exists():
         z = np.load(args.cache)
@@ -401,7 +449,7 @@ def main():
         palm_f = np.maximum(palm_f, -vmax(p2[:, :, None], -PAD_DEPTH - s_E, G.Z[None, None, :] - Z_SPLIT))
     log(f"fields ({time.time() - t0:.0f} s)")
     back, palm = finish(to_mesh(G, back_f), to_mesh(G, palm_f))
-    OUT_STL.mkdir(exist_ok=True)
+    OUT_STL.mkdir(parents=True, exist_ok=True)
     parts = {"Top_Shell": back, "Palm_Shell": palm}
     parts.update({f"Palm_Pad_{name}": pad_mesh(G, s_E, p2, name) for name, p2 in pads.items()})
     for name, man in parts.items():
@@ -413,14 +461,14 @@ def main():
 
 def keepout_palm(vox, shape):
     """Voxels of the palm plate and wrist interface alone (the palm flange may rest on them)."""
-    h = V.Hand(V.SIM_DIR / "AH_Right_5F" / "mjcf")
+    h = V.Hand(V.SIM_DIR / MODEL / "mjcf")
     m, d = h.m, h.d
     R = np.zeros(9)
     mujoco.mju_quat2Mat(R, PLATE_QUAT)
     grid = np.zeros(shape, bool)
     mujoco.mj_kinematics(m, d)
     for g in h.palm:
-        P = ((d.geom_xpos[g] + V.sample_mesh(m, m.geom_dataid[g], vox * 0.7e-3) @ d.geom_xmat[g].reshape(3, 3).T)
+        P = ((d.geom_xpos[g] + geom_points(m, g, vox * 0.7e-3) @ d.geom_xmat[g].reshape(3, 3).T)
              - PLATE_POS) @ R.reshape(3, 3) * 1000
         idx = np.floor((P - LO) / vox).astype(int)
         idx = idx[np.all((idx >= 0) & (idx < shape), axis=1)]
