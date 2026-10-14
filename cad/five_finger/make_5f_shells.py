@@ -58,7 +58,7 @@ from build_5f_model import child_by_name, get_pose, parse  # noqa: E402
 
 OUT_STL = HERE / "stl"
 MODEL = "AH_Right_5F"  # hand model (folder under Demo/AHSimulation/AHSimulation) the shells are fitted to
-LO = np.array([-40.0, -118.0, -62.0])  # voxel grid bounds (plate frame, mm)
+LO = np.array([-40.0, -142.0, -62.0])  # voxel grid bounds (plate frame, mm)
 HI = np.array([128.0, 22.0, 42.0])
 # plate pose in the MuJoCo root frame: part-studio frame (mm) <-> MJCF (m)
 PLATE_POS = np.array([-0.0115, 0.0245, 0.1022])
@@ -76,10 +76,11 @@ CAP_BELOW_KNUCKLE = 3.0  # back shell top edge this far below the knuckle (pivot
 Z_PALM_TOP = 0.0  # below this z the top edge follows the palm cap (under the finger sweeps)
 PALM_MARGIN = 2.0  # extra depth of the palm surface below the enclosed parts
 WRIST_Y = -97.5  # stock bottom cut (CAD y), used with --no-wrist
-# With the powered wrist the bottom cut is the plane W y = WRIST_W, square to the forearm axis: it passes
-# through the stock cut at the radial end of the wrist interface (CAD x = -9) and drops towards the ulnar side.
+# With the powered wrist the bottom cut is the plane W y = WRIST_W, square to the forearm axis. Without the palm
+# extension it passes through the stock cut at the radial end of the wrist interface (CAD x = -9) and drops
+# towards the ulnar side; wrist_design.PALM_EXT moves the wrist (and this cut) further from the hand.
 WRIST = True
-WRIST_W = float(wd.cad_to_w([-9.0, WRIST_Y, 0.0])[1])
+WRIST_W = float(wd.cad_to_w([-9.0, WRIST_Y, 0.0])[1]) - wd.PALM_EXT
 WRIST_SECTION = 30.0  # mm of wrist section (centred on the forearm axis) above the cut
 # the cut rises towards the back of the hand (like the back of a wrist), so the back shell's bottom edge
 # clears the fork at the extension + deviation hard stops: by BEVEL mm per mm of z above BEVEL_Z

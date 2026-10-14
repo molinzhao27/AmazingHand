@@ -195,16 +195,28 @@ def interface_to_w(shape):
 
 def make_hand_adapter():
     yb = wd.H_FLANGE - wd.FLANGE_T                     # 18.5: flange underside (W)
-    # Flange: a d56 cylinder on the interface's spigot axis, from the pad plane down to the W plane y = yb (the
-    # gimbal side, as at zero yaw); a wedge, FLANGE_MIN thick at the radial rim and thicker towards the ulnar side.
-    flange = interface_to_w(cyl((0, -40, 0), (0, 1, 0), wd.FLANGE_R, 40)).cut(box(-60, 60, yb - 40, yb, -60, 60))
+    # Body: a d56 cylinder on the interface's spigot axis, from the pad plane down to the W plane y = yb (the
+    # gimbal side, as at zero yaw): a wedge, FLANGE_MIN + PALM_EXT tall at the radial rim, taller towards the ulnar
+    # side. It is hollow: a 6 mm top flange (screw seats, pad pockets), a 4 mm wall, and a 45 deg conical roof
+    # down to the cable bore (prints flange-down without support), >= 4 mm above the gimbal-side face.
+    h = 40.0 + wd.PALM_EXT
+    flange = interface_to_w(cyl((0, -h, 0), (0, 1, 0), wd.FLANGE_R, h)).cut(box(-80, 80, yb - h, yb, -80, 80))
+    top_t, wall, bot_t, r_in, r_bore = 6.0, 4.0, 4.0, wd.FLANGE_R - 4.0, 11.0
+    sg, cg = np.sin(wd.HAND_YAW), np.cos(wd.HAND_YAW)
+    plane_y = lambda r: (yb - wd.INTERFACE_TOP_W[1] + sg * r) / cg      # highest point of the W plane y = yb within radius r (I frame)
+    y1 = max(plane_y(r_in) + bot_t, plane_y(r_bore) + bot_t + (r_in - r_bore))
+    if y1 < -top_t - 2.0:
+        roof = cq.Solid.makeCone(r_bore, r_in, r_in - r_bore, pnt=V(0, y1 - (r_in - r_bore), 0), dir=V(0, 1, 0))
+        cavity = fuse(cyl((0, y1 - 0.01, 0), (0, 1, 0), r_in, -top_t - y1 + 0.01), roof)
+        flange = flange.cut(interface_to_w(cavity))
     # pockets for the interface's three protruding pads (CAD y -102.2 .. -101; sectors 31-89, 151-209, 271-329 deg)
     pockets = [interface_to_w(sector(16.5, 30, c - 30.2, c + 30.2, -1.45, 1)) for c in (60, 180, 300)]
-    holes = [interface_to_w(cyl((0, -30, 0), (0, 1, 0), 11.0, 32))]   # cable bore d22, along the spigot axis
+    holes = [interface_to_w(cyl((0, -h, 0), (0, 1, 0), 11.0, h + 2))]   # cable bore d22, along the spigot axis
     for ang in (20, -20, 140, -140):  # 4 x 3.0x12 PT / M3x12 screw along the spigot axis, head from below
         x, z = 21 * np.cos(np.radians(ang)), 21 * np.sin(np.radians(ang))
-        # the head seats 4.7 mm below the pad plane (as at zero yaw); the counterbore runs out through the underside
-        holes += [interface_to_w(cyl((x, -30, z), (0, 1, 0), 1.7, 33)), interface_to_w(cyl((x, -30, z), (0, 1, 0), 3.25, 30 - 4.7))]
+        # the head seats 4.7 mm below the pad plane (as at zero yaw); the counterbore runs out through the cavity and
+        # the underside, so a driver reaches it from below
+        holes += [interface_to_w(cyl((x, -h, z), (0, 1, 0), 1.7, h + 3)), interface_to_w(cyl((x, -h, z), (0, 1, 0), 3.25, h - 4.7))]
     body = cut(flange, *pockets, *holes)
     lugs = []
     for s in (+1, -1):          # front (-z) / back (+z) lugs: deviation axis = W z; the back one is a block out to the bar

@@ -52,7 +52,10 @@ def main():
                     best = min(best, dist * 1e3)
                 row.append(f"{p} deg: {best:5.1f}")
             lines.append(f"  thumb abduction {abd:+3d}, flexion {flex:+3d} (m1 {m1:+3d}, m2 {m2:+3d}):  " + "   ".join(row))
-    lines.append("Rule (wrist_design.thumb_flexion_min): thumb flexion >= -70 deg whenever wrist flexion > 40 deg (OpenHand uses -35).")
+    lim = np.degrees(wd.thumb_flexion_min(np.radians(60.0)))
+    lines.append(f"Rule (wrist_design.thumb_flexion_min, PALM_EXT = {wd.PALM_EXT:g} mm): " + (
+        "no limit, the thumb clears the forearm everywhere." if lim <= -90 else
+        f"thumb flexion >= {lim:.0f} deg whenever wrist flexion > 40 deg (OpenHand uses -35)."))
     out = "\n".join(lines)
     print(out)
     (HERE / "reports" / "thumb_vs_forearm.txt").write_text(out + "\n")

@@ -223,9 +223,10 @@ Details are in [cad/five_finger/wrist/README.md](cad/five_finger/wrist/README.md
 - **Wrist:** a 2-DOF ring gimbal under the stock wrist interface. The hand bolts on unchanged through a wedge-shaped adapter.
 - **Hand on the forearm:** the forearm runs through the middle of the four fingers, between the middle and ring knuckles. It points along their mean direction, 10.5° from the stock index axis. The fingers therefore fan symmetrically about the forearm, and the knuckle line arcs down to the pinky as on a human hand. With the forearm on the stock interface axis instead, the hand would lean about 11° to the pinky side, and the pinky would look stuck on. ([before / after](Demo/AHSimulation/five_finger/renders/before_after_centering.jpg))
 - **Drive:** two Feetech STS3215 (12 V) servos in a tapered forearm push rods, the same parallel drive as the fingers. Flexion is ±60°; deviation is ±25°, tapering to ±15° at full flexion.
-- **Torque:** the worst static load is 18% of stall for the hand alone and 35% with 200 g at the fingertips.
+- **Longer palm:** the wrist sits 20 mm further from the hand (`PALM_EXT`), and the palm shells reach down to it. The thumb therefore sits higher above the wrist, and palm and finger lengths are in human proportion (113 mm palm for 87 mm fingers).
+- **Torque:** the worst static load is 23% of stall for the hand alone and 40% with 200 g at the fingertips.
 - **Electrical:** servo IDs 21/22 (left 31/32), on their own 12 V branch.
-- **Software contract:** the coupled range and a thumb interlock must be enforced in software (`clamp_wrist()`, `thumb_flexion_min()`).
+- **Software contract:** the coupled range must be enforced in software (`clamp_wrist()`). With the longer palm, the thumb no longer needs an interlock.
 
 View it:
 
@@ -239,14 +240,17 @@ View it:
 
 [hand_poses.py](Demo/AHSimulation/five_finger/hand_poses.py) defines poses by intent (each finger straight or curled, plus a spread) and works out the servo commands for a given model. It then settles each pose and checks the clearance between every pair of digits. "Straight" is found per model (f = −32° for slim fingers), so the same pose definitions work for the stock, slim and 3-phalanx variants.
 
+**Fingers together.** The stock hand fans its fingers 7.5° apart. Straight fingers in these poses are instead turned parallel to the forearm, using the abduction they already have (a = (m1 + m2)/2 of −19, −8, +6 and +20° for index…pinky). This brings the fingertips from 42–45 mm apart to 34 mm, and the peace sign's V becomes symmetric about the forearm. The knuckles themselves cannot get closer without a new drive layout: each finger's two servos and their levers take 33 mm of palm width, and neighbouring levers are already 3 mm apart.
+
 | Pose | Index | Middle | Ring | Pinky | Thumb | Closest digits |
 |---|---|---|---|---|---|---|
-| PeaceSign | (−2, 62) | (−62, 2) | (90, −90) | (90, −90) | (90, −90) tucked | none within 3 mm |
-| MiddleFinger | (90, −90) | (−32, 32) | (90, −90) | (90, −90) | (90, 45) over the index | thumb/index 0.66 mm |
+| Open (relaxed) | (−51, 13) | (−40, 24) | (−26, 38) | (−12, 52) | (−35, 35) | index/middle 2.5 mm (drive levers) |
+| PeaceSign | (−21, 43) | (−70, −6) | (90, −90) | (90, −90) | (90, −90) tucked | none within 3 mm |
+| MiddleFinger | (90, −90) | (−40, 24) | (90, −90) | (90, −90) | (90, 45) over the index | thumb/index 0.66 mm |
 
 The commands are right-hand (m1, m2) in degrees, for `AH_Right_5F_Slim`. For the left hand, mirror to (−m2, −m1).
 
-- **Compared with the stock demo:** these are close to the stock `Victory` and `Fuck` demos. The V is spread wider (±30° instead of about ±25°), the pinky is curled, and the middle finger has the thumb folded over the curled index.
+- **Compared with the stock demo:** these are close to the stock `Victory` and `Fuck` demos. The V is symmetric about the forearm (±16°), the pinky is curled, and the middle finger has the thumb folded over the curled index.
 - **Thumb limit:** the thumb cannot hold down the curled ring and pinky in the peace sign. It opposes only towards the index, and its tip stays at least 56 mm from the curled ring. So it tucks into the palm instead, as in the stock `Victory`.
 
 ```bash

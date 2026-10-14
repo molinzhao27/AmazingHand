@@ -59,6 +59,8 @@ FLANGE_R = 28.0            # 3.5 mm larger than the interface spigot (d49): room
                            # flange (centred on the spigot) still covers the gimbal lugs, which sit 5 mm off its axis
 FLANGE_MIN = FLANGE_T + 1.2                     # thinnest flange section (rim, CAD y), = the stock (yaw 0) flange
 
+PALM_EXT = 20.0            # mm the wrist sits further from the hand than the adapter needs: a longer palm (the palm
+                           # shells reach down to the wrist, so the thumb sits higher above it, as on a human hand)
 HAND_YAW = np.radians(10.5)                     # forearm axis from CAD y towards the pinky (the fingers point at
                                                 # 0.3 / 6.3 / 13.8 / 21.3 deg, mean 10.4)
 KNUCKLE_CENTRE = np.array([48.32, -13.82])      # CAD (x, y): centroid of the index..pinky knuckle pivots (closing_1 (n)_2)
@@ -77,14 +79,16 @@ def _wrist_centre():
     """C on the forearm axis (through KNUCKLE_CENTRE along W y), as high as the adapter allows. The flange is a
     cylinder of radius FLANGE_R about the interface's spigot axis (CAD y), from the pad plane CAD y =
     INTERFACE_PADS_Y down to the W plane y = H_FLANGE - FLANGE_T (as at zero yaw, so the gimbal below keeps its
-    clearances); it must be at least FLANGE_MIN thick where that plane is highest, on the radial rim."""
+    clearances); it must be at least FLANGE_MIN thick where that plane is highest, on the radial rim. PALM_EXT
+    lowers C further (a longer adapter, so a longer palm)."""
     s_, c_ = np.sin(HAND_YAW), np.cos(HAND_YAW)
     x_rim = INTERFACE_AXIS[0] - FLANGE_R
     t = c_ * (KNUCKLE_CENTRE[1] - INTERFACE_PADS_Y + FLANGE_MIN) + (H_FLANGE - FLANGE_T) - (x_rim - KNUCKLE_CENTRE[0]) * s_
+    t += PALM_EXT
     return np.array([KNUCKLE_CENTRE[0] - t * s_, KNUCKLE_CENTRE[1] - t * c_, INTERFACE_AXIS[1]])
 
 
-C_CAD = _wrist_centre()                         # (26.23, -133.02, -11.5); 121 mm below the knuckle centroid
+C_CAD = _wrist_centre()                         # (22.58, -152.69, -11.5); 141 mm below the knuckle centroid
 
 
 def cad_to_root(p_cad):
@@ -214,8 +218,13 @@ def rom_dev_limit(phi):
 
 
 def thumb_flexion_min(phi):
-    """Lowest thumb flexion (m1 - m2)/2, rad, allowed at wrist flexion phi (rad): an over-extended thumb
-    (< -70 deg; OpenHand uses -35 deg) reaches the forearm's radial side at palm-ward wrist flexion >= 50 deg."""
+    """Lowest thumb flexion (m1 - m2)/2, rad, allowed at wrist flexion phi (rad). With the longer palm
+    (PALM_EXT = 20 mm) even the fully over-extended thumb (-90 deg) clears the forearm by >= 7.6 mm over the whole
+    ROM (Demo/AHSimulation/wrist/check_thumb_rule.py), so there is no limit. Without it (PALM_EXT = 0) an
+    over-extended thumb (< -70 deg; OpenHand uses -35 deg) reached the forearm's radial side at palm-ward wrist
+    flexion >= 50 deg."""
+    if PALM_EXT >= 20.0:
+        return -np.pi / 2
     return np.radians(-70.0) if phi > np.radians(40.0) else -np.pi / 2
 
 

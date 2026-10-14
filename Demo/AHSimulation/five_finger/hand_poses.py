@@ -5,7 +5,11 @@ Poses are written as intent per digit (straight or curled, plus abduction), so t
 works for the stock-width, slim and 3-phalanx fingers:
   * a finger's "straight" command is found per model: the flexion command f = (m1 - m2)/2 that puts
     its fingertip farthest from its knuckle pivot (at zero abduction a = (m1 + m2)/2);
-  * "curled" is full flexion, f = +90 deg;
+  * straight fingers are parallel to the forearm at zero spread: the stock hand fans its fingers
+    7.5 deg apart, so each gets a base abduction (found per model, against the powered wrist's
+    forearm axis) and the pose's spread is added to it - the fingertips are ~34 mm apart instead of
+    42-45 mm, and a V is symmetric about the forearm;
+  * "curled" is full flexion, f = +90 deg (zero abduction);
   * the thumb is either tucked (fully flexed into the palm, like the stock Victory demo) or folded
     onto target fingertips: the grid command bringing its tip closest to them without touching
     any digit. (The AmazingHand thumb only opposes towards the index: it cannot reach the curled
@@ -38,15 +42,15 @@ SPREAD = 30.0  # deg of motor abduction a = (m1 + m2)/2 for a spread finger (sto
 TOUCH = 0.225e-3
 
 TUCK = (90.0, -90.0)  # thumb fully flexed into the palm
-# name: (digits -> ("straight" | "curled", abduction a in deg), thumb: "tuck" | target fingertip(s) | None,
-#        wrist (flexion, deviation) deg for renders)
+# name: (digits -> ("straight" | "curled", spread in deg of motor abduction a, added to the parallel base),
+#        thumb: "tuck" | target fingertip(s) | None, wrist (flexion, deviation) deg for renders)
 POSES = {
     "PeaceSign": ({"index": ("straight", +SPREAD), "middle": ("straight", -SPREAD),
                    "ring": ("curled", 0.0), "pinky": ("curled", 0.0)}, "tuck", (-10.0, 5.0)),
     "MiddleFinger": ({"index": ("curled", 0.0), "middle": ("straight", 0.0),
                       "ring": ("curled", 0.0), "pinky": ("curled", 0.0)}, ["index"], (0.0, 0.0)),
     "Fist": ({d: ("curled", 0.0) for d in FINGERS}, ["index", "middle"], (0.0, 0.0)),
-    "Open": ({d: ("straight", 0.0) for d in FINGERS}, None, (0.0, 0.0)),
+    "Open": ({d: ("straight", 0.0) for d in FINGERS}, None, (0.0, 0.0)),  # relaxed: fingers parallel
 }
 
 
@@ -88,15 +92,33 @@ class PoseModel:
                     best[d] = (r, f)
         return {d: float(v[1]) for d, v in best.items()}
 
+    def direction(self, d):
+        """Finger direction (tip - knuckle) in degrees from the forearm axis (W y), + towards the pinky."""
+        import wrist_design as wd
+        R = np.zeros(9)
+        mujoco.mju_quat2Mat(R, wd.PLATE_QUAT)
+        n = DIGIT_ID[d]
+        v = (self.site(f"tip{n}") - self.site(f"closing_1 ({n})_2")) @ R.reshape(3, 3) @ wd.R_W2CAD
+        return np.degrees(np.arctan2(v[0], v[1]))
+
+    def parallel_abduction(self, straight):
+        """Abduction a per finger that makes the straight finger parallel to the forearm axis."""
+        dirs = {}
+        for a in (0.0, 10.0):
+            self.settle({d: (a + straight[d], a - straight[d]) for d in FINGERS}, steps=600)
+            dirs[a] = {d: self.direction(d) for d in FINGERS}
+        return {d: round(float(-dirs[0.0][d] * 10.0 / (dirs[10.0][d] - dirs[0.0][d])), 1) for d in FINGERS}
+
     def clearance(self, a, b, groups=None):
         g = groups or self.groups
         return group_distance(g[a], g[a].poses(self.h.d), g[b], g[b].poses(self.h.d), 0.010, skip_root_pair=True)
 
 
-def finger_commands(pose, straight):
+def finger_commands(pose, straight, base):
     cmd = {}
     for d, (state, a) in pose.items():
         f = straight[d] if state == "straight" else 90.0
+        a = a + base[d] if state == "straight" else a
         m1, m2 = a + f, a - f
         lim = max(abs(m1), abs(m2))
         if lim > 90:  # keep both motors in range: give up abduction, not flexion
@@ -206,16 +228,18 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--model", default="AH_Right_5F_Slim", help="hand-only model to find and check the poses on")
     ap.add_argument("--render-model", help="model to render (e.g. a *_Wrist model); default = --model")
-    ap.add_argument("--poses", nargs="*", default=["PeaceSign", "MiddleFinger"])
+    ap.add_argument("--poses", nargs="*", default=["Open", "PeaceSign", "MiddleFinger"])
     args = ap.parse_args()
 
     pm = PoseModel(args.model)
     straight = pm.straight_command()
     log(f"model {args.model}: straight flexion command f = (m1 - m2)/2 per finger (deg): {straight}")
+    base = pm.parallel_abduction(straight)
+    log(f"  abduction a = (m1 + m2)/2 that makes each straight finger parallel to the forearm (deg): {base}")
     cmds = {}
     for name in args.poses:
         pose, targets, _ = POSES[name]
-        cmd = finger_commands(pose, straight)
+        cmd = finger_commands(pose, straight, base)
         if targets == "tuck":
             cmd["thumb"] = TUCK
             log(f"{name}: thumb tucked {TUCK}")

@@ -1,20 +1,20 @@
 {
   "frame": "CAD part-studio frame of the AmazingHand (mm), neutral wrist pose",
   "wrist_centre_cad_mm": [
-    26.22673610250872,
-    -133.02458479567915,
+    22.582025592665772,
+    -152.68968294695824,
     -11.5
   ],
   "hand_yaw_deg": 10.5,
   "parts": {
     "R-Wrist_Hand_Adapter": {
-      "volume_cm3": 31.18,
-      "mass_g": 31.2,
+      "volume_cm3": 52.45,
+      "mass_g": 52.5,
       "solids": 1,
       "valid": true,
       "bbox_cad_mm": [
         -3.5,
-        -140.58,
+        -160.25,
         -39.5,
         52.5,
         -101.0,
@@ -28,11 +28,11 @@
       "solids": 1,
       "valid": true,
       "bbox_cad_mm": [
-        15.76,
-        -138.69,
+        12.11,
+        -158.35,
         -21.5,
-        36.7,
-        -127.36,
+        33.05,
+        -147.03,
         -1.5
       ],
       "print": "flat"
@@ -43,11 +43,11 @@
       "solids": 1,
       "valid": true,
       "bbox_cad_mm": [
-        -14.51,
-        -170.96,
+        -18.16,
+        -190.62,
         -46.5,
-        55.88,
-        -124.79,
+        52.24,
+        -144.46,
         20.0
       ],
       "print": "cap face down, lugs up; bearing seats are teardrops"
@@ -58,11 +58,11 @@
       "solids": 1,
       "valid": true,
       "bbox_cad_mm": [
-        -53.27,
-        -351.9,
+        -56.91,
+        -371.56,
         -63.5,
-        55.3,
-        -158.02,
+        51.66,
+        -177.68,
         -21.5
       ],
       "print": "standing on the elbow end"
@@ -73,11 +73,11 @@
       "solids": 1,
       "valid": true,
       "bbox_cad_mm": [
-        -53.27,
-        -351.9,
+        -56.91,
+        -371.56,
         -21.5,
-        55.3,
-        -158.02,
+        51.66,
+        -177.68,
         25.5
       ],
       "print": "standing on the elbow end"
@@ -88,11 +88,11 @@
       "solids": 1,
       "valid": true,
       "bbox_cad_mm": [
-        -24.5,
-        -255.57,
+        -28.14,
+        -275.24,
         -53.8,
-        47.43,
-        -177.83,
+        43.79,
+        -197.49,
         -23.5
       ],
       "print": "base down (the face that lies on the forearm's front wall)"
@@ -103,11 +103,11 @@
       "solids": 1,
       "valid": true,
       "bbox_cad_mm": [
-        38.47,
-        -215.86,
+        34.82,
+        -235.52,
         -28.75,
-        46.96,
-        -190.55,
+        43.31,
+        -210.21,
         14.25
       ],
       "print": "flat, stud face down (nut pocket up)"
@@ -118,18 +118,18 @@
       "solids": 1,
       "valid": true,
       "bbox_cad_mm": [
-        -72.86,
-        -361.08,
+        -76.51,
+        -380.74,
         -79.0,
-        45.86,
-        -333.67,
+        42.21,
+        -353.34,
         41.0
       ],
       "print": "flat, underside down"
     },
     "L-Wrist_Hand_Adapter": {
-      "volume_cm3": 31.18,
-      "mass_g": 31.2,
+      "volume_cm3": 52.45,
+      "mass_g": 52.5,
       "solids": 1,
       "valid": true,
       "mirror_of": "R-Wrist_Hand_Adapter",
