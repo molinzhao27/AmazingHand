@@ -1,30 +1,30 @@
 model AH_Right_5F with 5f shells; digits ['index', 'middle', 'ring', 'thumb', 'pinky']
 palm-fixed parts vs shells (bolted parts may touch by design):
-  plate                  palm_shell 0.17 mm [r_hand_plate] TOUCH/OVERLAP, top_shell 0.00 mm [r_hand_plate] TOUCH/OVERLAP, pad_band > 5 mm, pad_palm > 5 mm
+  plate                  palm_shell 0.01 mm [r_hand_plate] TOUCH/OVERLAP, top_shell 4.29 mm [r_hand_plate], pad_band > 5 mm, pad_palm > 5 mm
   wrist interface        palm_shell 0.00 mm [r_wrist_interface] TOUCH/OVERLAP, top_shell 1.29 mm [r_wrist_interface], pad_band > 5 mm, pad_palm > 5 mm
-  index servos+frames    palm_shell > 5 mm, top_shell 1.82 mm [scs0009_4], pad_band > 5 mm, pad_palm > 5 mm
-  middle servos+frames   palm_shell > 5 mm, top_shell 1.35 mm [scs0009_3], pad_band > 5 mm, pad_palm > 5 mm
-  ring servos+frames     palm_shell > 5 mm, top_shell 1.41 mm [scs0009_6], pad_band > 5 mm, pad_palm > 5 mm
-  thumb servos+frames    palm_shell 2.72 mm [finger_frame_1_4], top_shell > 5 mm, pad_band > 5 mm, pad_palm > 5 mm
-  pinky servos+frames    palm_shell > 5 mm, top_shell 2.44 mm [scs0009_10], pad_band > 5 mm, pad_palm > 5 mm
+  index servos+frames    palm_shell > 5 mm, top_shell 0.94 mm [scs0009_4], pad_band > 5 mm, pad_palm > 5 mm
+  middle servos+frames   palm_shell > 5 mm, top_shell 0.94 mm [scs0009_5], pad_band > 5 mm, pad_palm > 5 mm
+  ring servos+frames     palm_shell > 5 mm, top_shell 0.94 mm [scs0009_6], pad_band > 5 mm, pad_palm > 5 mm
+  thumb servos+frames    palm_shell 2.81 mm [finger_frame_1_4], top_shell > 5 mm, pad_band > 5 mm, pad_palm > 5 mm
+  pinky servos+frames    palm_shell > 5 mm, top_shell 0.94 mm [scs0009_9], pad_band > 5 mm, pad_palm > 5 mm
 moving parts vs shells over the 169 grid poses:
-  index  vs palm_shell min  1.89 mm at (-15,-60) [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed (custom_servo_horn)]; touching at 0/169 poses
+  index  vs palm_shell min  1.85 mm at ( +0,-90) [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed (custom_servo_horn)]; touching at 0/169 poses
   index  vs top_shell  min   inf mm at (-90,-90); touching at 0/169 poses
   index  vs pad_band   min   inf mm at (-90,-90); touching at 0/169 poses
   index  vs pad_palm   min   inf mm at (-90,-90); touching at 0/169 poses
-  middle vs palm_shell min  2.75 mm at (+90,-90) [proximal_shell (parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b_2)]; touching at 0/169 poses
+  middle vs palm_shell min  2.80 mm at (+90,-90) [proximal_shell (parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b_2)]; touching at 0/169 poses
   middle vs top_shell  min   inf mm at (-90,-90); touching at 0/169 poses
   middle vs pad_band   min   inf mm at (-90,-90); touching at 0/169 poses
   middle vs pad_palm   min   inf mm at (-90,-90); touching at 0/169 poses
-  ring   vs palm_shell min  2.76 mm at (+90,-90) [proximal_shell (parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b_3)]; touching at 0/169 poses
+  ring   vs palm_shell min  2.77 mm at (+90,-90) [proximal_shell (parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b_3)]; touching at 0/169 poses
   ring   vs top_shell  min   inf mm at (-90,-90); touching at 0/169 poses
   ring   vs pad_band   min   inf mm at (-90,-90); touching at 0/169 poses
-  ring   vs pad_palm   min  4.17 mm at (-90,+30) [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed (rotule_ball_6)]; touching at 0/169 poses
-  thumb  vs palm_shell min  1.11 mm at (-90,-90) [proximal (parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b_4)]; touching at 0/169 poses
+  ring   vs pad_palm   min  4.21 mm at (-30,+30) [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed (rotule_ball_6)]; touching at 0/169 poses
+  thumb  vs palm_shell min  1.13 mm at (-90,-90) [proximal (parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b_4)]; touching at 0/169 poses
   thumb  vs top_shell  min   inf mm at (-90,-90); touching at 0/169 poses
-  thumb  vs pad_band   min  2.31 mm at (+90,-90) [distal_shell (parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999_4)]; touching at 0/169 poses
+  thumb  vs pad_band   min  2.58 mm at (+90,-90) [distal_shell (parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999_4)]; touching at 0/169 poses
   thumb  vs pad_palm   min   inf mm at (-90,-90); touching at 0/169 poses
-  pinky  vs palm_shell min  1.63 mm at (-15, +0) [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed (rotule_ball_10)]; touching at 0/169 poses
+  pinky  vs palm_shell min  1.55 mm at (-30, +0) [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed (rotule_ball_10)]; touching at 0/169 poses
   pinky  vs top_shell  min   inf mm at (-90,-90); touching at 0/169 poses
-  pinky  vs pad_band   min  4.54 mm at ( +0,-15) [spacer (ball_link_9)]; touching at 0/169 poses
+  pinky  vs pad_band   min  3.97 mm at (+15, +0) [rotule_lever (ball_link_9)]; touching at 0/169 poses
   pinky  vs pad_palm   min  4.11 mm at (-90,-90) [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed (custom_servo_horn_5)]; touching at 0/169 poses

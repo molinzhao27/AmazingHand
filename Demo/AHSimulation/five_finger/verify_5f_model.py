@@ -54,7 +54,10 @@ DEMO_POSES_5F = {
     "OpenHand": dict(index=(-35, 35), middle=(-35, 35), ring=(-35, 35), pinky=(-35, 35), thumb=(-35, 35)),
     "CloseHand": dict(index=(90, -90), middle=(90, -90), ring=(90, -90), pinky=(90, -90), thumb=(90, -90)),
     "SpreadHand": dict(index=(4, 90), middle=(-32, 32), ring=(-68, 18), pinky=(-90, -4), thumb=(-90, -4)),
-    "ClenchHand": dict(index=(-60, 0), middle=(-35, 35), ring=(0, 70), pinky=(0, 70), thumb=(-4, 90)),
+    # ClenchHand converges the fingers onto each other. The stock commands (index (-60, 0), middle (-35, 35),
+    # ring/pinky (0, 70)) close the stock fan; on the parallel layout (cad/five_finger/layout.py) the fingers start
+    # parallel and 3.3 mm closer, so about half the convergence brings the fingertips together (1.5-2.3 mm apart).
+    "ClenchHand": dict(index=(-35, 25), middle=(-30, 40), ring=(-20, 50), pinky=(-27, 43), thumb=(-4, 90)),
     "Index_Pointing": dict(index=(-40, 40), middle=(90, -90), ring=(90, -90), pinky=(90, -90), thumb=(90, -90)),
     "Perfect": dict(index=(50, -50), middle=(0, 0), ring=(-20, 20), pinky=(-20, 20), thumb=(65, 12)),
     "Victory": dict(index=(-15, 65), middle=(-65, 15), ring=(90, -90), pinky=(90, -90), thumb=(90, -90)),

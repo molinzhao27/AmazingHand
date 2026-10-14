@@ -52,6 +52,7 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parent.parent
 sys.path.insert(0, str(REPO / "Demo" / "AHSimulation" / "five_finger"))
 sys.path.insert(0, str(HERE / "wrist"))
+import layout as LAYOUT  # noqa: E402
 import verify_5f_model as V  # noqa: E402
 import wrist_design as wd  # noqa: E402
 from build_5f_model import child_by_name, get_pose, parse  # noqa: E402
@@ -86,9 +87,17 @@ WRIST_SECTION = 30.0  # mm of wrist section (centred on the forearm axis) above 
 # clears the fork at the extension + deviation hard stops: by BEVEL mm per mm of z above BEVEL_Z
 BEVEL_Z, BEVEL = Z_SPLIT, 0.4
 ADAPTER_STL = HERE / "wrist" / "stl" / "R-Wrist_Hand_Adapter.stl"
-# back-shell screws (stock Top_Shell positions + the widened plate's pinky-side hole): (x, y, boss bottom z)
-SCREWS = [(16.1, -11.7, Z_SPLIT), (47.5, -20.1, Z_SPLIT), (77.8, -32.9, Z_SPLIT),
-          (4.0, -91.0, Z_SPLIT + FLANGE_T), (46.0, -91.0, Z_SPLIT + FLANGE_T)]
+# back-shell screws: holes in the palm plate (cad/five_finger/make_5f_plate.py) + the two into the wrist interface,
+# (x, y, boss bottom z). Stock layout: the stock Top_Shell positions + the widened plate's pinky-side hole, bosses
+# from the plate's back face. Parallel layout: one hole on each 5.5 mm rib between neighbouring servo pairs; the
+# servos stand 5.8 mm proud of the plate's back face (to z = 21.3), so these bosses start just above them and a
+# longer screw (2.5 x 16) runs through the gap between the servos (1.5 mm clear on each side) into the plate.
+SERVO_BACK_Z = 21.3
+SCREWS_BY_LAYOUT = {
+    "stock": [(16.1, -11.7, Z_SPLIT), (47.5, -20.1, Z_SPLIT), (77.8, -32.9, Z_SPLIT)],
+    "parallel": [(15.59, -26.60, SERVO_BACK_Z + 0.7), (44.84, -32.68, SERVO_BACK_Z + 0.7), (72.97, -45.86, SERVO_BACK_Z + 0.7)],
+}
+SCREWS = SCREWS_BY_LAYOUT[LAYOUT.LAYOUT] + [(4.0, -91.0, Z_SPLIT + FLANGE_T), (46.0, -91.0, Z_SPLIT + FLANGE_T)]
 BOSS_R, HOLE_R, HEAD_R, HOLE_LEN = 3.6, 1.35, 2.5, 3.0  # stock: r1.35 hole 3 mm, r2.5 head counterbore
 # grip pads (grey TPU inserts in recesses of the palm shell)
 PAD_DEPTH, PAD_PROUD, PAD_GAP, PAD_TEX, PAD_PITCH = 1.0, 0.8, 0.15, 0.35, 3.0
@@ -346,10 +355,12 @@ def part_fields(G, s_E, s_O, s_top, K_enc_noplate):
     flange = vmax(s_E - (half - LAP_GAP / 2), Z_SPLIT - Z, Z - top, YY - FLANGE_Y, G.below_cut3(), -s_O,
                   0.3 - G.dist(K_enc_noplate))
     palm = np.minimum(palm, flange)
-    # screw bosses on the back shell, from the plate / flange up into the back wall
+    # screw bosses on the back shell, from the plate / flange (or just above the servos) up into the back wall,
+    # kept clear of the enclosed parts
+    clear = CLR - G.dist(K_enc_noplate)
     for x, y, z0 in SCREWS:
         r = np.sqrt((G.XX - x) ** 2 + (G.YY - y) ** 2)[:, :, None]
-        boss = vmax(s_E, r - BOSS_R, z0 - Z)
+        boss = vmax(s_E, r - BOSS_R, z0 - Z, clear)
         back = np.minimum(back, boss)
     return back, palm
 
@@ -454,7 +465,7 @@ def cylinder(x, y, z0, z1, r):
 def finish(back, palm):
     for x, y, z0 in SCREWS:
         back = back - cylinder(x, y, z0 - 1.0, z0 + HOLE_LEN, HOLE_R) - cylinder(x, y, z0 + HOLE_LEN, 40.0, HEAD_R)
-        if z0 > Z_SPLIT:  # screws through the palm flange
+        if abs(z0 - (Z_SPLIT + FLANGE_T)) < 1e-6:  # screws through the palm flange
             palm = palm - cylinder(x, y, Z_SPLIT - 1.0, z0 + 1.0, HOLE_R + 0.25)
     return back, palm
 

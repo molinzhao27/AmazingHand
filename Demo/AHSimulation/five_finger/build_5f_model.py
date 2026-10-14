@@ -11,13 +11,21 @@ relates to the middle finger in the stock hand.
 finger5 is appended after the thumb, so qpos[0:68], ctrl[0:8] and mocap[0:4] keep the stock
 layout; finger5 adds qpos[68:85], ctrl[8:10] and mocap[4].
 
+Then the four finger modules are placed by the layout of cad/five_finger/layout.py (default
+"parallel": every module stood parallel to the forearm axis of the powered wrist at a 30 mm knuckle
+pitch). Each module - its servos, finger frames and bushings (fixed to the palm), its closing sites
+and both motor chains - is moved rigidly, so the finger and its drive are unchanged. --layout stock
+keeps the stock fan.
+
 Usage:  python build_5f_model.py              (writes AHSimulation/AH_Right_5F/mjcf)
         python build_5f_model.py --side left  (writes AHSimulation/AH_Left_5F/mjcf)
         add --keyframe to regenerate keyframes.xml by settling at ctrl=0
+        --layout stock|parallel (default: cad/five_finger/layout.py LAYOUT)
 """
 
 import argparse
 import copy
+import sys
 import re
 import shutil
 import xml.etree.ElementTree as ET
@@ -25,10 +33,13 @@ from pathlib import Path
 
 import mujoco
 import numpy as np
+import trimesh
 
 HERE = Path(__file__).resolve().parent
 SIM_DIR = HERE.parent / "AHSimulation"
 CAD_STL = HERE.parent.parent.parent / "cad" / "five_finger" / "stl"
+sys.path.insert(0, str(CAD_STL.parent))
+import layout as LAYOUT  # noqa: E402
 # Widened palm plates come from cad/five_finger/make_5f_plate.py (the stock plates have 3 finger mounts).
 SIDES = {
     "right": dict(src=SIM_DIR / "AH_Right" / "mjcf", dst=SIM_DIR / "AH_Right_5F" / "mjcf", root="r_wrist_interface",
@@ -230,7 +241,7 @@ def finger_step_transform(root_body):
     return T, new
 
 
-def build_robot(side, plate_mesh):
+def build_robot(side, plate_mesh, layout):
     src, dst = side["src"], side["dst"]
     tree = parse(src / "robot.xml")
     mj = tree.getroot()
@@ -289,6 +300,14 @@ def build_robot(side, plate_mesh):
         rename_subtree(c)
         equality.append(c)
 
+    assets = {}
+    for mesh in mj.find("asset").iter("mesh"):
+        stem = Path(mesh.get("file")).stem
+        if mesh.get("name", stem) in MODULE_MESHES:
+            scale = float(mesh.get("scale", "1 1 1").split()[0])
+            assets[mesh.get("name", stem)] = trimesh.load(src / "assets" / mesh.get("file")).centroid * scale
+    moves = apply_layout(side, root_body, assets, layout)
+
     if plate_mesh:  # same part frame as the stock plate, but in mm like the other cad/ exports
         for mesh in mj.find("asset").iter("mesh"):
             if mesh.get("file") == side["plate"] + ".stl":
@@ -299,13 +318,85 @@ def build_robot(side, plate_mesh):
     indent(tree)
     text = ET.tostring(mj, encoding="unicode").replace(" />", "/>")
     header = "".join((src / "robot.xml").read_text().splitlines(keepends=True)[:3]) + (
-        "<!-- 5-digit variant: finger5 (pinky) added by Demo/AHSimulation/five_finger/build_5f_model.py. Do not edit by hand. -->\n"
+        "<!-- 5-digit variant: finger5 (pinky) added and the finger modules placed (cad/five_finger/layout.py) by "
+        "Demo/AHSimulation/five_finger/build_5f_model.py. Do not edit by hand. -->\n"
     )
     (dst / "robot.xml").write_text(header + text + "\n")
-    return T
+    return T, moves
 
 
-def build_scene(side, T):
+# ---------------------------------------------------------------- finger-module layout
+MODULE_MESHES = ("scs0009", "finger_frame_1", "finger_frame_2", "bushing_0608_04")  # palm-fixed parts of a module
+FINGER_NUM = {"index": 1, "middle": 2, "ring": 3, "pinky": 5}
+FINGER_BODIES = {1: ["custom_servo_horn", "rotule_ball_2"], 2: F2_BODIES, 3: F3_BODIES, 5: ["custom_servo_horn_5", "rotule_ball_10"]}
+
+
+def quat_z(R_cad2root, deg):
+    """Quaternion (root frame) of a rotation by deg about CAD z."""
+    q = np.zeros(4)
+    mujoco.mju_axisAngle2Quat(q, R_cad2root @ np.array([0.0, 0.0, 1.0]), np.radians(deg))
+    return q
+
+
+def layout_transforms(side, root_body, layout):
+    """{finger: function(pose) -> pose} in the root frame, from cad/five_finger/layout.py."""
+    tf = LAYOUT.transforms(layout)
+    if side["root"].startswith("l_"):
+        tf = LAYOUT.mirrored(tf)
+    plate_p, plate_q = get_pose(part_geoms(root_body)[side["plate"]][1])
+    R = np.zeros(9)
+    mujoco.mju_quat2Mat(R, plate_q)
+    R = R.reshape(3, 3)
+    out = {}
+    for f, (phi, p0, p1) in tf.items():
+        site = get_pose(child_by_name(root_body, "site", f"closing_1 ({FINGER_NUM[f]})_2"))[0]
+        assert np.allclose(R.T @ (site - plate_p) * 1000, p0, atol=0.01), f"{f}: knuckle not at the layout's stock pivot"
+        q = quat_z(R, phi)
+        p0r, p1r = plate_p + R @ p0 / 1000, plate_p + R @ p1 / 1000
+
+        def move(pose, q=q, p0r=p0r, p1r=p1r):
+            pos, quat = pose
+            return rotate(q, pos - p0r) + p1r, quat_mul(q, quat)
+        out[f] = (move, (phi, p0, p1), R, plate_p)
+    return out
+
+
+def apply_layout(side, root_body, assets, layout):
+    """Move every finger module (palm-fixed parts, closing sites, motor chains) by the layout."""
+    moves = layout_transforms(side, root_body, layout)
+    if all(abs(t[1][0]) < 1e-9 and np.allclose(t[1][1], t[1][2]) for t in moves.values()):
+        return moves
+    # palm-fixed parts of each module, found geometrically (mesh centroid in the module's stock frame)
+    owner = {}
+    for name, (_, g) in part_geoms(root_body).items():
+        mesh = g.get("mesh")
+        if mesh not in MODULE_MESHES:
+            continue
+        pos, quat = get_pose(g)
+        c = pos + rotate(quat, assets[mesh])
+        for f, (_, (phi, p0, _p1), R, plate_p) in moves.items():
+            d = (R.T @ (c - plate_p) * 1000 - p0)[:2]
+            ang = np.radians(LAYOUT.STOCK[f][1] if side["root"].startswith("r_") else -LAYOUT.STOCK[f][1])
+            local = np.array([d[0] * np.cos(ang) - d[1] * np.sin(ang), d[0] * np.sin(ang) + d[1] * np.cos(ang)])
+            if abs(local[0]) < 16 and -55 < local[1] < 12:
+                assert name not in owner, f"{name} claimed by two modules"
+                owner[name] = f
+    geoms = part_geoms(root_body)
+    for f, (move, *_rest) in moves.items():
+        parts = [n for n, o in owner.items() if o == f]
+        assert len(parts) == 6, f"{f}: module parts {parts}"
+        for n in parts:
+            set_pose(geoms[n][1], move(get_pose(geoms[n][1])))
+        n = FINGER_NUM[f]
+        for el in [child_by_name(root_body, "site", f"closing_1 ({n})_2"), child_by_name(root_body, "site", f"closing_1 ({n})_2_z")] + \
+                  [child_by_name(root_body, "body", b) for b in FINGER_BODIES[n]]:
+            set_pose(el, move(get_pose(el)))
+    print(f"layout '{layout}': " + ", ".join(f"{f} {t[1][0]:+.2f} deg, knuckle {np.round(t[1][2][:2], 2).tolist()}"
+                                           for f, t in moves.items()))
+    return moves
+
+
+def build_scene(side, T, moves):
     text = (side["src"] / "scene.xml").read_text()
     tree = parse(side["src"] / "scene.xml")
     f3 = child_by_name(tree.getroot().find("worldbody"), "body", "finger3_target")
@@ -318,6 +409,13 @@ def build_scene(side, T):
     anchor = "    </worldbody>"
     assert anchor in text
     text = text.replace(anchor, target5 + anchor)
+    # the IK targets move with their finger modules (the hand root is the world frame)
+    for f, (move, *_rest) in moves.items():
+        pat = re.compile(rf'(<body name="finger{FINGER_NUM[f]}_target" )pos="([^"]+)" quat="([^"]+)"')
+        mo = pat.search(text)
+        pose = (np.array(mo.group(2).split(), float), np.array(mo.group(3).split(), float))
+        pos, quat = move((pose[0], pose[1] / np.linalg.norm(pose[1])))
+        text = text[:mo.start()] + f'{mo.group(1)}pos="{fmt(pos)}" quat="{fmt(quat)}"' + text[mo.end():]
     (side["dst"] / "scene.xml").write_text(text)
 
 
@@ -391,6 +489,7 @@ def main():
     ap.add_argument("--keyframe", action="store_true", help="regenerate keyframes.xml by settling at ctrl=0")
     ap.add_argument("--stock-plate", action="store_true", help="use the stock 3-finger palm plate mesh")
     ap.add_argument("--side", choices=SIDES, default="right")
+    ap.add_argument("--layout", choices=["parallel", "stock"], default=LAYOUT.LAYOUT, help="finger-module layout")
     args = ap.parse_args()
     side = SIDES[args.side]
     src, dst = side["src"], side["dst"]
@@ -407,8 +506,8 @@ def main():
         shutil.copy2(side["plate_src"], dst / "assets" / plate)
     print(f"palm plate mesh: {plate or side['plate'] + '.stl (stock, 3 fingers + thumb)'}")
 
-    T = build_robot(side, plate)
-    build_scene(side, T)
+    T, moves = build_robot(side, plate, args.layout)
+    build_scene(side, T, moves)
     build_shell_scene(side)
     if args.keyframe or not (dst / "keyframes.xml").exists():
         settle_keyframe(side)

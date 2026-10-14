@@ -1,0 +1,70 @@
+model: Demo/AHSimulation/AHSimulation/AH_Right_5F_Slim/mjcf  (mujoco 3.15.0, digits: ['index', 'middle', 'ring', 'thumb', 'pinky'])
+== 1. structure
+  nbody=47 njnt=40 nq=85 nv=70 nu=10 neq=25 nsite=55 ngeom=213 nkey=1 nmocap=5
+  names unique: bodies, joints, sites, actuators
+  actuators: ['finger1_motor1', 'finger1_motor2', 'finger2_motor1', 'finger2_motor2', 'finger3_motor1', 'finger3_motor2', 'finger4_motor1', 'finger4_motor2', 'finger5_motor1', 'finger5_motor2']
+  every ctrlrange = +-1.5708 rad
+  keyframe 'zero': qpos size 85 == nq 85; max equality error 0.0001 mm
+  mocap finger1_target -> site tip1: 0.002 mm apart at the keyframe
+  mocap finger2_target -> site tip2: 0.004 mm apart at the keyframe
+  mocap finger3_target -> site tip3: 0.004 mm apart at the keyframe
+  mocap finger4_target -> site tip4: 0.006 mm apart at the keyframe
+  mocap finger5_target -> site tip5: 0.005 mm apart at the keyframe
+== 2. pinky is an exact copy of the ring finger
+  tip in own finger frame, ring vs pinky, 10 commands: max difference 0.0010 mm (only gravity acts differently on the two)
+== 3./4. stability and equality-constraint error while sweeping the actuators
+  each actuator alone 0->max->min->0       55.0 s sim  max|qvel|    1.90 rad/s  eq err max  0.007 mm (settled  0.000 mm)  max |q_motor - ctrl| settled  0.06 deg  warnings none  [2.0 s wall]
+  all digits around their range corners    12.0 s sim  max|qvel|    2.52 rad/s  eq err max  0.015 mm (settled  0.001 mm)  max |q_motor - ctrl| settled  0.07 deg  warnings none  [0.4 s wall]
+  demo poses (DEMO_POSES_5F), x2           18.0 s sim  max|qvel|   12.12 rad/s  eq err max  0.044 mm (settled  0.001 mm)  max |q_motor - ctrl| settled  0.09 deg  warnings none  [0.6 s wall]
+  60 abrupt random full-range steps        36.0 s sim  max|qvel|   86.74 rad/s  eq err max  0.933 mm (settled  0.003 mm)  max |q_motor - ctrl| settled  0.15 deg  warnings none  [1.3 s wall]
+  per digit (all sequences): max equality error transient / settled
+    index    0.791 mm /  0.002 mm
+    middle   0.526 mm /  0.003 mm
+    ring     0.632 mm /  0.002 mm
+    thumb    0.933 mm /  0.001 mm
+    pinky    0.861 mm /  0.002 mm
+  worst pair overall: 'closing_1 (4)_1_z' / 'closing_1 (4)_2_z' 0.933 mm
+== 5. interference: 9x9 grid per digit over (motor1, motor2) in [-90, 90] deg (22.5 deg steps); surface samples every 1.0 mm, 0.3 mm below 3 mm clearance
+  settled 81 grid poses (0.6 s); max equality error at the grid poses: index 0.002 mm, middle 0.002 mm, ring 0.002 mm, thumb 0.002 mm, pinky 0.002 mm
+  ring vs pinky, palm-fixed parts only (servos, finger frames): > 5 mm
+  ring (A) vs pinky (B): min clearance 0.00 mm at A(-90,-90) B(-22,-22) [distal (parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999_3) / distal (parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999_5)]; pose pairs touching or overlapping (< 0.23 mm): 1502/6561
+    touching parts: proximal/proximal_shell x327, proximal_shell/proximal_shell x306, proximal/proximal x143, ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed/proximal_shell x106, proximal_shell/rotule_lever x50, proximal_shell/thermo_screw_m2_5x5 x48, ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed/proximal x47, proximal/thermo_screw_m2_5x5 x45, distal_shell/distal_shell x43, proximal_shell/rotule_ball x36, distal/proximal x34, distal/distal_shell x34, link/proximal x26, rotule_lever/thermo_screw_m2_5x5 x25, link/proximal_shell x23, distal/proximal_shell x22, proximal/rotule_lever x20, proximal/rotule_ball x16, distal/distal x15, rotule_ball/thermo_screw_m2_5x5 x15, distal_shell/proximal x14, distal_pad/distal_shell x12, distal_shell/proximal_shell x10, distal/distal_pad x10, distal_shell/thermo_screw_m2_5x5 x9, parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999/proximal x7, link/thermo_screw_m2_5x5 x7, parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b/proximal_shell x7, distal/thermo_screw_m2_5x5 x5, distal/link x4, distal_shell/parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b x4, link/link x4, ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed/thermo_screw_m2_5x5 x4, distal/parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999 x3, parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b/proximal x3, distal_pad/proximal x3, link/parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b x2, distal/parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b x2, thermo_screw_m2_5x5/thermo_screw_m2_5x5 x2, distal_shell/parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999 x2, parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999/proximal_shell x2, distal_pad/distal_pad x1, distal_pad/thermo_screw_m2_5x5 x1, distal_pad/link x1, distal_pad/parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999 x1, distal_shell/link x1
+    [208 s]
+  middle vs ring, palm-fixed parts only (servos, finger frames): > 5 mm
+  middle (A) vs ring (B): min clearance 0.00 mm at A(+22, +0) B(+45,+45) [distal_shell (parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999_2) / distal_shell (parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999_3)]; pose pairs touching or overlapping (< 0.23 mm): 1435/6561
+    touching parts: proximal/proximal_shell x363, proximal_shell/proximal_shell x359, proximal/proximal x144, ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed/proximal_shell x103, proximal/thermo_screw_m2_5x5 x55, ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed/proximal x45, proximal_shell/thermo_screw_m2_5x5 x39, distal/distal_shell x35, link/proximal x33, distal_shell/distal_shell x33, link/proximal_shell x26, distal/proximal x26, distal/proximal_shell x16, distal_shell/proximal_shell x15, distal/distal x15, distal_shell/thermo_screw_m2_5x5 x14, distal_pad/distal_shell x14, proximal_shell/rotule_lever x11, distal/distal_pad x8, link/thermo_screw_m2_5x5 x7, parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b/proximal x7, proximal/rotule_lever x7, proximal_shell/rotule_ball x7, distal/thermo_screw_m2_5x5 x6, parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b/proximal_shell x6, link/link x5, distal_shell/proximal x5, parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999/proximal x4, distal/parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b x4, thermo_screw_m2_5x5/thermo_screw_m2_5x5 x4, rotule_lever/thermo_screw_m2_5x5 x4, distal/link x4, distal_pad/thermo_screw_m2_5x5 x3, parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999/proximal_shell x2, distal_pad/proximal_shell x2, proximal/rotule_ball x1, distal_pad/parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999 x1, distal_shell/link x1, distal/parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999 x1
+    [408 s]
+  thumb vs pinky, palm-fixed parts only (servos, finger frames): > 5 mm
+  thumb (A) vs pinky (B): > 5 mm apart in all 6561 pose pairs
+    [6 s]
+  thumb vs ring, palm-fixed parts only (servos, finger frames): > 5 mm
+  thumb (A) vs ring (B): > 5 mm apart in all 6561 pose pairs
+    [5 s]
+  ring/pinky contact vs relative abduction c = a_pinky - a_ring (a = (m1+m2)/2, > 0 = towards index): touching pairs have c >= -45.0 deg
+    c =  -45.0 deg: 1/375 pose pairs touch (min clearance of the others 1.22 mm)
+    c =  -22.5 deg: 10/456 pose pairs touch (min clearance of the others 0.53 mm)
+    c =   +0.0 deg: 27/489 pose pairs touch (min clearance of the others 0.31 mm)
+    c =  +22.5 deg: 79/456 pose pairs touch (min clearance of the others 0.23 mm)
+    c =  +45.0 deg: 181/375 pose pairs touch (min clearance of the others 0.31 mm)
+    c =  +67.5 deg: 187/270 pose pairs touch (min clearance of the others 0.53 mm)
+    c =  +90.0 deg: 138/165 pose pairs touch (min clearance of the others 0.44 mm)
+    c = +112.5 deg: 82/84 pose pairs touch (min clearance of the others 0.72 mm)
+    c = +135.0 deg: 35/35 pose pairs touch (min clearance of the others inf mm)
+    c = +157.5 deg: 10/10 pose pairs touch (min clearance of the others inf mm)
+    c = +180.0 deg: 1/1 pose pairs touch (min clearance of the others inf mm)
+  pinky/ring vs stock middle/ring: same set of pose pairs within 5 mm: False; max |clearance difference| 3.061 mm; same touching set: False
+  index  moving parts vs palm (plate + wrist interface): min clearance  0.05 mm at (-90,+90) [proximal (parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b) / r_hand_plate]; grid poses touching: 3/81
+  middle moving parts vs palm (plate + wrist interface): min clearance  0.02 mm at (-68,+68) [proximal (parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b_2) / r_hand_plate]; grid poses touching: 4/81
+  ring   moving parts vs palm (plate + wrist interface): min clearance  0.05 mm at (-68,+90) [proximal (parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b_3) / r_hand_plate]; grid poses touching: 4/81
+  thumb  moving parts vs palm (plate + wrist interface): min clearance  0.40 mm at (+22,+22) [plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5 (std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default_4) / r_wrist_interface]; grid poses touching: 0/81
+  pinky  moving parts vs palm (plate + wrist interface): min clearance  0.03 mm at (-90,+90) [proximal_shell (parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b_5) / r_hand_plate]; grid poses touching: 4/81
+== 6. demo poses with a pinky (DEMO_POSES_5F): clearance between neighbouring digits (samples every 0.3 mm)
+  OpenHand        index/middle 2.90 mm, middle/ring 3.48 mm
+  CloseHand       index/middle 4.97 mm, thumb/index 0.01 mm TOUCH
+  SpreadHand      middle/ring 4.83 mm
+  ClenchHand      index/middle 2.27 mm, middle/ring 3.66 mm
+  Index_Pointing  all neighbouring digits > 5 mm apart
+  Perfect         index/middle 3.44 mm, middle/ring 1.55 mm, ring/pinky 4.26 mm, thumb/index 0.01 mm TOUCH
+  Victory         all neighbouring digits > 5 mm apart
+  Pinched         index/middle 4.97 mm
+  Fuck            all neighbouring digits > 5 mm apart
