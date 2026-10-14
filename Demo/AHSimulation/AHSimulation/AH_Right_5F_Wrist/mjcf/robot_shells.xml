@@ -68,7 +68,7 @@
   <worldbody>
     <!-- Link r_wrist_interface -->
     <body name="wrist_forearm" pos="0 0 0" quat="0.995805 -0.0915016 0 0">
-      <inertial pos="0.0105837 0.0246927 -0.17338" mass="0.461681" fullinertia="0.00182597 0.00180569 0.000540175 8.70004e-06 -4.71029e-05 0.000253611"/>
+      <inertial pos="0.0104116 0.023921 -0.169564" mass="0.486822" fullinertia="0.00204395 0.00198124 0.000703213 1.21401e-05 -6.73526e-05 0.000256435"/>
       <geom type="mesh" mesh="wrist_r_forearm_front" rgba="0.92 0.92 0.93 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1022" quat="0.5 0.5 -0.5 -0.5"/>
       <geom type="mesh" mesh="wrist_r_forearm_back" rgba="0.95 0.95 0.96 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1022" quat="0.5 0.5 -0.5 -0.5"/>
       <geom type="mesh" mesh="wrist_r_wrist_fork" rgba="0.80 0.81 0.83 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1022" quat="0.5 0.5 -0.5 -0.5"/>
@@ -98,8 +98,8 @@
           <site name="wrist_ball2_hand" pos="-0.02125 0.0206484 0.00382695" size="0.002" group="3"/>
           <site name="wrist_centre" pos="0 0 0" size="0.003" group="3"/>
           <body name="r_wrist_interface" pos="-0 -0.00191797 0.0504897" quat="1 0 0 0" childclass="mjcf">
-            <!-- lumped inertial: hand mass model 492.8 g (Demo/AHSimulation/wrist/hand_mass_model.py) minus the finger bodies' own 110.6 g -->
-            <inertial pos="-0.0103194 -0.011572 0.051096" mass="0.3822" fullinertia="0.00087651 0.000619788 0.000589286 -4.27396e-05 -2.94662e-05 8.70675e-06"/>
+            <!-- lumped inertial: hand mass model 495.1 g (Demo/AHSimulation/wrist/hand_mass_model.py) minus the finger bodies' own 110.6 g -->
+            <inertial pos="-0.00934991 -0.0120509 0.05154" mass="0.384464" fullinertia="0.000865244 0.000617411 0.000603309 -3.29797e-05 -1.64787e-05 3.74391e-06"/>
             <!-- Part scs0009 -->
             <geom type="mesh" class="visual" pos="-0.022075 0.0312422 0.0704655" quat="0.70431 0.062827 -0.062827 0.70431" mesh="scs0009" material="scs0009_material"/>
             <!-- Part finger_frame_1 -->
@@ -856,10 +856,9 @@
                 <site group="3" name="closing_ball5_1" pos="-3.46945e-18 -0.033 0" quat="1.52887e-15 -0.707107 -2.44249e-15 -0.707107"/>
               </body>
             </body>
-            <geom type="mesh" mesh="r_top_shell_5f" rgba="0.94 0.94 0.95 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1022" quat="0.5 0.5 -0.5 -0.5"/>
-            <geom type="mesh" mesh="r_palm_shell_5f" rgba="0.86 0.87 0.89 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1022" quat="0.5 0.5 -0.5 -0.5"/>
-            <geom type="mesh" mesh="r_palm_pad_band_5f" rgba="0.33 0.34 0.36 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1022" quat="0.5 0.5 -0.5 -0.5"/>
-            <geom type="mesh" mesh="r_palm_pad_palm_5f" rgba="0.33 0.34 0.36 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1022" quat="0.5 0.5 -0.5 -0.5"/>
+            <geom type="mesh" mesh="r_top_shell_5f" rgba="0.95 0.95 0.96 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1022" quat="0.5 0.5 -0.5 -0.5"/>
+            <geom type="mesh" mesh="r_palm_shell_5f" rgba="0.92 0.93 0.94 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1022" quat="0.5 0.5 -0.5 -0.5"/>
+            <geom type="mesh" mesh="r_palm_pad_palm_5f" rgba="0.07 0.07 0.08 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1022" quat="0.5 0.5 -0.5 -0.5"/>
           </body>
         </body>
       </body>
@@ -942,7 +941,6 @@
     <material name="proximal_material" rgba="0.8 0.8 0.8 1"/>
     <mesh name="r_top_shell_5f" file="r_top_shell_5f.stl" scale="0.001 0.001 0.001"/>
     <mesh name="r_palm_shell_5f" file="r_palm_shell_5f.stl" scale="0.001 0.001 0.001"/>
-    <mesh name="r_palm_pad_band_5f" file="r_palm_pad_band_5f.stl" scale="0.001 0.001 0.001"/>
     <mesh name="r_palm_pad_palm_5f" file="r_palm_pad_palm_5f.stl" scale="0.001 0.001 0.001"/>
     <mesh name="wrist_r_forearm_front" file="wrist_r_forearm_front.stl" scale="0.001 0.001 0.001"/>
     <mesh name="wrist_r_forearm_back" file="wrist_r_forearm_back.stl" scale="0.001 0.001 0.001"/>

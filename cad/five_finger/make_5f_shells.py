@@ -103,9 +103,11 @@ WRIST_Y = -97.5  # stock bottom cut (CAD y), used with --no-wrist
 # towards the ulnar side; wrist_design.PALM_EXT moves the wrist (and this cut) further from the hand.
 WRIST = True
 WRIST_W = float(wd.cad_to_w([-9.0, WRIST_Y, 0.0])[1]) - wd.PALM_EXT
-# the cut rises towards the back of the hand (like the back of a wrist), so the back shell's bottom edge
-# clears the fork at the extension + deviation hard stops: by BEVEL mm per mm of z above BEVEL_Z
+# the cut rises towards the back of the hand and towards the palm (like the creases of a wrist), so the shells'
+# bottom edges clear the fork at the hard stops: by BEVEL mm per mm of z above BEVEL_Z (extension), and by
+# PALM_BEVEL mm per mm of z below PALM_BEVEL_Z (flexion; the palm's round wrist neck reaches down to z = -50)
 BEVEL_Z, BEVEL = Z_SPLIT, 0.4
+PALM_BEVEL_Z, PALM_BEVEL = -30.0, 0.4
 ADAPTER_STL = HERE / "wrist" / "stl" / "R-Wrist_Hand_Adapter.stl"
 # back-shell screws: holes in the palm plate (cad/five_finger/make_5f_plate.py) + the two into the wrist interface,
 # (x, y, boss bottom z). Stock layout: the stock Top_Shell positions + the widened plate's pinky-side hole, bosses
@@ -247,8 +249,9 @@ class Grid:
         return WRIST_W - self.WY if WRIST else WRIST_Y - self.YY
 
     def below_cut3(self):
-        """Signed 3D field, positive below the wrist cut, with the back bevel."""
-        bevel = np.maximum(self.Z - BEVEL_Z, 0.0) * BEVEL if WRIST else 0.0 * self.Z
+        """Signed 3D field, positive below the wrist cut, with the back and palm bevels."""
+        bevel = (np.maximum(self.Z - BEVEL_Z, 0.0) * BEVEL + np.maximum(PALM_BEVEL_Z - self.Z, 0.0) * PALM_BEVEL
+                 if WRIST else 0.0 * self.Z)
         return self.below_cut()[:, :, None] + bevel[None, None, :]
 
     def sdf(self, mask):

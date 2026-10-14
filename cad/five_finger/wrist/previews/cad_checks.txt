@@ -1,12 +1,12 @@
 Printability (STL, mm). Thickness = distance along -normal from random surface points to the opposite face.
 R-Wrist_Hand_Adapter   watertight=True faces=  9088 vol=  52.5 cm3  thickness p1=1.27 p5=3.50 median=7.24 mm, samples < 1.2 mm:  0.6 %  | print flange face down (lugs up); the three 1.4 mm pad pockets bridge, gussets carry the lever bar: overhang > 45 deg    603 mm2, horizontal ceilings    821 mm2 (of  20262)
 Wrist_Gimbal_Ring      watertight=True faces=  2934 vol=   1.6 cm3  thickness p1=1.85 p5=2.63 median=4.50 mm, samples < 1.2 mm:  0.9 %  | print flat: overhang > 45 deg     53 mm2, horizontal ceilings     12 mm2 (of   1270)
-R-Wrist_Fork           watertight=True faces=  9928 vol=  24.8 cm3  thickness p1=1.25 p5=3.17 median=5.00 mm, samples < 1.2 mm:  0.2 %  | print cap face down, lugs up; bearing seats are teardrops: overhang > 45 deg     69 mm2, horizontal ceilings     13 mm2 (of  13315)
-R-Forearm_Front        watertight=True faces= 10350 vol=  60.4 cm3  thickness p1=1.50 p5=2.26 median=2.50 mm, samples < 1.2 mm:  0.1 %  | print standing on the elbow end: overhang > 45 deg     25 mm2, horizontal ceilings     39 mm2 (of  50359)
-R-Forearm_Back         watertight=True faces=  6568 vol=  72.8 cm3  thickness p1=2.00 p5=2.00 median=2.50 mm, samples < 1.2 mm:  0.0 %  | print standing on the elbow end: overhang > 45 deg    149 mm2, horizontal ceilings     31 mm2 (of  61024)
+R-Wrist_Fork           watertight=True faces= 11618 vol=  31.3 cm3  thickness p1=1.25 p5=3.64 median=5.00 mm, samples < 1.2 mm:  0.1 %  | print cap face down, lugs up; bearing seats are teardrops: overhang > 45 deg     69 mm2, horizontal ceilings     11 mm2 (of  15999)
+R-Forearm_Front        watertight=True faces= 11958 vol=  73.1 cm3  thickness p1=1.50 p5=2.28 median=2.59 mm, samples < 1.2 mm:  0.4 %  | print standing on the elbow end: overhang > 45 deg    144 mm2, horizontal ceilings     46 mm2 (of  56619)
+R-Forearm_Back         watertight=True faces=  8850 vol=  80.5 cm3  thickness p1=1.50 p5=2.00 median=2.55 mm, samples < 1.2 mm:  0.3 %  | print standing on the elbow end: overhang > 45 deg     33 mm2, horizontal ceilings     55 mm2 (of  64863)
 R-Wrist_Servo_Frame    watertight=True faces=  1608 vol=  30.7 cm3  thickness p1=2.25 p5=2.25 median=3.00 mm, samples < 1.2 mm:  0.1 %  | print base down (the face that lies on the forearm's front wall): overhang > 45 deg    242 mm2, horizontal ceilings    387 mm2 (of  21089)
 Wrist_Horn_Arm         watertight=True faces=  2504 vol=   2.4 cm3  thickness p1=1.50 p5=1.73 median=4.00 mm, samples < 1.2 mm:  0.0 %  | print flat, stud face down (nut pocket up): overhang > 45 deg      0 mm2, horizontal ceilings      0 mm2 (of   1963)
-Elbow_Flange           watertight=True faces=  6448 vol=  80.9 cm3  thickness p1=2.50 p5=6.00 median=6.00 mm, samples < 1.2 mm:  0.0 %  | print flat, underside down: overhang > 45 deg    249 mm2, horizontal ceilings     96 mm2 (of  31005)
+Elbow_Flange           watertight=True faces=  8292 vol=  79.2 cm3  thickness p1=2.50 p5=3.00 median=6.00 mm, samples < 1.2 mm:  0.0 %  | print flat, underside down: overhang > 45 deg    379 mm2, horizontal ceilings     96 mm2 (of  36657)
 
 Interference at the neutral pose: volume of the boolean intersection of every pair (mm3).
   Wrist_Gimbal_Ring / pin_d3x10_+x: 1.946 mm3  expected (press fit / ball in its socket)

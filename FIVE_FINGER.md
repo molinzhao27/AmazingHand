@@ -138,7 +138,7 @@ The stock Palm_Shell and Top_Shell cannot go on the widened plate: [check_shells
   - **Hypothenar.** A soft mound low on the pinky side.
   - **Fit.** The back, and the palm under the fingers, are lifted smoothly wherever a part needs room. A last tight blend with the enclosed parts covers anything the shapes miss (at most 0.8 mm in a few spots, so no visible bumps).
   - **Panel lines.** Two 1.4 mm wide, 0.6 mm deep grooves: one across the back 17 mm below the knuckle line (a knuckle band), and one around the wrist 8 mm above the cut. They stop 2 mm short of the seam, so the lap joint stays whole.
-  - **Wrist end:** cut square to the forearm axis, rising towards the back so the back shell clears the wrist fork at the hard stops. For a hand on the stock wrist interface without the powered wrist, `make_5f_shells.py --no-wrist` cuts at the stock plane (CAD y = −97.5) instead.
+  - **Wrist end:** cut square to the forearm axis, rising towards the back and towards the palm (like the creases of a wrist) so the shells clear the wrist fork at the hard stops (≥ 3.5 mm; > 5 mm everywhere on the operating range). For a hand on the stock wrist interface without the powered wrist, `make_5f_shells.py --no-wrist` cuts at the stock plane (CAD y = −97.5) instead.
   - **Top edges:** the back stops 3 mm under the knuckle line, leaving the knuckle hardware exposed as in the reference. The palm stops on a smooth curve just under where the fingers sweep in a fist.
 
   The thumb's sweep carves the thumb opening. The finger and thumb openings have rounded edges. Walls are 2 mm.
