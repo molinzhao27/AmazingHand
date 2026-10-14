@@ -1,0 +1,77 @@
+make_slim_fingers.py report (all mm)
+
+swept parts near the uncut shells away from the PIP (must be 0): proximal shell y < 30: 0, distal shell y > 68: 0
+proximal shell PIP end plane: y = 50.804 + 0.100 z  (y = 52.00 at z 12, 50.80 at z 0, 50.00 at z -8; stock: y = 49.33 + 0.155 z)
+distal shell base plane:      y = 58.832 + -0.150 z  (y = 57.63 at z 8, 58.83 at z 0, 60.03 at z -8; stock: y = 56.48 - 0.247 z)
+
+== B-rep validity, volume, bounding box (mm)
+  Proximal_Slim                valid True  solids 1  volume   6858.4 mm3  x [ -8.15,   8.15] y [ -3.30,  55.14] z [ -3.30,  11.37]
+  Distal_Slim                  valid True  solids 1  volume   3469.3 mm3  x [ -5.02,   5.03] y [ 46.20,  91.04] z [ -4.47,   8.33]
+  Proximal_Shell_Slim          valid True  solids 1  volume   3313.0 mm3  x [ -9.79,   9.79] y [  9.88,  52.21] z [ -8.96,  13.31]
+  Distal_Shell_Slim            valid True  solids 1  volume   1906.2 mm3  x [ -7.52,   7.51] y [ 57.40,  93.08] z [ -8.99,   9.10]
+  Distal_Pad_Slim              valid True  solids 1  volume    162.9 mm3  x [ -3.63,   3.63] y [ 63.47,  89.53] z [ -9.92,  -6.65]
+  Distal_Shell_Slim_OnePiece   valid True  solids 1  volume   2068.6 mm3  x [ -7.52,   7.51] y [ 57.40,  93.08] z [ -9.92,   9.10]
+  Distal_Pad_Slim_untextured   valid True  solids 1  volume    181.9 mm3  x [ -3.70,   3.70] y [ 63.40,  89.59] z [-10.00,  -6.65]
+  stock Proximal               valid True  solids 1  volume   6958.8 mm3  x [ -8.10,   8.10] y [ -3.30,  55.14] z [ -3.30,  11.32]
+  stock Distal                 valid True  solids 1  volume   3566.5 mm3  x [ -5.00,   5.00] y [ 46.22,  91.01] z [ -4.44,   8.32]
+  stock Proximal_Shell         valid True  solids 1  volume   3507.0 mm3  x [-11.88,  11.88] y [  8.00,  51.50] z [ -9.84,  14.42]
+  stock Distal_Shell           valid True  solids 1  volume   3437.5 mm3  x [-10.75,  10.75] y [ 53.10,  93.38] z [-10.01,  13.66]
+
+== widths (lateral, along the pins), widest point and per station
+  (from the tessellated parts; OCC bounding boxes of B-spline faces are not tight)
+  Proximal_Shell   widest: stock  23.76 (at y  32.7)  slim  19.41 (at y  27.9)  - 4.35 mm (18.3 %)
+  Distal_Shell     widest: stock  21.51 (at y  77.4)  slim  14.86 (at y  80.5)  - 6.65 mm (30.9 %)
+  y =  20.00: proximal width 23.03 -> 19.40 (15.7 % less), depth 23.42 -> 21.41
+  y =  30.00: proximal width 23.56 -> 19.41 (17.6 % less), depth 23.96 -> 21.90
+  y =  40.00: proximal width 23.36 -> 19.41 (16.9 % less), depth 23.59 -> 22.05
+  y =  60.00: distal width 21.31 -> 14.84 (30.4 % less), depth 21.07 -> 16.49
+  y =  66.00: distal width 21.34 -> 14.84 (30.5 % less), depth 20.50 -> 16.20
+  y =  74.44: distal width 20.90 -> 14.49 (30.7 % less), depth 19.70 -> 15.49
+  y =  80.00: distal width 21.06 -> 14.85 (29.5 % less), depth 18.83 -> 15.02
+  y =  86.00: distal width 18.06 -> 13.82 (23.5 % less), depth 16.94 -> 13.83
+
+== wall thickness of the slim shells (distance to the nearest opposite-facing surface; TPU min 1.2; 15000 points)
+  Proximal_Shell_Slim    min 1.17  1st percentile 1.20  5th 1.22  median 1.24 mm; thinnest at (-4.9, 26.9, -5.9) 1.17, (3.4, 48.2, -6.8) 1.17, (4.0, 48.1, -7.9) 1.17
+  Distal_Shell_Slim      min 1.18  1st percentile 1.20  5th 1.21  median 1.24 mm; thinnest at (2.4, 90.2, 3.7) 1.18, (2.4, 90.2, 3.7) 1.18, (-2.6, 88.8, 3.1) 1.18
+  Distal_Pad_Slim        min 0.64  1st percentile 0.65  5th 0.65  median 0.85 mm; thinnest at (3.1, 77.9, -8.7) 0.64, (3.4, 77.7, -8.5) 0.64, (2.2, 77.5, -8.3) 0.64
+  (pad: 1.00 mm thick, 0.65 mm under a groove by construction; its groove walls are reported as thin)
+  exact B-rep sections (in-plane wall, every 0.5 mm along y, sections that are two closed loops, i.e. away from the cut ends, the screw cups and the nose):
+    Proximal_Shell_Slim    55 sections: min 1.221 at y 26.0, median 1.226 mm
+    Distal_Shell_Slim      45 sections: min 1.226 at y 83.5, median 1.233 mm
+
+== static fit: shell vs its core (assembled, straight finger)
+  Proximal_Shell_Slim    overlap with Proximal_Slim: 0.000 mm3; min gap away from the screw cups 0.28 mm
+  Distal_Shell_Slim      overlap with Distal_Slim: 0.000 mm3; min gap away from the screw cups 0.23 mm
+
+== joint sweeps (MCP -34.2..79.4 deg, 0.5 deg steps; distances between surface samples)
+  Proximal_Shell_Slim    vs swept dist   : min  0.65 mm
+  Proximal_Shell_Slim    vs swept link   : min  1.19 mm
+  Proximal_Shell_Slim    vs swept gimbal : min  2.18 mm
+  Distal_Shell_Slim      vs swept prox   : min  0.53 mm
+  Distal_Shell_Slim      vs swept link   : min   inf mm  (> 3 mm)
+  Distal_Shell_Slim      vs swept gimbal : min   inf mm  (> 3 mm)
+  Distal_Pad_Slim        vs swept prox   : min   inf mm  (> 3 mm)
+  Distal_Pad_Slim        vs swept link   : min   inf mm  (> 3 mm)
+  Distal_Pad_Slim        vs swept gimbal : min   inf mm  (> 3 mm)
+  stock Proximal_Shell   vs swept dist    (stock parts): min  0.00 mm
+  stock Proximal_Shell   vs swept link    (stock parts): min  1.45 mm
+  stock Proximal_Shell   vs swept gimbal  (stock parts): min  0.01 mm
+  stock Distal_Shell     vs swept prox    (stock parts): min  0.00 mm
+  stock Distal_Shell     vs swept link    (stock parts): min   inf mm
+  stock Distal_Shell     vs swept gimbal  (stock parts): min   inf mm
+
+== cores: material removed and section properties at the shell-screw section
+  Proximal_Slim  volume  6958.8 ->  6858.4 mm3 (-100.5,  1.4 %)
+    stock y  30.00: area  133.1 mm2  Ixx (flexion)   2753.3 mm4  Izz (lateral)   3771.2 mm4
+    stock y  27.50: area  155.9 mm2  Ixx (flexion)   2756.4 mm4  Izz (lateral)   4499.6 mm4
+    slim  y  30.00: area  119.4 mm2  Ixx (flexion)   2661.1 mm4  Izz (lateral)   3026.6 mm4
+    slim  y  27.50: area  141.4 mm2  Ixx (flexion)   2716.2 mm4  Izz (lateral)   3716.3 mm4
+  Distal_Slim    volume  3566.5 ->  3469.3 mm3 (- 97.2,  2.7 %)
+    stock y  74.44: area   66.8 mm2  Ixx (flexion)    574.4 mm4  Izz (lateral)    526.5 mm4
+    stock y  71.94: area   91.1 mm2  Ixx (flexion)    634.3 mm4  Izz (lateral)    731.8 mm4
+    slim  y  74.44: area   61.8 mm2  Ixx (flexion)    544.3 mm4  Izz (lateral)    415.5 mm4
+    slim  y  71.94: area   85.4 mm2  Ixx (flexion)    621.0 mm4  Izz (lateral)    604.4 mm4
+
+== screws
+  proximal: head top at |x| 9.48, head bottom 7.93, tip at |x| 2.88 (link channel wall 3.25, link +-1.9; thread engagement 3.48 mm in PLA)
+  distal:   head top at |x| 7.20, tip at |x| 0.60 (opposite screw tip at the mirror position), thread engagement 3.85 mm

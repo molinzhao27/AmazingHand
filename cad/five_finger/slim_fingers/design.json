@@ -1,0 +1,31 @@
+{
+  "prox_end_plane": [
+    50.804040648624344,
+    0.09999999999999992
+  ],
+  "dist_base_plane": [
+    58.83175560002291,
+    -0.15000000000000002
+  ],
+  "prox_screw_head_x": 9.479999999999999,
+  "dist_screw_head_x": 7.199999999999999,
+  "screw": "M2.5x5 thermoplastic",
+  "clear": 0.25,
+  "wall": 1.2,
+  "prox_half": 9.629999999999999,
+  "dist_half": 7.35,
+  "joint_clear": 0.5,
+  "phi_range": [
+    -34.2,
+    79.4
+  ],
+  "mcp_cyl": [
+    44.26,
+    12.5,
+    36.257
+  ],
+  "mcp_dorsal_plane": [
+    12.6,
+    0.3
+  ]
+}

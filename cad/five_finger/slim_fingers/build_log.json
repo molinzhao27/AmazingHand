@@ -1,0 +1,5 @@
+[
+ "swept parts near the uncut shells away from the PIP (must be 0): proximal shell y < 30: 0, distal shell y > 68: 0",
+ "proximal shell PIP end plane: y = 50.804 + 0.100 z  (y = 52.00 at z 12, 50.80 at z 0, 50.00 at z -8; stock: y = 49.33 + 0.155 z)",
+ "distal shell base plane:      y = 58.832 + -0.150 z  (y = 57.63 at z 8, 58.83 at z 0, 60.03 at z -8; stock: y = 56.48 - 0.247 z)"
+]

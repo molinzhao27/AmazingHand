@@ -1,0 +1,254 @@
+verify_slim.py: AH_Right_5F_Slim vs AH_Right_5F, 9x9 grid per digit over (motor1, motor2) in [-90, 90] deg, surface samples 1.0 mm / 0.3 mm, touching = sampled distance < 0.225 mm (mujoco 3.15.0, 320 s)
+
+== 1. structure and stability
+  stock {'nbody': 47, 'njnt': 40, 'nq': 85, 'nu': 10, 'neq': 25, 'ngeom': 208, 'nkey': 1}  quick sweep: max equality error 0.000 mm, NaN False, warnings none
+  slim  {'nbody': 47, 'njnt': 40, 'nq': 85, 'nu': 10, 'neq': 25, 'ngeom': 213, 'nkey': 1}  quick sweep: max equality error 0.000 mm, NaN False, warnings none
+
+== 2. each digit's own parts over its joint range (changed parts vs everything else of the digit + palm)
+  -- index
+    rotule_lever / proximal                                                stock: min  0.04 mm, touching  3/81   slim: min  0.04 mm, touching  3/81
+    rotule_lever / proximal_shell                                          stock: min  0.61 mm, touching  0/81   slim: min  0.63 mm, touching  0/81
+    rotule_lever#1 / proximal                                              stock: min  0.48 mm, touching  0/81   slim: min  0.48 mm, touching  0/81
+    rotule_lever#1 / proximal_shell                                        stock: min  0.52 mm, touching  0/81   slim: min  0.53 mm, touching  0/81
+    bushing_0608_04_2 / proximal                                           stock: min  0.03 mm, touching 81/81   slim: min  0.03 mm, touching 81/81
+    bushing_0608_04_6 / proximal                                           stock: min  0.03 mm, touching  8/81   slim: min  0.01 mm, touching  8/81
+    bushing_0608_04_6 / proximal_shell                                     stock: min  0.05 mm, touching  8/81   slim: min  2.06 mm, touching  0/81
+    finger_frame_1 / proximal                                              stock: min  0.01 mm, touching 13/81   slim: min  0.02 mm, touching 13/81
+    finger_frame_1 / proximal_shell                                        stock: min  0.31 mm, touching  0/81   slim: min  2.97 mm, touching  0/81
+    r_hand_plate / proximal                                                stock: min  0.09 mm, touching  3/81   slim: min  0.05 mm, touching  3/81
+    r_hand_plate / proximal_shell                                          stock: min  0.02 mm, touching  7/81   slim: min  1.09 mm, touching  0/81
+    distal / parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b#1       stock: min  0.10 mm, touching 81/81   slim: min  0.10 mm, touching 81/81
+    distal / proximal                                                      stock: min  0.01 mm, touching 81/81   slim: min  0.00 mm, touching 81/81
+    distal / proximal_shell                                                stock: min  2.30 mm, touching  0/81   slim: min  0.54 mm, touching  0/81
+    distal / link                                                          stock: min  0.00 mm, touching 81/81   slim: min  0.00 mm, touching 81/81
+    distal_shell / proximal                                                stock: min  0.03 mm, touching  5/81   slim: min  1.33 mm, touching  0/81
+    distal_shell / proximal_shell                                          stock: min  0.03 mm, touching 13/81   slim: min  0.53 mm, touching  0/81
+    parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999 / proximal       stock: min  0.02 mm, touching 62/81   slim: min  0.02 mm, touching 62/81
+    parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999 / proximal_shell stock: min   inf mm, touching  0/81   slim: min  2.51 mm, touching  0/81
+    proximal / link                                                        stock: min  0.38 mm, touching  0/81   slim: min  0.38 mm, touching  0/81
+    proximal / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed stock: min  2.61 mm, touching  0/81   slim: min  2.61 mm, touching  0/81
+    proximal / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed#1 stock: min  2.61 mm, touching  0/81   slim: min  2.61 mm, touching  0/81
+    proximal / rotule_ball                                                 stock: min  1.22 mm, touching  0/81   slim: min  1.22 mm, touching  0/81
+    proximal / rotule_ball#1                                               stock: min  1.66 mm, touching  0/81   slim: min  1.66 mm, touching  0/81
+    proximal / gimbal                                                      stock: min  0.00 mm, touching 81/81   slim: min  0.00 mm, touching 81/81
+    proximal / parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999       stock: min  0.01 mm, touching 25/81   slim: min  0.00 mm, touching 25/81
+    proximal / plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5 stock: min  0.11 mm, touching  1/81   slim: min  0.11 mm, touching  1/81
+    proximal / std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default stock: min  0.13 mm, touching  1/81   slim: min  0.13 mm, touching  1/81
+    proximal_shell / link                                                  stock: min  1.64 mm, touching  0/81   slim: min  1.07 mm, touching  0/81
+    proximal_shell / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed stock: min  2.55 mm, touching  0/81   slim: min  2.94 mm, touching  0/81
+    proximal_shell / rotule_ball                                           stock: min  1.63 mm, touching  0/81   slim: min  1.64 mm, touching  0/81
+    proximal_shell / rotule_ball#1                                         stock: min  1.63 mm, touching  0/81   slim: min  1.74 mm, touching  0/81
+    proximal_shell / gimbal                                                stock: min  0.23 mm, touching  0/81   slim: min   inf mm, touching  0/81
+    proximal_shell / plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5 stock: min  0.05 mm, touching  6/81   slim: min  2.48 mm, touching  0/81
+    proximal_shell / std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default stock: min  0.07 mm, touching  4/81   slim: min   inf mm, touching  0/81
+    shell_screw / link                                                     stock: min  1.70 mm, touching  0/81   slim: min  0.38 mm, touching  0/81
+    shell_screw#1 / link                                                   stock: min  2.70 mm, touching  0/81   slim: min  1.58 mm, touching  0/81
+    => new contacts (pair x pose) in the slim model: 0; stock contacts that are gone: 43
+  -- middle
+    rotule_lever#1 / proximal                                              stock: min  0.02 mm, touching  3/81   slim: min  0.02 mm, touching  3/81
+    rotule_lever#1 / proximal_shell                                        stock: min  0.38 mm, touching  0/81   slim: min  0.40 mm, touching  0/81
+    rotule_lever / proximal                                                stock: min  0.77 mm, touching  0/81   slim: min  0.77 mm, touching  0/81
+    rotule_lever / proximal_shell                                          stock: min  0.38 mm, touching  0/81   slim: min  0.49 mm, touching  0/81
+    bushing_0608_04 / proximal                                             stock: min  0.03 mm, touching 81/81   slim: min  0.03 mm, touching 81/81
+    bushing_0608_04_4 / proximal                                           stock: min  0.03 mm, touching  8/81   slim: min  0.01 mm, touching  8/81
+    bushing_0608_04_4 / proximal_shell                                     stock: min  0.05 mm, touching  8/81   slim: min  2.06 mm, touching  0/81
+    finger_frame_1_2 / proximal                                            stock: min  0.02 mm, touching 13/81   slim: min  0.02 mm, touching 13/81
+    finger_frame_1_2 / proximal_shell                                      stock: min  0.32 mm, touching  0/81   slim: min  2.97 mm, touching  0/81
+    r_hand_plate / proximal                                                stock: min  0.01 mm, touching  4/81   slim: min  0.01 mm, touching  4/81
+    r_hand_plate / proximal_shell                                          stock: min  0.02 mm, touching  9/81   slim: min  0.07 mm, touching  1/81
+    distal / parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b         stock: min  0.10 mm, touching 81/81   slim: min  0.10 mm, touching 81/81
+    distal / proximal                                                      stock: min  0.01 mm, touching 81/81   slim: min  0.00 mm, touching 81/81
+    distal / proximal_shell                                                stock: min  2.30 mm, touching  0/81   slim: min  0.54 mm, touching  0/81
+    distal / link                                                          stock: min  0.00 mm, touching 81/81   slim: min  0.00 mm, touching 81/81
+    distal_shell / proximal                                                stock: min  0.03 mm, touching  5/81   slim: min  1.33 mm, touching  0/81
+    distal_shell / proximal_shell                                          stock: min  0.03 mm, touching 13/81   slim: min  0.53 mm, touching  0/81
+    parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999 / proximal       stock: min  0.02 mm, touching 62/81   slim: min  0.02 mm, touching 62/81
+    parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999 / proximal_shell stock: min   inf mm, touching  0/81   slim: min  2.51 mm, touching  0/81
+    proximal / link                                                        stock: min  0.38 mm, touching  0/81   slim: min  0.38 mm, touching  0/81
+    proximal / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed stock: min  2.61 mm, touching  0/81   slim: min  2.61 mm, touching  0/81
+    proximal / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed#1 stock: min  2.61 mm, touching  0/81   slim: min  2.61 mm, touching  0/81
+    proximal / rotule_ball                                                 stock: min  1.66 mm, touching  0/81   slim: min  1.66 mm, touching  0/81
+    proximal / rotule_ball#1                                               stock: min  1.22 mm, touching  0/81   slim: min  1.22 mm, touching  0/81
+    proximal / gimbal                                                      stock: min  0.00 mm, touching 81/81   slim: min  0.00 mm, touching 81/81
+    proximal / parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999       stock: min  0.01 mm, touching 25/81   slim: min  0.00 mm, touching 25/81
+    proximal / plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5 stock: min  0.11 mm, touching  1/81   slim: min  0.11 mm, touching  1/81
+    proximal / std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default stock: min  0.13 mm, touching  1/81   slim: min  0.13 mm, touching  1/81
+    proximal_shell / link                                                  stock: min  1.64 mm, touching  0/81   slim: min  1.07 mm, touching  0/81
+    proximal_shell / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed stock: min  2.55 mm, touching  0/81   slim: min  2.94 mm, touching  0/81
+    proximal_shell / rotule_ball                                           stock: min  1.63 mm, touching  0/81   slim: min  1.74 mm, touching  0/81
+    proximal_shell / rotule_ball#1                                         stock: min  1.63 mm, touching  0/81   slim: min  1.64 mm, touching  0/81
+    proximal_shell / gimbal                                                stock: min  0.23 mm, touching  0/81   slim: min   inf mm, touching  0/81
+    proximal_shell / plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5 stock: min  0.04 mm, touching  6/81   slim: min  2.48 mm, touching  0/81
+    proximal_shell / std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default stock: min  0.07 mm, touching  4/81   slim: min   inf mm, touching  0/81
+    shell_screw / link                                                     stock: min  2.70 mm, touching  0/81   slim: min  1.58 mm, touching  0/81
+    shell_screw#1 / link                                                   stock: min  1.70 mm, touching  0/81   slim: min  0.38 mm, touching  0/81
+    => new contacts (pair x pose) in the slim model: 0; stock contacts that are gone: 44
+  -- ring
+    rotule_lever#1 / proximal                                              stock: min  0.02 mm, touching  3/81   slim: min  0.02 mm, touching  3/81
+    rotule_lever#1 / proximal_shell                                        stock: min  0.43 mm, touching  0/81   slim: min  0.45 mm, touching  0/81
+    rotule_lever#1 / proximal                                              stock: min  0.41 mm, touching  0/81   slim: min  0.41 mm, touching  0/81
+    rotule_lever#1 / proximal_shell                                        stock: min  0.48 mm, touching  0/81   slim: min  0.68 mm, touching  0/81
+    bushing_0608_04_3 / proximal                                           stock: min  0.03 mm, touching 81/81   slim: min  0.03 mm, touching 81/81
+    bushing_0608_04_7 / proximal                                           stock: min  0.03 mm, touching  8/81   slim: min  0.01 mm, touching  8/81
+    bushing_0608_04_7 / proximal_shell                                     stock: min  0.05 mm, touching  8/81   slim: min  2.06 mm, touching  0/81
+    finger_frame_1_3 / proximal                                            stock: min  0.01 mm, touching 13/81   slim: min  0.02 mm, touching 13/81
+    finger_frame_1_3 / proximal_shell                                      stock: min  0.32 mm, touching  0/81   slim: min  2.97 mm, touching  0/81
+    r_hand_plate / proximal                                                stock: min  0.02 mm, touching  4/81   slim: min  0.05 mm, touching  4/81
+    r_hand_plate / proximal_shell                                          stock: min  0.02 mm, touching  9/81   slim: min  0.04 mm, touching  1/81
+    distal / parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b#1       stock: min  0.10 mm, touching 81/81   slim: min  0.10 mm, touching 81/81
+    distal / proximal                                                      stock: min  0.01 mm, touching 81/81   slim: min  0.00 mm, touching 81/81
+    distal / proximal_shell                                                stock: min  2.30 mm, touching  0/81   slim: min  0.54 mm, touching  0/81
+    distal / link                                                          stock: min  0.00 mm, touching 81/81   slim: min  0.00 mm, touching 81/81
+    distal_shell / proximal                                                stock: min  0.03 mm, touching  5/81   slim: min  1.33 mm, touching  0/81
+    distal_shell / proximal_shell                                          stock: min  0.03 mm, touching 13/81   slim: min  0.53 mm, touching  0/81
+    parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999 / proximal       stock: min  0.02 mm, touching 62/81   slim: min  0.02 mm, touching 62/81
+    parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999 / proximal_shell stock: min   inf mm, touching  0/81   slim: min  2.51 mm, touching  0/81
+    proximal / link                                                        stock: min  0.38 mm, touching  0/81   slim: min  0.38 mm, touching  0/81
+    proximal / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed stock: min  2.61 mm, touching  0/81   slim: min  2.61 mm, touching  0/81
+    proximal / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed#1 stock: min  2.61 mm, touching  0/81   slim: min  2.61 mm, touching  0/81
+    proximal / rotule_ball                                                 stock: min  1.66 mm, touching  0/81   slim: min  1.66 mm, touching  0/81
+    proximal / rotule_ball#1                                               stock: min  1.22 mm, touching  0/81   slim: min  1.22 mm, touching  0/81
+    proximal / gimbal                                                      stock: min  0.00 mm, touching 81/81   slim: min  0.00 mm, touching 81/81
+    proximal / parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999       stock: min  0.01 mm, touching 25/81   slim: min  0.00 mm, touching 25/81
+    proximal / plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5 stock: min  0.11 mm, touching  1/81   slim: min  0.11 mm, touching  1/81
+    proximal / std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default stock: min  0.13 mm, touching  1/81   slim: min  0.13 mm, touching  1/81
+    proximal_shell / link                                                  stock: min  1.64 mm, touching  0/81   slim: min  1.07 mm, touching  0/81
+    proximal_shell / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed#1 stock: min  2.55 mm, touching  0/81   slim: min  2.94 mm, touching  0/81
+    proximal_shell / rotule_ball                                           stock: min  1.63 mm, touching  0/81   slim: min  1.74 mm, touching  0/81
+    proximal_shell / rotule_ball#1                                         stock: min  1.63 mm, touching  0/81   slim: min  1.64 mm, touching  0/81
+    proximal_shell / gimbal                                                stock: min  0.23 mm, touching  0/81   slim: min   inf mm, touching  0/81
+    proximal_shell / plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5 stock: min  0.05 mm, touching  6/81   slim: min  2.48 mm, touching  0/81
+    proximal_shell / std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default stock: min  0.07 mm, touching  4/81   slim: min   inf mm, touching  0/81
+    shell_screw / link                                                     stock: min  1.70 mm, touching  0/81   slim: min  0.38 mm, touching  0/81
+    shell_screw#1 / link                                                   stock: min  2.70 mm, touching  0/81   slim: min  1.58 mm, touching  0/81
+    => new contacts (pair x pose) in the slim model: 0; stock contacts that are gone: 44
+  -- thumb
+    rotule_lever / proximal                                                stock: min  0.02 mm, touching  3/81   slim: min  0.02 mm, touching  3/81
+    rotule_lever / proximal_shell                                          stock: min  0.38 mm, touching  0/81   slim: min  0.39 mm, touching  0/81
+    rotule_lever / proximal                                                stock: min  0.77 mm, touching  0/81   slim: min  0.77 mm, touching  0/81
+    rotule_lever / proximal_shell                                          stock: min  0.38 mm, touching  0/81   slim: min  0.49 mm, touching  0/81
+    bushing_0608_04_5 / proximal                                           stock: min  0.03 mm, touching 81/81   slim: min  0.03 mm, touching 81/81
+    bushing_0608_04_8 / proximal                                           stock: min  0.03 mm, touching  8/81   slim: min  0.01 mm, touching  8/81
+    bushing_0608_04_8 / proximal_shell                                     stock: min  0.05 mm, touching  8/81   slim: min  2.06 mm, touching  0/81
+    finger_frame_1_4 / proximal                                            stock: min  0.02 mm, touching 13/81   slim: min  0.02 mm, touching 13/81
+    finger_frame_1_4 / proximal_shell                                      stock: min  0.32 mm, touching  0/81   slim: min  2.97 mm, touching  0/81
+    distal / parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b#1       stock: min  0.10 mm, touching 81/81   slim: min  0.10 mm, touching 81/81
+    distal / proximal                                                      stock: min  0.01 mm, touching 81/81   slim: min  0.00 mm, touching 81/81
+    distal / proximal_shell                                                stock: min  2.30 mm, touching  0/81   slim: min  0.54 mm, touching  0/81
+    distal / link                                                          stock: min  0.00 mm, touching 81/81   slim: min  0.00 mm, touching 81/81
+    distal_shell / proximal                                                stock: min  0.03 mm, touching  5/81   slim: min  1.33 mm, touching  0/81
+    distal_shell / proximal_shell                                          stock: min  0.03 mm, touching 13/81   slim: min  0.53 mm, touching  0/81
+    parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999 / proximal       stock: min  0.02 mm, touching 62/81   slim: min  0.02 mm, touching 62/81
+    parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999 / proximal_shell stock: min   inf mm, touching  0/81   slim: min  2.51 mm, touching  0/81
+    proximal / link                                                        stock: min  0.38 mm, touching  0/81   slim: min  0.38 mm, touching  0/81
+    proximal / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed stock: min  2.61 mm, touching  0/81   slim: min  2.61 mm, touching  0/81
+    proximal / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed#1 stock: min  2.61 mm, touching  0/81   slim: min  2.61 mm, touching  0/81
+    proximal / rotule_ball                                                 stock: min  1.22 mm, touching  0/81   slim: min  1.22 mm, touching  0/81
+    proximal / rotule_ball#1                                               stock: min  1.66 mm, touching  0/81   slim: min  1.66 mm, touching  0/81
+    proximal / gimbal                                                      stock: min  0.00 mm, touching 81/81   slim: min  0.00 mm, touching 81/81
+    proximal / parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999       stock: min  0.01 mm, touching 25/81   slim: min  0.00 mm, touching 25/81
+    proximal / plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5 stock: min  0.11 mm, touching  1/81   slim: min  0.11 mm, touching  1/81
+    proximal / std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default stock: min  0.13 mm, touching  1/81   slim: min  0.13 mm, touching  1/81
+    proximal_shell / link                                                  stock: min  1.64 mm, touching  0/81   slim: min  1.07 mm, touching  0/81
+    proximal_shell / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed#1 stock: min  2.55 mm, touching  0/81   slim: min  2.94 mm, touching  0/81
+    proximal_shell / rotule_ball                                           stock: min  1.63 mm, touching  0/81   slim: min  1.64 mm, touching  0/81
+    proximal_shell / rotule_ball#1                                         stock: min  1.63 mm, touching  0/81   slim: min  1.74 mm, touching  0/81
+    proximal_shell / gimbal                                                stock: min  0.23 mm, touching  0/81   slim: min   inf mm, touching  0/81
+    proximal_shell / plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5 stock: min  0.04 mm, touching  6/81   slim: min  2.48 mm, touching  0/81
+    proximal_shell / std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default stock: min  0.07 mm, touching  4/81   slim: min   inf mm, touching  0/81
+    shell_screw / link                                                     stock: min  2.70 mm, touching  0/81   slim: min  1.58 mm, touching  0/81
+    shell_screw#1 / link                                                   stock: min  1.70 mm, touching  0/81   slim: min  0.38 mm, touching  0/81
+    => new contacts (pair x pose) in the slim model: 0; stock contacts that are gone: 36
+  -- pinky
+    rotule_lever#1 / proximal                                              stock: min  0.02 mm, touching  3/81   slim: min  0.02 mm, touching  3/81
+    rotule_lever#1 / proximal_shell                                        stock: min  0.43 mm, touching  0/81   slim: min  0.45 mm, touching  0/81
+    rotule_lever#1 / proximal                                              stock: min  0.41 mm, touching  0/81   slim: min  0.41 mm, touching  0/81
+    rotule_lever#1 / proximal_shell                                        stock: min  0.48 mm, touching  0/81   slim: min  0.68 mm, touching  0/81
+    bushing_0608_04_10 / proximal                                          stock: min  0.03 mm, touching  8/81   slim: min  0.01 mm, touching  8/81
+    bushing_0608_04_10 / proximal_shell                                    stock: min  0.05 mm, touching  8/81   slim: min  2.06 mm, touching  0/81
+    bushing_0608_04_9 / proximal                                           stock: min  0.03 mm, touching 81/81   slim: min  0.03 mm, touching 81/81
+    finger_frame_1_5 / proximal                                            stock: min  0.01 mm, touching 13/81   slim: min  0.02 mm, touching 13/81
+    finger_frame_1_5 / proximal_shell                                      stock: min  0.32 mm, touching  0/81   slim: min  2.97 mm, touching  0/81
+    r_hand_plate / proximal                                                stock: min  0.02 mm, touching  4/81   slim: min  0.05 mm, touching  4/81
+    r_hand_plate / proximal_shell                                          stock: min  0.02 mm, touching  9/81   slim: min  0.04 mm, touching  1/81
+    distal / parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b#1       stock: min  0.10 mm, touching 81/81   slim: min  0.10 mm, touching 81/81
+    distal / proximal                                                      stock: min  0.01 mm, touching 81/81   slim: min  0.00 mm, touching 81/81
+    distal / proximal_shell                                                stock: min  2.30 mm, touching  0/81   slim: min  0.54 mm, touching  0/81
+    distal / link                                                          stock: min  0.00 mm, touching 81/81   slim: min  0.00 mm, touching 81/81
+    distal_shell / proximal                                                stock: min  0.03 mm, touching  5/81   slim: min  1.33 mm, touching  0/81
+    distal_shell / proximal_shell                                          stock: min  0.03 mm, touching 13/81   slim: min  0.53 mm, touching  0/81
+    parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999 / proximal       stock: min  0.02 mm, touching 62/81   slim: min  0.02 mm, touching 62/81
+    parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999 / proximal_shell stock: min   inf mm, touching  0/81   slim: min  2.51 mm, touching  0/81
+    proximal / link                                                        stock: min  0.38 mm, touching  0/81   slim: min  0.38 mm, touching  0/81
+    proximal / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed stock: min  2.61 mm, touching  0/81   slim: min  2.61 mm, touching  0/81
+    proximal / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed#1 stock: min  2.61 mm, touching  0/81   slim: min  2.61 mm, touching  0/81
+    proximal / rotule_ball                                                 stock: min  1.66 mm, touching  0/81   slim: min  1.66 mm, touching  0/81
+    proximal / rotule_ball#1                                               stock: min  1.22 mm, touching  0/81   slim: min  1.22 mm, touching  0/81
+    proximal / gimbal                                                      stock: min  0.00 mm, touching 81/81   slim: min  0.00 mm, touching 81/81
+    proximal / parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999       stock: min  0.01 mm, touching 25/81   slim: min  0.00 mm, touching 25/81
+    proximal / plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5 stock: min  0.11 mm, touching  1/81   slim: min  0.11 mm, touching  1/81
+    proximal / std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default stock: min  0.13 mm, touching  1/81   slim: min  0.13 mm, touching  1/81
+    proximal_shell / link                                                  stock: min  1.64 mm, touching  0/81   slim: min  1.07 mm, touching  0/81
+    proximal_shell / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed#1 stock: min  2.55 mm, touching  0/81   slim: min  2.94 mm, touching  0/81
+    proximal_shell / rotule_ball                                           stock: min  1.63 mm, touching  0/81   slim: min  1.74 mm, touching  0/81
+    proximal_shell / rotule_ball#1                                         stock: min  1.63 mm, touching  0/81   slim: min  1.64 mm, touching  0/81
+    proximal_shell / gimbal                                                stock: min  0.23 mm, touching  0/81   slim: min   inf mm, touching  0/81
+    proximal_shell / plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5 stock: min  0.05 mm, touching  6/81   slim: min  2.48 mm, touching  0/81
+    proximal_shell / std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default stock: min  0.07 mm, touching  4/81   slim: min   inf mm, touching  0/81
+    shell_screw / link                                                     stock: min  1.70 mm, touching  0/81   slim: min  0.38 mm, touching  0/81
+    shell_screw#1 / link                                                   stock: min  2.70 mm, touching  0/81   slim: min  1.58 mm, touching  0/81
+    => new contacts (pair x pose) in the slim model: 0; stock contacts that are gone: 44
+
+== 3. neighbouring digits, every pair of grid poses
+  stock ring/pinky: touching 887/6561 pose pairs; min clearance 0.00 mm at A(-45,-45) B(+22,+68); within 1 mm: 983, within 3 mm: 2118
+        touching parts: proximal_shell / proximal_shell x228, proximal / proximal_shell x172, distal_shell / distal_shell x69, distal / distal_shell x60, ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed / proximal_shell x58, proximal_shell / std00447_thermoplastique_m2_5x6__configuration_default x57, proximal / proximal x46, distal_shell / proximal_shell x28, link / proximal_shell x24, link / proximal x21
+  slim  ring/pinky: touching 712/6561 pose pairs; min clearance 0.00 mm at A(-45,-90) B( +0,+22); within 1 mm: 767, within 3 mm: 1899
+        touching parts: proximal_shell / proximal_shell x216, proximal / proximal_shell x158, proximal / proximal x61, distal_shell / distal_shell x42, distal / distal_shell x32, proximal_shell / thermo_screw_m2_5x5 x18, distal / proximal x17, link / proximal x17, distal_pad / distal_shell x16, distal / proximal_shell x15
+        slim touching set is a subset of the stock set: True; pose pairs no longer touching: 175; new: 0
+  stock middle/ring: touching 887/6561 pose pairs; min clearance 0.00 mm at A(-22,-22) B(+22,+45); within 1 mm: 983, within 3 mm: 2230
+        touching parts: proximal_shell / proximal_shell x224, proximal / proximal_shell x178, distal / distal_shell x65, ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed / proximal_shell x62, distal_shell / distal_shell x59, proximal_shell / std00447_thermoplastique_m2_5x6__configuration_default x55, proximal / proximal x54, distal_shell / proximal_shell x25, distal_shell / std00447_thermoplastique_m2_5x6__configuration_default x24, link / proximal x24
+  slim  middle/ring: touching 712/6561 pose pairs; min clearance 0.00 mm at A(-22, +0) B(+22,+90); within 1 mm: 768, within 3 mm: 2012
+        touching parts: proximal_shell / proximal_shell x211, proximal / proximal_shell x151, proximal / proximal x69, distal / distal_shell x38, distal_shell / distal_shell x32, distal / proximal x27, distal_pad / distal_shell x18, proximal / thermo_screw_m2_5x5 x17, proximal_shell / thermo_screw_m2_5x5 x16, link / proximal_shell x16
+        slim touching set is a subset of the stock set: True; pose pairs no longer touching: 175; new: 0
+  stock index/middle: touching 973/6561 pose pairs; min clearance 0.00 mm at A(-90,-68) B(-22,-22); within 1 mm: 1082, within 3 mm: 2179
+        touching parts: proximal_shell / proximal_shell x244, proximal / proximal_shell x184, distal_shell / distal_shell x75, ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed / proximal_shell x65, proximal_shell / std00447_thermoplastique_m2_5x6__configuration_default x61, proximal / proximal x58, distal / distal_shell x50, proximal / std00447_thermoplastique_m2_5x6__configuration_default x37, link / proximal x29, link / proximal_shell x25
+  slim  index/middle: touching 783/6561 pose pairs; min clearance 0.00 mm at A(-45,-45) B(+22,+45); within 1 mm: 860, within 3 mm: 1923
+        touching parts: proximal_shell / proximal_shell x216, proximal / proximal_shell x184, proximal / proximal x69, distal / distal_shell x39, distal_shell / distal_shell x38, distal / proximal x29, proximal_shell / thermo_screw_m2_5x5 x27, link / proximal x24, link / proximal_shell x19, proximal / thermo_screw_m2_5x5 x17
+        slim touching set is a subset of the stock set: True; pose pairs no longer touching: 190; new: 0
+  stock ring/pinky touching vs relative abduction c = a_pinky - a_ring (deg): c=+0.0: 1/489, c=+22.5: 4/456, c=+45.0: 62/375, c=+67.5: 127/270, c=+90.0: 123/165, c=+112.5: 79/84, c=+135.0: 35/35, c=+157.5: 10/10, c=+180.0: 1/1
+  slim  ring/pinky touching vs relative abduction c = a_pinky - a_ring (deg): c=+45.0: 31/375, c=+67.5: 103/270, c=+90.0: 104/165, c=+112.5: 73/84, c=+135.0: 35/35, c=+157.5: 10/10, c=+180.0: 1/1
+
+== 4. 5-finger palm/back shells and grip pads vs the moving parts of every digit
+  index  vs palm_shell stock: min  1.96 mm at ( +0,-90) [ph_pan_head_screw_m2x0_40_x_10__28034322], touching 0/81   slim: min  1.96 mm at ( +0,-90) [ph_pan_head_screw_m2x0_40_x_10__28034322], touching 0/81
+  index  vs top_shell  stock: min   inf mm at (-90,-90) [], touching 0/81   slim: min   inf mm at (-90,-90) [], touching 0/81
+  index  vs pad_band   stock: min   inf mm at (-90,-90) [], touching 0/81   slim: min   inf mm at (-90,-90) [], touching 0/81
+  index  vs pad_palm   stock: min   inf mm at (-90,-90) [], touching 0/81   slim: min   inf mm at (-90,-90) [], touching 0/81
+  middle vs palm_shell stock: min  2.75 mm at (+90,-90) [proximal_shell (parallel_pin_2_x_16__da4], touching 0/81   slim: min  3.49 mm at (+90,-90) [proximal_shell (parallel_pin_2_x_16__da4], touching 0/81
+  middle vs top_shell  stock: min   inf mm at (-90,-90) [], touching 0/81   slim: min   inf mm at (-90,-90) [], touching 0/81
+  middle vs pad_band   stock: min   inf mm at (-90,-90) [], touching 0/81   slim: min   inf mm at (-90,-90) [], touching 0/81
+  middle vs pad_palm   stock: min   inf mm at (-90,-90) [], touching 0/81   slim: min   inf mm at (-90,-90) [], touching 0/81
+  ring   vs palm_shell stock: min  2.76 mm at (+90,-90) [proximal_shell (parallel_pin_2_x_16__da4], touching 0/81   slim: min  3.42 mm at (+90,+68) [rotule_lever (ball_link_4)], touching 0/81
+  ring   vs top_shell  stock: min   inf mm at (-90,-90) [], touching 0/81   slim: min   inf mm at (-90,-90) [], touching 0/81
+  ring   vs pad_band   stock: min   inf mm at (-90,-90) [], touching 0/81   slim: min   inf mm at (-90,-90) [], touching 0/81
+  ring   vs pad_palm   stock: min  4.17 mm at ( +0,+45) [ph_pan_head_screw_m2x0_40_x_10__28034322], touching 0/81   slim: min  4.17 mm at ( +0,+45) [ph_pan_head_screw_m2x0_40_x_10__28034322], touching 0/81
+  thumb  vs palm_shell stock: min  1.11 mm at (-90,-90) [proximal (parallel_pin_2_x_16__da4b7ddbe], touching 0/81   slim: min  1.11 mm at (-90,-90) [proximal (parallel_pin_2_x_16__da4b7ddbe], touching 0/81
+  thumb  vs top_shell  stock: min   inf mm at (-90,-90) [], touching 0/81   slim: min   inf mm at (-90,-90) [], touching 0/81
+  thumb  vs pad_band   stock: min  2.31 mm at (+90,-90) [distal_shell (parallel_pin_2_x_10__fee06], touching 0/81   slim: min  2.20 mm at (+90,-90) [distal_pad (parallel_pin_2_x_10__fee063f], touching 0/81
+  thumb  vs pad_palm   stock: min   inf mm at (-90,-90) [], touching 0/81   slim: min   inf mm at (-90,-90) [], touching 0/81
+  pinky  vs palm_shell stock: min  1.61 mm at (+68, +0) [ph_pan_head_screw_m2x0_40_x_10__28034322], touching 0/81   slim: min  1.61 mm at (+68, +0) [ph_pan_head_screw_m2x0_40_x_10__28034322], touching 0/81
+  pinky  vs top_shell  stock: min   inf mm at (-90,-90) [], touching 0/81   slim: min   inf mm at (-90,-90) [], touching 0/81
+  pinky  vs pad_band   stock: min  4.57 mm at ( +0,-22) [spacer (ball_link_9)], touching 0/81   slim: min  4.57 mm at ( +0,-22) [spacer (ball_link_9)], touching 0/81
+  pinky  vs pad_palm   stock: min  4.11 mm at (-90,-90) [ph_pan_head_screw_m2x0_40_x_10__28034322], touching 0/81   slim: min  4.11 mm at (-90,-90) [ph_pan_head_screw_m2x0_40_x_10__28034322], touching 0/81
+
+== 5. demo poses (DEMO_POSES_5F): clearance between neighbouring digits, stock -> slim (mm; > 5 mm not shown)
+  OpenHand        index/middle 3.49 -> 3.49, middle/ring 3.51 -> 3.51, ring/pinky 3.73 -> 3.73
+  CloseHand       thumb/index 0.01 -> 0.01 TOUCH
+  SpreadHand      middle/ring 4.86 -> 4.86
+  ClenchHand      index/middle 0.88 -> 1.94, middle/ring 1.67 -> 3.61
+  Index_Pointing  all > 5 mm
+  Perfect         index/middle 2.52 -> 2.52, middle/ring 1.27 -> 1.27, ring/pinky 2.49 -> 2.49, thumb/index 0.01 -> 0.00 TOUCH
+  Victory         thumb/index 4.98 -> inf
+  Pinched         thumb/index 0.01 -> 2.36
+  Fuck            thumb/index 0.01 -> 2.36
+
+done in 320 s

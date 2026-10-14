@@ -1,0 +1,70 @@
+{
+ "self_new_contacts": {
+  "index": 0,
+  "middle": 0,
+  "ring": 0,
+  "thumb": 0,
+  "pinky": 0
+ },
+ "self_gone": {
+  "index": 43,
+  "middle": 44,
+  "ring": 44,
+  "thumb": 36,
+  "pinky": 44
+ },
+ "pairs": {
+  "stock:ring/pinky": 887,
+  "stock:middle/ring": 887,
+  "stock:index/middle": 973,
+  "slim:ring/pinky": 712,
+  "slim:middle/ring": 712,
+  "slim:index/middle": 783
+ },
+ "shells": {
+  "stock": {
+   "index|palm_shell": 0,
+   "index|top_shell": 0,
+   "index|pad_band": 0,
+   "index|pad_palm": 0,
+   "middle|palm_shell": 0,
+   "middle|top_shell": 0,
+   "middle|pad_band": 0,
+   "middle|pad_palm": 0,
+   "ring|palm_shell": 0,
+   "ring|top_shell": 0,
+   "ring|pad_band": 0,
+   "ring|pad_palm": 0,
+   "thumb|palm_shell": 0,
+   "thumb|top_shell": 0,
+   "thumb|pad_band": 0,
+   "thumb|pad_palm": 0,
+   "pinky|palm_shell": 0,
+   "pinky|top_shell": 0,
+   "pinky|pad_band": 0,
+   "pinky|pad_palm": 0
+  },
+  "slim": {
+   "index|palm_shell": 0,
+   "index|top_shell": 0,
+   "index|pad_band": 0,
+   "index|pad_palm": 0,
+   "middle|palm_shell": 0,
+   "middle|top_shell": 0,
+   "middle|pad_band": 0,
+   "middle|pad_palm": 0,
+   "ring|palm_shell": 0,
+   "ring|top_shell": 0,
+   "ring|pad_band": 0,
+   "ring|pad_palm": 0,
+   "thumb|palm_shell": 0,
+   "thumb|top_shell": 0,
+   "thumb|pad_band": 0,
+   "thumb|pad_palm": 0,
+   "pinky|palm_shell": 0,
+   "pinky|top_shell": 0,
+   "pinky|pad_band": 0,
+   "pinky|pad_palm": 0
+  }
+ }
+}
