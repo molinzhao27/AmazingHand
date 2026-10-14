@@ -221,7 +221,7 @@ Details are in [cad/five_finger/slim_fingers/README.md](cad/five_finger/slim_fin
 Details are in [cad/five_finger/wrist/README.md](cad/five_finger/wrist/README.md). In short:
 
 - **Wrist:** a 2-DOF ring gimbal under the stock wrist interface. The hand bolts on unchanged through a wedge-shaped adapter.
-- **Hand on the forearm:** the forearm runs through the middle of the four fingers, between the middle and ring knuckles. It points along their mean direction, 10.5° from the stock index axis. The fingers therefore fan symmetrically about the forearm, and the knuckle line arcs down to the pinky as on a human hand. With the forearm on the stock interface axis instead, the hand would lean about 11° to the pinky side, and the pinky would look stuck on.
+- **Hand on the forearm:** the forearm runs through the middle of the four fingers, between the middle and ring knuckles. It points along their mean direction, 10.5° from the stock index axis. The fingers therefore fan symmetrically about the forearm, and the knuckle line arcs down to the pinky as on a human hand. With the forearm on the stock interface axis instead, the hand would lean about 11° to the pinky side, and the pinky would look stuck on. ([before / after](Demo/AHSimulation/five_finger/renders/before_after_centering.jpg))
 - **Drive:** two Feetech STS3215 (12 V) servos in a tapered forearm push rods, the same parallel drive as the fingers. Flexion is ±60°; deviation is ±25°, tapering to ±15° at full flexion.
 - **Torque:** the worst static load is 18% of stall for the hand alone and 35% with 200 g at the fingertips.
 - **Electrical:** servo IDs 21/22 (left 31/32), on their own 12 V branch.
