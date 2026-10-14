@@ -311,11 +311,18 @@ def settle_keyframe():
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--keyframe", action="store_true", help="regenerate keyframes.xml by settling at ctrl = 0")
+    ap.add_argument("--hand", default="AH_Right_5F",
+                    help="hand model to put on the wrist, e.g. AH_Right_5F_Slim (writes <hand>_Wrist)")
     args = ap.parse_args()
+    global SRC, DST
+    if args.hand != "AH_Right_5F":
+        SRC, DST = SIM_DIR / args.hand / "mjcf", SIM_DIR / f"{args.hand}_Wrist" / "mjcf"
     (DST / "assets").mkdir(parents=True, exist_ok=True)
     for stale in (DST / "assets").glob("wrist_*.stl"):          # wrist meshes are re-copied from cad/ below
         stale.unlink()
     for stl in SRC.glob("assets/*.stl"):
+        shutil.copy2(stl, DST / "assets" / stl.name)
+    for stl in (SIM_DIR / "AH_Right_5F" / "mjcf" / "assets").glob("r_*_5f.stl"):  # palm shells + pads
         shutil.copy2(stl, DST / "assets" / stl.name)
     for f in ("joints_properties.xml", "additional.xml"):
         shutil.copy2(SRC / f, DST / f)
