@@ -1,0 +1,13 @@
+<mujoco model="scene_uf">
+  <include file="finger_uf.xml" />
+  <visual>
+    <headlight diffuse="0.6 0.6 0.6" ambient="0.3 0.3 0.3" specular="0 0 0" />
+    <global azimuth="200" elevation="-15" offwidth="1920" offheight="1440" />
+  </visual>
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072" />
+  </asset>
+  <keyframe>
+    <key name="zero" qpos="5.67154734e-05 1 2.20442165e-05 7.3063909e-07 1.67719624e-05 1 1.98667662e-05 7.36196004e-07 9.81520097e-06 -4.51511142e-05 -4.1558198e-05 4.61927323e-05 -4.78014188e-05 -3.46097717e-05 -6.22652765e-05 1 -2.39514349e-05 -9.01672827e-12 -1.99416587e-05" />
+  </keyframe>
+</mujoco>

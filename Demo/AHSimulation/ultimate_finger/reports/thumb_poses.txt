@@ -1,0 +1,58 @@
+== thumb commands where the thumb meets the ultimate index (coarse 7.5 deg grid, then 1.5 deg)
+  CloseHand  index (90.0, -90.0): coarse thumb (22.5, -52.5) thumb_distal_pad/thumb_distal_shell to index uf_p2_shell/uf_p2_pad 0.00 mm
+  CloseHand  index (90.0, -90.0): fine thumb (24.0, -43.5) (1 exact-checked): thumb_distal_pad/thumb_distal_shell to index uf_p2_shell/uf_p2_pad 0.11 mm (sampled), every other thumb part >= 1.00 mm, no exact overlap
+  CloseHand {'index': (90.0, -90.0), 'middle': (90.0, -90.0), 'ring': (90.0, -90.0), 'pinky': (90.0, -90.0), 'thumb': (24.0, -43.5)} - every digit pair:
+    index /middle min surface distance  4.97 mm [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    index /ring   > 20 mm apart
+    index /thumb  min surface distance  0.09 mm [uf_p2_shell / thumb_distal_shell]  TOUCH (no overlap volume)
+    index /pinky  > 20 mm apart
+    middle/ring   min surface distance  5.97 mm [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    middle/thumb  min surface distance 11.35 mm [rotule_lever / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    middle/pinky  > 20 mm apart
+    ring  /thumb  > 20 mm apart
+    ring  /pinky  min surface distance  8.01 mm [rotule_lever / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    thumb /pinky  > 20 mm apart
+  updated data/hand_poses.json (CloseHand)
+  Perfect    index (20.0, -40.0): coarse thumb (30.0, -22.5) thumb_distal_pad/thumb_distal_shell to index uf_p3_pad/uf_p3_shell 0.01 mm, pad to pad 0.13 mm
+  Perfect    index (30.0, -30.0): coarse thumb (22.5, -52.5) thumb_distal_pad/thumb_distal_shell to index uf_p3_pad/uf_p3_shell 0.17 mm, pad to pad 0.88 mm
+  Perfect    index (40.0, -20.0): coarse thumb (37.5, -15.0) thumb_distal_pad/thumb_distal_shell to index uf_p3_pad/uf_p3_shell 0.02 mm, pad to pad 1.40 mm
+  Perfect    index (35.0, -55.0): coarse thumb (15.0, -60.0) thumb_distal_pad/thumb_distal_shell to index uf_p3_pad/uf_p3_shell 0.32 mm, pad to pad 3.99 mm
+  Perfect    index (45.0, -45.0): coarse thumb (15.0, -67.5) thumb_distal_pad/thumb_distal_shell to index uf_p3_pad/uf_p3_shell 1.55 mm, pad to pad 4.34 mm
+  Perfect    index (55.0, -35.0): coarse thumb (15.0, -67.5) thumb_distal_pad/thumb_distal_shell to index uf_p3_pad/uf_p3_shell 2.51 mm, pad to pad 5.09 mm
+  Perfect    index (20.0, -40.0): fine thumb (24.0, -31.5) (1 exact-checked): thumb_distal_pad/thumb_distal_shell to index uf_p3_pad/uf_p3_shell 0.11 mm (sampled), pad to pad 1.14 mm, every other thumb part >= 1.00 mm, no exact overlap
+  Perfect    index (30.0, -30.0): fine thumb (22.5, -52.5) (1 exact-checked): thumb_distal_pad/thumb_distal_shell to index uf_p3_pad/uf_p3_shell 0.14 mm (sampled), pad to pad 0.87 mm, every other thumb part >= 0.33 mm, no exact overlap
+  Perfect {'index': (30.0, -30.0), 'middle': (-13.0, 13.0), 'ring': (-35.9, 35.9), 'pinky': (-35.9, 35.9), 'thumb': (22.5, -52.5)} - every digit pair:
+    index /middle min surface distance  2.51 mm [rotule_lever / rotule_lever]
+    index /ring   > 20 mm apart
+    index /thumb  min surface distance  0.16 mm [uf_p3_shell / thumb_distal_shell]  TOUCH (no overlap volume)
+    index /pinky  > 20 mm apart
+    middle/ring   min surface distance  2.26 mm [rotule_lever / rotule_lever]
+    middle/thumb  min surface distance 14.47 mm [finger_frame_2 / rotule_lever]
+    middle/pinky  > 20 mm apart
+    ring  /thumb  > 20 mm apart
+    ring  /pinky  min surface distance  5.32 mm [rotule_lever / rotule_lever]
+    thumb /pinky  > 20 mm apart
+  updated data/hand_poses.json (Perfect)
+  Pinched    index (-10.0, -10.0): coarse thumb (75.0, 15.0) thumb_distal_pad/thumb_distal_shell to index uf_p3_pad/uf_p3_shell 8.15 mm, pad to pad 10.97 mm
+  Pinched    index (0.0, 0.0): coarse thumb (75.0, 15.0) thumb_distal_pad/thumb_distal_shell to index uf_p3_pad/uf_p3_shell 6.96 mm, pad to pad 9.76 mm
+  Pinched    index (10.0, 10.0): coarse thumb (75.0, 7.5) thumb_distal_pad/thumb_distal_shell to index uf_p3_pad/uf_p3_shell 4.83 mm, pad to pad 9.68 mm
+  Pinched    index (0.0, -20.0): coarse thumb (75.0, 22.5) thumb_distal_pad/thumb_distal_shell to index uf_p3_pad/uf_p3_shell 0.01 mm, pad to pad 0.01 mm
+  Pinched    index (10.0, -10.0): coarse thumb (75.0, 22.5) thumb_distal_pad/thumb_distal_shell to index uf_p3_pad/uf_p3_shell 0.00 mm, pad to pad 0.02 mm
+  Pinched    index (20.0, 0.0): coarse thumb (75.0, 22.5) thumb_distal_pad/thumb_distal_shell to index uf_p3_pad/uf_p3_shell 0.01 mm, pad to pad 0.01 mm
+  Pinched    index (10.0, -30.0): coarse thumb (37.5, -7.5) thumb_distal_pad/thumb_distal_shell to index uf_p3_pad/uf_p3_shell 0.02 mm, pad to pad 0.03 mm
+  Pinched    index (20.0, -20.0): coarse thumb (37.5, -15.0) thumb_distal_pad/thumb_distal_shell to index uf_p3_pad/uf_p3_shell 0.01 mm, pad to pad 0.16 mm
+  Pinched    index (30.0, -10.0): coarse thumb (37.5, -22.5) thumb_distal_pad/thumb_distal_shell to index uf_p3_pad/uf_p3_shell 0.01 mm, pad to pad 0.68 mm
+  Pinched    index (20.0, 0.0): fine thumb (84.0, 30.0) (1 exact-checked): thumb_distal_pad/thumb_distal_shell to index uf_p3_pad/uf_p3_shell 0.12 mm (sampled), pad to pad 0.12 mm, every other thumb part >= 1.00 mm, no exact overlap
+  Pinched    index (0.0, -20.0): fine thumb (73.5, 24.0) (1 exact-checked): thumb_distal_pad/thumb_distal_shell to index uf_p3_pad/uf_p3_shell 0.11 mm (sampled), pad to pad 0.26 mm, every other thumb part >= 1.00 mm, no exact overlap
+  Pinched {'index': (20.0, 0.0), 'middle': (90.0, -90.0), 'ring': (90.0, -90.0), 'pinky': (90.0, -90.0), 'thumb': (84.0, 30.0)} - every digit pair:
+    index /middle min surface distance  5.37 mm [custom_servo_horn / scs0009_5]
+    index /ring   > 20 mm apart
+    index /thumb  min surface distance  0.21 mm [uf_p3_pad / thumb_distal_pad]  TOUCH (no overlap volume)
+    index /pinky  > 20 mm apart
+    middle/ring   min surface distance  5.97 mm [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    middle/thumb  min surface distance 11.02 mm [finger_frame_2 / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    middle/pinky  > 20 mm apart
+    ring  /thumb  > 20 mm apart
+    ring  /pinky  min surface distance  8.01 mm [rotule_lever / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    thumb /pinky  > 20 mm apart
+  updated data/hand_poses.json (Pinched)

@@ -1,0 +1,222 @@
+== 5-digit right hand AH_Right_5F_3S: ultimate fingers (index, middle, ring, pinky), slim styled thumb
+   checks imported unchanged from Demo/AHSimulation/five_finger/verify_5f_model.py
+== 1. structure
+  nbody=55 njnt=48 nq=93 nv=78 nu=10 neq=29 nsite=63 ngeom=230 nkey=1 nmocap=5
+  names unique: bodies, joints, sites, actuators
+  actuators: ['finger1_motor1', 'finger1_motor2', 'finger2_motor1', 'finger2_motor2', 'finger3_motor1', 'finger3_motor2', 'finger4_motor1', 'finger4_motor2', 'finger5_motor1', 'finger5_motor2']
+  every ctrlrange = +-1.5708 rad
+  keyframe 'zero': qpos size 93 == nq 93; max equality error 0.0001 mm
+  mocap finger1_target -> site tip1: 0.000 mm apart at the keyframe
+  mocap finger2_target -> site tip2: 0.000 mm apart at the keyframe
+  mocap finger3_target -> site tip3: 0.000 mm apart at the keyframe
+  mocap finger4_target -> site tip4: 0.000 mm apart at the keyframe
+  mocap finger5_target -> site tip5: 0.000 mm apart at the keyframe
+== 2. the pinky has shortened phalanges (meshes ufpk_*), so it is not an exact copy of the ring
+== 2b. every ultimate finger of the hand vs the standalone finger model (tip in its own finger frame, 6 commands): max difference 0.0747 mm
+== 2c. ring vs pinky along the flexion line (a = 0), settled in the hand: joint angles (deg), loop errors
+    f  -60.0: ring MCP/PIP/DIP   -3.0   -3.8   -2.7 | pinky   -3.0   -3.7   -2.4 | tip distance from its finger frame ring 93.1 / pinky 82.8 mm | max loop error 0.0002 mm
+    f  -56.0: ring MCP/PIP/DIP    0.1    0.1    0.1 | pinky    0.1    0.1    0.1 | tip distance from its finger frame ring 93.6 / pinky 83.2 mm | max loop error 0.0001 mm
+    f  -30.0: ring MCP/PIP/DIP   21.8   25.1   17.5 | pinky   21.9   25.0   16.1 | tip distance from its finger frame ring 91.2 / pinky 81.4 mm | max loop error 0.0007 mm
+    f   +0.0: ring MCP/PIP/DIP   45.3   49.4   34.7 | pinky   45.3   49.5   33.1 | tip distance from its finger frame ring 79.5 / pinky 71.1 mm | max loop error 0.0001 mm
+    f  +30.0: ring MCP/PIP/DIP   65.3   66.8   47.0 | pinky   64.9   67.4   46.1 | tip distance from its finger frame ring 66.5 / pinky 59.0 mm | max loop error 0.0003 mm
+    f  +60.0: ring MCP/PIP/DIP   81.0   75.9   53.0 | pinky   80.2   77.1   52.9 | tip distance from its finger frame ring 58.1 / pinky 50.9 mm | max loop error 0.0001 mm
+    f  +90.0: ring MCP/PIP/DIP   88.8   78.1   54.4 | pinky   87.8   79.7   54.7 | tip distance from its finger frame ring 55.4 / pinky 48.1 mm | max loop error 0.0001 mm
+
+== 6. poses (straight finger at f = -56.0 deg, so (m1, m2) = (-56.0, 56.0); abduction room there |a| <= 34)
+  thumb placement search (thumb motors on a grid, other digits held): the thumb's distal pad onto the target phalanx, thumb >= 0.2 mm from every other digit (sampled surfaces)
+    Peace         target ring middle phalanx: best thumb (-90.0, -90.0) -> pad-to-target inf mm, thumb to the nearest digit 19.58 mm; next: (-90.0, -82.5) inf/19.6, (-90.0, -75.0) inf/19.6, (-90.0, -67.5) inf/19.6
+      -> the thumb cannot reach that phalanx; the pose uses the tucked thumb (90.0, -90.0)
+    MiddleFinger  target index middle phalanx: best thumb (22.5, -45.0) -> pad-to-target 0.36 mm, thumb to the nearest digit 0.36 mm; next: (15.0, -67.5) 0.4/0.4, (30.0, -30.0) 0.6/0.6, (15.0, -60.0) 1.1/1.1
+  pinch search: index flexion f_i (a = 0) x thumb grid; index P3 pad vs thumb distal pad - skipped (--keep-pinch): the Pinched pose of data/hand_poses.json
+
+   pose table (right hand, (m1, m2) deg; thumb stock unless stated; 'Fuck' = MiddleFinger):
+     OpenHand        index (-53.1, 53.1)  middle (-53.1, 53.1)  ring (-53.1, 53.1)  pinky (-53.1, 53.1)  thumb (-35.0, 35.0)
+     CloseHand       index (90.0, -90.0)  middle (90.0, -90.0)  ring (90.0, -90.0)  pinky (90.0, -90.0)  thumb (90.0, -90.0)
+     SpreadHand      index (-30.0, 90.0)  middle (-49.7, 49.7)  ring (-85.0, 35.0)  pinky (-90.0, 30.0)  thumb (-90.0, -4.0)
+     ClenchHand      index (-52.4, 42.4)  middle (-48.1, 58.1)  ring (-38.1, 68.1)  pinky (-45.1, 61.1)  thumb (-4.0, 90.0)
+     Index_Pointing  index (-58.5, 58.5)  middle (90.0, -90.0)  ring (90.0, -90.0)  pinky (90.0, -90.0)  thumb (90.0, -90.0)
+     Perfect         index (44.2, -44.2)  middle (-13.0, 13.0)  ring (-35.9, 35.9)  pinky (-35.9, 35.9)  thumb (65.0, 12.0)
+     Victory         index (-33.5, 83.5)  middle (-83.5, 33.5)  ring (90.0, -90.0)  pinky (90.0, -90.0)  thumb (90.0, -90.0)
+     Pinched         index (0.0, -20.0)  middle (90.0, -90.0)  ring (90.0, -90.0)  pinky (90.0, -90.0)  thumb (69.0, 18.0)
+     Fuck            index (90.0, -90.0)  middle (-56.0, 56.0)  ring (90.0, -90.0)  pinky (90.0, -90.0)  thumb (22.5, -45.0)
+     Peace           index (-26.0, 86.0)  middle (-86.0, 26.0)  ring (90.0, -90.0)  pinky (90.0, -90.0)  thumb (90.0, -90.0)
+     MiddleFinger    index (90.0, -90.0)  middle (-56.0, 56.0)  ring (90.0, -90.0)  pinky (90.0, -90.0)  thumb (22.5, -45.0)
+  OpenHand:
+    index /middle min surface distance  4.98 mm [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    index /ring   > 20 mm apart
+    index /thumb  min surface distance 13.93 mm [finger_frame_2_4 / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    index /pinky  > 20 mm apart
+    middle/ring   min surface distance  5.52 mm [rotule_lever / rotule_lever]
+    middle/thumb  min surface distance 17.57 mm [scs0009_5 / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    middle/pinky  > 20 mm apart
+    ring  /thumb  > 20 mm apart
+    ring  /pinky  min surface distance  7.05 mm [rotule_lever / rotule_lever]
+    thumb /pinky  > 20 mm apart
+  CloseHand:
+    index /middle min surface distance  4.97 mm [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    index /ring   > 20 mm apart
+    index /thumb  min surface distance  0.00 mm [uf_p3_pad / thumb_proximal_pad]  TOUCH; exact overlap 3056.02 mm3, depth ~10.44 mm [uf_p3_shell / thumb_proximal_shell]
+    index /pinky  > 20 mm apart
+    middle/ring   min surface distance  5.97 mm [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    middle/thumb  min surface distance 10.90 mm [finger_frame_2 / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    middle/pinky  > 20 mm apart
+    ring  /thumb  > 20 mm apart
+    ring  /pinky  min surface distance  8.01 mm [rotule_lever / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    thumb /pinky  > 20 mm apart
+  SpreadHand:
+    index /middle min surface distance  5.81 mm [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    index /ring   > 20 mm apart
+    index /thumb  min surface distance 11.67 mm [finger_frame_2_4 / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    index /pinky  > 20 mm apart
+    middle/ring   min surface distance  6.16 mm [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    middle/thumb  min surface distance 17.92 mm [finger_frame_2 / custom_servo_horn]
+    middle/pinky  > 20 mm apart
+    ring  /thumb  > 20 mm apart
+    ring  /pinky  min surface distance  7.07 mm [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    thumb /pinky  > 20 mm apart
+  ClenchHand:
+    index /middle min surface distance  4.04 mm [rotule_lever / rotule_lever]
+    index /ring   > 20 mm apart
+    index /thumb  min surface distance 16.48 mm [finger_frame_2_4 / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    index /pinky  > 20 mm apart
+    middle/ring   min surface distance  5.35 mm [rotule_lever / rotule_lever]
+    middle/thumb  min surface distance 16.37 mm [scs0009_5 / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    middle/pinky  > 20 mm apart
+    ring  /thumb  > 20 mm apart
+    ring  /pinky  min surface distance  7.62 mm [rotule_lever / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    thumb /pinky  > 20 mm apart
+  Index_Pointing:
+    index /middle min surface distance  7.35 mm [rotule_lever / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    index /ring   > 20 mm apart
+    index /thumb  min surface distance  7.02 mm [uf_link / thumb_distal_shell]
+    index /pinky  > 20 mm apart
+    middle/ring   min surface distance  5.97 mm [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    middle/thumb  min surface distance 10.90 mm [finger_frame_2 / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    middle/pinky  > 20 mm apart
+    ring  /thumb  > 20 mm apart
+    ring  /pinky  min surface distance  8.01 mm [rotule_lever / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    thumb /pinky  > 20 mm apart
+  Perfect:
+    index /middle min surface distance  3.37 mm [rotule_lever / rotule_lever]
+    index /ring   > 20 mm apart
+    index /thumb  min surface distance  0.00 mm [uf_pin_b / thumb_distal_pad]  TOUCH; exact overlap 46.77 mm3, depth ~2.25 mm [uf_p3 / thumb_distal_shell]
+    index /pinky  > 20 mm apart
+    middle/ring   min surface distance  2.26 mm [rotule_lever / rotule_lever]
+    middle/thumb  min surface distance 11.72 mm [finger_frame_2 / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    middle/pinky  > 20 mm apart
+    ring  /thumb  > 20 mm apart
+    ring  /pinky  min surface distance  5.32 mm [rotule_lever / rotule_lever]
+    thumb /pinky  > 20 mm apart
+  Victory:
+    index /middle min surface distance  6.35 mm [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    index /ring   > 20 mm apart
+    index /thumb  min surface distance  6.43 mm [uf_link / thumb_distal_shell]
+    index /pinky  > 20 mm apart
+    middle/ring   min surface distance  6.34 mm [rotule_lever / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    middle/thumb  min surface distance 10.90 mm [finger_frame_2 / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    middle/pinky  > 20 mm apart
+    ring  /thumb  > 20 mm apart
+    ring  /pinky  min surface distance  8.01 mm [rotule_lever / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    thumb /pinky  > 20 mm apart
+  Pinched:
+    index /middle min surface distance  5.59 mm [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    index /ring   > 20 mm apart
+    index /thumb  min surface distance  0.01 mm [uf_p3_pad / thumb_distal_shell]  TOUCH; exact overlap 6.96 mm3, depth ~0.85 mm [uf_p3_pad / thumb_distal_shell]
+    index /pinky  > 20 mm apart
+    middle/ring   min surface distance  5.97 mm [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    middle/thumb  min surface distance 11.53 mm [finger_frame_2 / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    middle/pinky  > 20 mm apart
+    ring  /thumb  > 20 mm apart
+    ring  /pinky  min surface distance  8.01 mm [rotule_lever / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    thumb /pinky  > 20 mm apart
+  Fuck:
+    index /middle min surface distance  7.12 mm [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed / rotule_lever]
+    index /ring   > 20 mm apart
+    index /thumb  min surface distance  0.36 mm [uf_p2_shell / thumb_distal_pad]
+    index /pinky  > 20 mm apart
+    middle/ring   min surface distance  7.21 mm [rotule_lever / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    middle/thumb  min surface distance 14.47 mm [finger_frame_2 / rotule_lever]
+    middle/pinky  > 20 mm apart
+    ring  /thumb  > 20 mm apart
+    ring  /pinky  min surface distance  8.01 mm [rotule_lever / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    thumb /pinky  > 20 mm apart
+  Peace:
+    index /middle min surface distance  6.71 mm [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    index /ring   > 20 mm apart
+    index /thumb  min surface distance  6.09 mm [uf_link / thumb_distal_shell]
+    index /pinky  > 20 mm apart
+    middle/ring   min surface distance  6.18 mm [rotule_lever / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    middle/thumb  min surface distance 10.90 mm [finger_frame_2 / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    middle/pinky  > 20 mm apart
+    ring  /thumb  > 20 mm apart
+    ring  /pinky  min surface distance  8.01 mm [rotule_lever / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    thumb /pinky  > 20 mm apart
+  MiddleFinger:
+    index /middle min surface distance  7.12 mm [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed / rotule_lever]
+    index /ring   > 20 mm apart
+    index /thumb  min surface distance  0.36 mm [uf_p2_shell / thumb_distal_pad]
+    index /pinky  > 20 mm apart
+    middle/ring   min surface distance  7.21 mm [rotule_lever / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    middle/thumb  min surface distance 14.47 mm [finger_frame_2 / rotule_lever]
+    middle/pinky  > 20 mm apart
+    ring  /thumb  > 20 mm apart
+    ring  /pinky  min surface distance  8.01 mm [rotule_lever / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+    thumb /pinky  > 20 mm apart
+  Peace: tips (mm, palm frame of the plate): index [13.8, 19.2, 182.9], middle [9.0, -39.3, 174.0], ring [28.9, -33.2, 54.1], thumb [11.1, 19.0, 96.8], pinky [23.3, -61.9, 44.4]
+  MiddleFinger: tips (mm, palm frame of the plate): index [28.9, 24.9, 69.9], middle [-6.9, -25.6, 181.3], ring [28.9, -33.2, 54.1], thumb [43.3, 32.5, 103.8], pinky [23.3, -61.9, 44.4]
+  Pinched: tips (mm, palm frame of the plate): index [54.1, 17.3, 107.9], middle [28.9, -4.6, 64.5], ring [28.9, -33.2, 54.1], thumb [59.4, 23.9, 101.7], pinky [23.3, -61.9, 44.4]
+== 3./4. stability and equality-constraint error while sweeping the actuators
+  each actuator alone 0->max->min->0       55.0 s sim  max|qvel|    1.90 rad/s  eq err max  0.012 mm (settled  0.001 mm)  max |q_motor - ctrl| settled  0.11 deg  warnings none  [1.6 s wall]
+  all digits around their range corners    12.0 s sim  max|qvel|    2.53 rad/s  eq err max  0.031 mm (settled  0.004 mm)  max |q_motor - ctrl| settled  0.10 deg  warnings none  [0.4 s wall]
+  demo poses (DEMO_POSES_5F), x2           22.0 s sim  max|qvel|   12.12 rad/s  eq err max  0.090 mm (settled  0.003 mm)  max |q_motor - ctrl| settled  0.15 deg  warnings none  [0.7 s wall]
+  60 abrupt random full-range steps        36.0 s sim  max|qvel|   86.74 rad/s  eq err max  0.933 mm (settled  0.006 mm)  max |q_motor - ctrl| settled  0.25 deg  warnings none  [1.2 s wall]
+  per digit (all sequences): max equality error transient / settled
+    index    0.726 mm /  0.004 mm
+    middle   0.526 mm /  0.006 mm
+    ring     0.563 mm /  0.005 mm
+    thumb    0.933 mm /  0.001 mm
+    pinky    0.802 mm /  0.005 mm
+  worst pair overall: 'closing_1 (4)_1_z' / 'closing_1 (4)_2_z' 0.933 mm
+== 5. interference: 9x9 grid per digit over (motor1, motor2) in [-90, 90] deg (22.5 deg steps); surface samples every 1.0 mm, 0.3 mm below 3 mm clearance
+  settled 81 grid poses (0.6 s); max equality error at the grid poses: index 0.007 mm, middle 0.008 mm, ring 0.007 mm, thumb 0.002 mm, pinky 0.005 mm
+  ring vs pinky, palm-fixed parts only (servos, finger frames): > 5 mm
+  ring (A) vs pinky (B): min clearance 0.00 mm at A(-45,-45) B(+45,+90) [uf_p1_pad (p1_3) / ufpk_l2 (l2_5)]; pose pairs touching or overlapping (< 0.23 mm): 952/6561
+    touching parts: uf_p1_shell/ufpk_p1_shell x188, ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed/ufpk_p1_shell x142, uf_p1_shell/ufpk_p2_shell x71, uf_p1_shell/ufpk_p1 x38, uf_p2_shell/ufpk_p3_shell x34, rotule_lever/ufpk_p1_shell x32, uf_p1_pad/ufpk_p1_shell x30, uf_p1_shell/ufpk_p2 x29, uf_p1/ufpk_p1_shell x21, uf_p2_shell/ufpk_p2_shell x18, uf_p2_shell/ufpk_p3 x17, uf_p1/ufpk_p2_shell x16, uf_p1/ufpk_p2 x15, uf_p2_shell/ufpk_p2 x15, ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed/ufpk_p1 x15, uf_p1/ufpk_p1 x14, rotule_ball/ufpk_p1_shell x14, uf_p1_pad/ufpk_p1 x12, uf_p1_pad/ufpk_p2 x11, uf_p1_shell/ufpk_pin_p4 x11, uf_p2_shell/ufpk_l2 x9, uf_p2/ufpk_p2_shell x9, uf_p1_shell/ufpk_link x8, uf_pin_a/ufpk_p2_shell x8, uf_p1_shell/ufpk_pin_a x7, uf_p2/ufpk_p3 x7, uf_p1_shell/ufpk_l2 x6, uf_pin_pip/ufpk_p2_shell x6, uf_p2_pad/ufpk_p3_shell x6, uf_p1_shell/ufpk_pin_pip x6, uf_p2/ufpk_p3_shell x6, uf_p1/ufpk_link x6, uf_p3_shell/ufpk_p3_shell x6, uf_p2_pad/ufpk_p3 x6, uf_pin_p4/ufpk_p2_shell x5, uf_p1_shell/ufpk_p1_pad x5, uf_p1/ufpk_pin_pip x5, uf_p1_pad/ufpk_pin_p4 x5, uf_p3/ufpk_p3_shell x4, uf_link/ufpk_p1_shell x4, uf_p2_shell/ufpk_p3_pad x4, uf_p2_shell/ufpk_pin_dip x4, uf_p1/ufpk_p2_pad x4, uf_p1_shell/ufpk_p2_pad x4, uf_p3/ufpk_p3_pad x3, uf_p2/ufpk_p2 x3, uf_p2_shell/ufpk_pin_b x3, uf_pin_a/ufpk_p2 x3, uf_p1_pad/ufpk_link x3, uf_p1/ufpk_pin_p4 x3, uf_p2/ufpk_pin_dip x3, uf_p1_pad/ufpk_p2_shell x3, uf_p2/ufpk_pin_b x3, uf_p2_pad/ufpk_p2 x2, uf_p2/ufpk_p2_pad x2, uf_p1_pad/ufpk_l2 x2, uf_link/ufpk_p2 x2, uf_pin_dip/ufpk_p3_pad x2, uf_pin_b/ufpk_p3_shell x2, uf_pin_dip/ufpk_p3_shell x2, uf_l2/ufpk_p3_shell x2, uf_l2/ufpk_p2 x1, uf_p2_pad/ufpk_l2 x1, uf_link/ufpk_pin_a x1, uf_p1/ufpk_pin_a x1, uf_p3_shell/ufpk_p3 x1, uf_link/ufpk_p2_shell x1, uf_pin_b/ufpk_p3_pad x1, uf_p1/ufpk_p1_pad x1, uf_p2_pad/ufpk_p3_pad x1, uf_p2/ufpk_p3_pad x1, uf_link/ufpk_p1 x1, uf_p2/ufpk_l2 x1, rotule_ball/ufpk_p1 x1, uf_link/ufpk_pin_pip x1, uf_p2_pad/ufpk_pin_b x1, uf_p1_pad/ufpk_pin_pip x1, uf_p2_shell/ufpk_p2_pad x1, uf_p2_pad/ufpk_pin_dip x1, uf_p3_pad/ufpk_p3_shell x1, uf_p3_shell/ufpk_p3_pad x1, uf_pin_p4/ufpk_p2 x1, uf_link/ufpk_p2_pad x1, uf_pin_p4/ufpk_p2_pad x1, uf_link/ufpk_p3 x1, uf_pin_p4/ufpk_pin_b x1, uf_pin_p4/ufpk_p3 x1
+    [80 s]
+  middle vs ring, palm-fixed parts only (servos, finger frames): > 5 mm
+  middle (A) vs ring (B): min clearance 0.00 mm at A(-68,-68) B(+22,+45) [uf_p3 (p3_2) / uf_p3_shell (p3_3)]; pose pairs touching or overlapping (< 0.23 mm): 869/6561
+    touching parts: uf_p1_shell/uf_p1_shell x170, uf_p1/uf_p1_shell x91, uf_p2_shell/uf_p2_shell x74, ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed/uf_p1_shell x57, uf_p1_shell/uf_p2_shell x46, uf_p1_pad/uf_p1_shell x43, uf_p2/uf_p2_shell x41, uf_p1/uf_p1 x24, uf_p2_pad/uf_p2_shell x21, uf_p1_shell/uf_p2 x21, uf_p1/uf_p2_shell x20, uf_p3_shell/uf_p3_shell x17, uf_p1/uf_p2 x17, uf_link/uf_p1_shell x13, uf_p1_shell/uf_pin_a x12, uf_p1/uf_p1_pad x11, uf_p2_shell/uf_pin_p4 x10, uf_p1/uf_pin_pip x10, uf_p3/uf_p3_shell x10, uf_l2/uf_p2_shell x10, uf_p2_shell/uf_p3 x9, uf_p1/uf_pin_a x8, uf_p2/uf_pin_a x8, uf_p2/uf_p3_shell x7, uf_l2/uf_p1_shell x6, uf_p2/uf_p2 x6, uf_p3_pad/uf_p3_shell x6, uf_p2_shell/uf_pin_pip x6, uf_p2_shell/uf_pin_a x6, uf_p2/uf_pin_pip x5, uf_p2/uf_pin_p4 x5, uf_link/uf_p1 x5, uf_p1_shell/uf_pin_p4 x5, uf_p1_shell/uf_pin_pip x4, uf_link/uf_pin_a x4, uf_p2_pad/uf_p2_pad x4, uf_p2/uf_p3 x4, uf_l2/uf_p2 x3, uf_link/uf_p2_shell x3, uf_link/uf_pin_pip x3, uf_p1/uf_pin_p4 x3, uf_link/uf_p2 x3, uf_l2/uf_p1 x3, uf_p2/uf_p2_pad x3, uf_p2_shell/uf_pin_dip x3, uf_pin_b/uf_pin_dip x2, uf_p3/uf_p3_pad x2, uf_p3/uf_pin_dip x2, uf_p2/uf_pin_b x2, rotule_ball/uf_p1_shell x2, uf_p3_shell/uf_pin_b x2, uf_l2/uf_pin_pip x1, uf_p3_pad/uf_p3_pad x1, uf_pin_p4/uf_pin_p4 x1, uf_p2/uf_pin_dip x1, uf_p1_pad/uf_p2 x1, uf_pin_pip/uf_pin_pip x1, uf_p2_shell/uf_pin_b x1, uf_p3/uf_p3 x1, uf_pin_a/uf_pin_pip x1, uf_pin_a/uf_pin_p4 x1, uf_l2/uf_p3 x1, uf_p2/uf_p3_pad x1, uf_l2/uf_pin_dip x1, uf_p1_pad/uf_pin_a x1, uf_p2_pad/uf_pin_b x1, uf_l2/uf_p2_pad x1, uf_p2_pad/uf_pin_p4 x1
+    [180 s]
+  thumb vs pinky, palm-fixed parts only (servos, finger frames): > 5 mm
+  thumb (A) vs pinky (B): > 5 mm apart in all 6561 pose pairs
+    [4 s]
+  thumb vs ring, palm-fixed parts only (servos, finger frames): > 5 mm
+  thumb (A) vs ring (B): > 5 mm apart in all 6561 pose pairs
+    [4 s]
+  ring/pinky contact vs relative abduction c = a_pinky - a_ring (a = (m1+m2)/2, > 0 = towards index): touching pairs have c >= -22.5 deg
+    c =  -22.5 deg: 2/456 pose pairs touch (min clearance of the others 0.56 mm)
+    c =   +0.0 deg: 11/489 pose pairs touch (min clearance of the others 0.35 mm)
+    c =  +22.5 deg: 23/456 pose pairs touch (min clearance of the others 0.29 mm)
+    c =  +45.0 deg: 73/375 pose pairs touch (min clearance of the others 0.23 mm)
+    c =  +67.5 deg: 129/270 pose pairs touch (min clearance of the others 0.24 mm)
+    c =  +90.0 deg: 118/165 pose pairs touch (min clearance of the others 0.27 mm)
+    c = +112.5 deg: 75/84 pose pairs touch (min clearance of the others 0.60 mm)
+    c = +135.0 deg: 35/35 pose pairs touch (min clearance of the others inf mm)
+    c = +157.5 deg: 10/10 pose pairs touch (min clearance of the others inf mm)
+    c = +180.0 deg: 1/1 pose pairs touch (min clearance of the others inf mm)
+  pinky/ring vs stock middle/ring: same set of pose pairs within 5 mm: False; max |clearance difference| 3.455 mm; same touching set: False
+  index  moving parts vs palm (plate + wrist interface): min clearance  0.40 mm at (-68,+90) [plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5 (std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default) / r_hand_plate]; grid poses touching: 0/81
+  middle moving parts vs palm (plate + wrist interface): min clearance  0.40 mm at (-68,+90) [plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5 (std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default_2) / r_hand_plate]; grid poses touching: 0/81
+  ring   moving parts vs palm (plate + wrist interface): min clearance  0.40 mm at (-68,+90) [plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5 (std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default_3) / r_hand_plate]; grid poses touching: 0/81
+  thumb  moving parts vs palm (plate + wrist interface): min clearance  0.40 mm at (+22,+22) [plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5 (std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default_4) / r_wrist_interface]; grid poses touching: 0/81
+  pinky  moving parts vs palm (plate + wrist interface): min clearance  0.40 mm at (-68,+90) [plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5 (std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default_5) / r_hand_plate]; grid poses touching: 0/81
+  index (A) vs middle (B): min clearance 0.00 mm at A(-90,-90) B(+22,+22) [uf_p2_shell (p2_1) / uf_p2_shell (p2_2)]; pose pairs touching or overlapping (< 0.23 mm): 808/6561
+    touching parts: uf_p1_shell/uf_p1_shell x168, uf_p2_shell/uf_p2_shell x103, uf_p1/uf_p1_shell x77, uf_p1_pad/uf_p1_shell x51, uf_p2/uf_p2_shell x42, uf_p1_shell/uf_p2_shell x33, uf_p1/uf_p1 x26, uf_p1_shell/uf_p2 x22, uf_p2_pad/uf_p2_shell x17, uf_p1/uf_p2 x16, uf_link/uf_p1_shell x14, uf_p3/uf_p3_shell x14, uf_p2_shell/uf_pin_p4 x13, uf_p3_shell/uf_p3_shell x11, uf_p1/uf_p2_shell x10, uf_p1_shell/uf_pin_a x10, uf_p1_shell/uf_pin_pip x9, uf_link/uf_p1 x8, uf_l2/uf_p2_shell x8, uf_p2/uf_pin_a x8, uf_p1/uf_p1_pad x7, uf_p1/uf_pin_a x7, uf_p1/uf_pin_pip x7, uf_p2/uf_pin_p4 x7, uf_p2_shell/uf_pin_a x6, uf_p2/uf_p2_pad x6, uf_p3_shell/uf_pin_dip x6, uf_p2/uf_p2 x6, uf_pin_a/uf_pin_pip x5, uf_p3_pad/uf_p3_shell x5, uf_p2_shell/uf_pin_pip x5, uf_l2/uf_p1_shell x5, uf_link/uf_p2_shell x4, uf_p2_shell/uf_p3 x4, uf_p3/uf_p3_pad x4, uf_p1_shell/uf_pin_p4 x4, uf_link/uf_pin_a x4, uf_l2/uf_p1 x4, uf_p1/uf_pin_p4 x4, uf_link/uf_p1_pad x3, uf_p2/uf_p3_shell x3, uf_l2/uf_p2 x3, uf_p2/uf_pin_pip x3, uf_p3/uf_pin_dip x3, uf_l2/uf_p3_shell x2, uf_l2/uf_link x2, uf_p3_shell/uf_pin_b x2, uf_l2/uf_l2 x2, uf_p3/uf_p3 x2, uf_pin_pip/uf_pin_pip x2, uf_pin_p4/uf_pin_pip x2, uf_link/uf_link x2, uf_pin_dip/uf_pin_dip x2, uf_l2/uf_pin_p4 x2, uf_link/uf_p2 x2, uf_p2/uf_p3 x1, uf_p2_shell/uf_pin_b x1, uf_p3_pad/uf_pin_b x1, uf_p3_pad/uf_pin_dip x1, uf_pin_a/uf_pin_p4 x1, uf_p1_pad/uf_p2 x1, uf_l2/uf_pin_a x1, uf_pin_b/uf_pin_b x1, uf_p2/uf_pin_b x1, uf_l2/uf_p3 x1, uf_link/uf_pin_p4 x1
+
+== 8. palm/back shells: none fitted to this hand yet (--shells DIR); not checked
+== 5b. moving parts of every digit vs the palm plate and the wrist interface (9x9 grid per digit, samples every 1.0 mm, 0.3 mm below 3 mm); plate mesh r_hand_plate_5f.stl (1759334 bytes)
+  index  moving parts vs palm (plate + wrist interface): min clearance  0.40 mm at (-68,+90) [plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5 (std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default) / r_hand_plate]; grid poses touching: 0/81
+  middle moving parts vs palm (plate + wrist interface): min clearance  0.40 mm at (-68,+90) [plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5 (std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default_2) / r_hand_plate]; grid poses touching: 0/81
+  ring   moving parts vs palm (plate + wrist interface): min clearance  0.40 mm at (-68,+90) [plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5 (std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default_3) / r_hand_plate]; grid poses touching: 0/81
+  thumb  moving parts vs palm (plate + wrist interface): min clearance  0.40 mm at (+22,+22) [plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5 (std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default_4) / r_wrist_interface]; grid poses touching: 0/81
+  pinky  moving parts vs palm (plate + wrist interface): min clearance  0.40 mm at (-68,+90) [plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5 (std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default_5) / r_hand_plate]; grid poses touching: 0/81

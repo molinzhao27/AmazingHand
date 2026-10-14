@@ -1,0 +1,8 @@
+== 5-digit right hand AH_Right_5F_3S: ultimate fingers (index, middle, ring, pinky), slim styled thumb
+   checks imported unchanged from Demo/AHSimulation/five_finger/verify_5f_model.py
+== 5b. moving parts of every digit vs the palm plate and the wrist interface (9x9 grid per digit, samples every 1.0 mm, 0.3 mm below 3 mm); plate mesh r_hand_plate_5f.stl (1759334 bytes)
+  index  moving parts vs palm (plate + wrist interface): min clearance  0.40 mm at (-68,+90) [plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5 (std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default) / r_hand_plate]; grid poses touching: 0/81
+  middle moving parts vs palm (plate + wrist interface): min clearance  0.40 mm at (-68,+90) [plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5 (std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default_2) / r_hand_plate]; grid poses touching: 0/81
+  ring   moving parts vs palm (plate + wrist interface): min clearance  0.40 mm at (-68,+90) [plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5 (std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default_3) / r_hand_plate]; grid poses touching: 0/81
+  thumb  moving parts vs palm (plate + wrist interface): min clearance  0.40 mm at (+22,+22) [plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5 (std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default_4) / r_wrist_interface]; grid poses touching: 0/81
+  pinky  moving parts vs palm (plate + wrist interface): min clearance  0.40 mm at (-68,+90) [plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5 (std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default_5) / r_hand_plate]; grid poses touching: 0/81

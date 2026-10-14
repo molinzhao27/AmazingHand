@@ -1,0 +1,163 @@
+== Six-bar PIP study for the 3-phalanx finger (planar, mm, finger design frame: y distal, z dorsal)
+drive (fixed): stock Link-base angle psi(f), f = -90..+90 -> psi -26.7..81.5 deg; ground pivots O_M (0, 0), O_L (0, -6); P1 47.0, P2 26.0, P3 to tip site 13.85 mm
+rules: one assembly branch over the whole travel; MCP, PIP monotonic straight..full; MCP(+90) in [87, 91]; hyperextension >= -35; straight pose at f >= -56 (psi_s >= -14.25, same abduction room as the current design); same-part pins >= 6.0 mm apart; new pivots |z| <= 8.0 mm in their phalanx; bars clear the PIP pin (and P1's new pin) by >= 0.5 mm in-plane
+transmission: every four-bar (or equivalent four-bar) angle >= mu in the flexion range and >= min(mu, 25) over the whole travel; recommended designs use mu = 40 / 25 like synth_linkage.py
+search: 116 DE runs (popsize 20, 700 generations, seeds [1, 2, 3, 4]) + bounded Nelder-Mead polish, run in parallel (16 workers); designs rounded to 0.05 mm / 0.05 deg
+
+-- topology: with a binary ground (only O_M and O_L may be used) and the Link as the only input, the 1-DOF six-bars that
+   drive both P1 and P2 are: Watt (a) [R pinned to P1 and Link, C to P2], Stephenson (b) [Link ternary: K to P1, D to P2],
+   Stephenson (c) [P2 hung from the Link on two binaries X, Y], and a Stephenson with a floating ternary between Link and P2
+   tied to P1 (not studied: it is (c) with one hanger moved onto P1). Every option adds 2 parts and 3 pin joints.
+
+== CURRENT design.json (crossed four-bar), for reference: 4-bar, current topology (baseline)
+  parameters: psi_s -14.25, P4y 43.20, P4z 3.95
+  drive: straight at Link angle psi_s = -14.25 deg -> f_straight = -56.0 deg (current design -56.0); abduction-command room when straight +-34 deg
+  pivots (y, z) mm, straight pose: P4 (43.20, 3.95), A (45.65, -5.85), B (65.45, 3.65); fixed: O_M (0, 0), O_L (0, -6), PIP (47, 0), DIP (73, 0)
+  Link pins in the stock Link frame (cf. design.json P4_in_link_frame): P4 [44.32, -6.99] (|O_L-P4| 44.33)
+  pin-to-pin lengths (mm): P2_crank_P4_PIP 5.48; loop 2: L2 21.96, PIP-A 6.00, DIP-B 8.39
+  f =  -90 (psi -26.7):  MCP  -14.8  PIP  -20.9  DIP  -17.2   (P2 vs ground  -35.7)
+  f =  -56 (psi -14.3):  MCP   -0.0  PIP   -0.0  DIP   -0.0   (P2 vs ground   -0.0)
+  f =   +0 (psi  31.3):  MCP   45.2  PIP   49.3  DIP   34.6   (P2 vs ground   94.6)
+  f =  +45 (psi  64.1):  MCP   73.8  PIP   72.4  DIP   50.7   (P2 vs ground  146.2)
+  f =  +90 (psi  81.5):  MCP   88.8  PIP   78.1  DIP   54.4   (P2 vs ground  167.0)
+  coupling straight..full: PIP/MCP slope 0.870, rms dev. from PIP = 1.124 MCP 10.2 deg; DIP/PIP slope 0.699, rms dev. from DIP = 0.7 PIP 0.16 deg
+  transmission, distance from a dead point (deg): flexion range / whole travel
+    link_P2crank      49.7 /  35.6
+    P2crank_P1        47.1 /  25.1
+    P1crank_L2        52.0 /  39.5
+    L2_P3crank        52.4 /  24.9
+  rules: min same-part pin spacing 5.48 mm (>= 6.0); envelope violation 0.00 mm; in-plane clearances (mm, >= 0.5): link_vs_PIPpin 1.18
+  loop 2 rules: P1 crank PIP-A 6.00, P3 crank DIP-B 8.39 mm (>= 6.0); hard clearances (mm, >= 0.5): L2_vs_PIPpin 0.82, L2_vs_DIPpin 4.90, L2_vs_P4pin 5.68, Apin_vs_Link 5.94
+  L2 overlaps in-plane with (=> different layer): none
+  centre-region layers needed by the bars (overlap graph colouring): 1; overlaps: 
+  Newton check (generic body/pin model incl. loop 2): residual 3.6e-14, max |closed form - Newton| MCP 1.6e-13, PIP 8.9e-13, DIP 8.6e-13 deg
+  pin play (0.05 mm radial in every finger pin, worst-case linear stack) and speed ratios:
+    f =  +0: MCP +-0.24, PIP +-2.14, DIP +-2.89 deg, tip +-2.16 mm; dPIP/dpsi 0.87, tip speed 95 mm/rad
+    f = +45: MCP +-0.28, PIP +-2.52, DIP +-3.03 deg, tip +-2.25 mm; dPIP/dpsi 0.49, tip speed 58 mm/rad
+    f = +90: MCP +-0.29, PIP +-2.71, DIP +-3.04 deg, tip +-2.32 mm; dPIP/dpsi 0.16, tip speed 47 mm/rad
+  this framework vs three_segment/linkage.Design on design.json: max |difference| 0.0e+00 deg
+  note: its P2 crank PIP-P4 is 5.48 mm (< the 6.0 mm pin rule used here), which is why the re-optimised 4-bar baseline below is a little lower
+
+-- best PIP at f = +90 vs the transmission limit (MCP(+90) in [87, 91], straight at f >= -56; search capped at PIP 140;
+   six-bar + P1/P2 drive only, loop 2 not included here; '-' = no design found that meets all rules; value = best over the levels >= mu)
+   mu flex / whole   4-bar   (a) Watt  (b) Stephenson  (c) virtual-P4      [MCP(+90) of each]
+      0 /    0          n/a       n/a       n/a     93.0      [  -     -     -    87.4]
+     25 /   25        74.9     142.5+    129.2      76.7      [ 87.0  87.1  91.0  89.8]
+     30 /   25        74.9     140.5+    126.3      76.7      [ 87.0  87.0  91.0  89.8]
+     35 /   25        74.9     137.4     121.3      53.4      [ 87.0  87.7  89.5  89.1]
+     40 /   25        74.0     130.0     106.4      53.4      [ 87.3  88.0  87.0  89.1]
+     45 /   25        72.5     122.6      90.7        n/a     [ 87.9  88.2  88.6   -  ]
+     50 /   25        71.5     110.6      85.1        n/a     [ 88.5  88.1  87.0   -  ]
+     55 /   25        62.6      98.4      78.9        n/a     [ 88.8  87.8  87.0   -  ]
+     60 /   25            -     80.0      74.5        n/a     [  -    87.3  87.0   -  ]
+   (a) Watt six-bar: PIP >= 100 reachable up to a flexion-range margin of 50 deg (of the levels tried)
+   (b) Stephenson six-bar: PIP >= 100 reachable up to a flexion-range margin of 40 deg (of the levels tried)
+
+== DESIGN (a), target PIP 100, max transmission, loop 2 synthesised jointly: (a) Watt six-bar
+  parameters: psi_s -14.25, P4y 33.85, P4z 1.40, Qy 38.50, Qz -5.75, Ey 28.10, Ez 3.25, Fy 43.40, Fz 4.85
+  drive: straight at Link angle psi_s = -14.25 deg -> f_straight = -56.0 deg (current design -56.0); abduction-command room when straight +-34 deg
+  pivots (y, z) mm, straight pose: P4 (33.85, 1.40), Q (38.50, -5.75), E (28.10, 3.25), F (43.40, 4.85), A (44.45, -6.55), B (64.35, 3.80); fixed: O_M (0, 0), O_L (0, -6), PIP (47, 0), DIP (73, 0)
+  Link pins in the stock Link frame (cf. design.json P4_in_link_frame): P4 [34.63, -7.16] (|O_L-P4| 34.65)
+  pin-to-pin lengths (mm): R_P4_Q 8.53, R_Q_E 13.75, R_P4_E 6.04, C_E_F 15.38, P1_Q_PIP 10.26, P2_F_PIP 6.04, P2_F_DIP 29.99; loop 2: L2 22.43, PIP-A 7.03, DIP-B 9.45
+  f =  -90 (psi -26.7):  MCP  -14.5  PIP  -22.0  DIP  -15.3   (P2 vs ground  -36.4)
+  f =  -56 (psi -14.3):  MCP   -0.0  PIP   -0.0  DIP   -0.0   (P2 vs ground   -0.0)
+  f =   +0 (psi  31.3):  MCP   44.9  PIP   60.6  DIP   41.1   (P2 vs ground  105.5)
+  f =  +45 (psi  64.1):  MCP   73.2  PIP   92.0  DIP   64.7   (P2 vs ground  165.2)
+  f =  +90 (psi  81.5):  MCP   88.0  PIP  100.0  DIP   69.6   (P2 vs ground  188.0)
+  coupling straight..full: PIP/MCP slope 1.148, rms dev. from PIP = 1.124 MCP 7.9 deg; DIP/PIP slope 0.717, rms dev. from DIP = 0.7 PIP 1.01 deg
+  transmission, distance from a dead point (deg): flexion range / whole travel
+    link_R            69.9 /  56.4
+    R_P1              49.0 /  37.6
+    Rcrank_C          47.3 /  37.5
+    C_P2crank         46.7 /  38.8
+    P1crank_L2        40.1 /  29.9
+    L2_P3crank        52.3 /  25.0
+  rules: min same-part pin spacing 6.04 mm (>= 6.0); envelope violation 0.00 mm; in-plane clearances (mm, >= 0.5): link_vs_PIPpin 3.94, R_QP4_vs_PIPpin 3.88, R_QE_vs_PIPpin 5.72, C_vs_PIPpin 1.40, link_vs_Qpin 5.08, C_vs_Qpin 5.37
+  loop 2 rules: P1 crank PIP-A 7.03, P3 crank DIP-B 9.45 mm (>= 6.0), A-Q spacing on P1 6.00 mm (>= 6.0); hard clearances (mm, >= 0.5): L2_vs_PIPpin 0.50, L2_vs_DIPpin 5.00, L2_vs_Fpin 6.18, Apin_vs_Link 6.89, Apin_vs_R_QP4 2.97, Apin_vs_R_QE 3.00, Apin_vs_C 7.03
+  L2 overlaps in-plane with (=> different layer): none
+  centre-region layers needed by the bars (overlap graph colouring): 3; overlaps: Link-C,R; R-C,Link; C-Link,R
+  Newton check (generic body/pin model incl. loop 2): residual 4.3e-14, max |closed form - Newton| MCP 1.3e-13, PIP 8.5e-13, DIP 8.7e-13 deg
+  pin play (0.05 mm radial in every finger pin, worst-case linear stack) and speed ratios:
+    f =  +0: MCP +-0.30, PIP +-3.93, DIP +-4.24 deg, tip +-3.53 mm; dPIP/dpsi 1.15, tip speed 96 mm/rad; vs current: tip force per Link torque x0.99, PIP torque per Link torque x0.76
+    f = +45: MCP +-0.29, PIP +-5.04, DIP +-4.71 deg, tip +-3.78 mm; dPIP/dpsi 0.68, tip speed 44 mm/rad; vs current: tip force per Link torque x1.34, PIP torque per Link torque x0.72
+    f = +90: MCP +-0.30, PIP +-5.51, DIP +-4.48 deg, tip +-3.85 mm; dPIP/dpsi 0.21, tip speed 31 mm/rad; vs current: tip force per Link torque x1.53, PIP torque per Link torque x0.75
+  cost vs the current design: +2 parts (R (ternary rocker on P1), C (coupler)), +3 pins (Q, E, F): 10 finger pin joints instead of 7
+
+== DESIGN (b), target PIP 100, max transmission, loop 2 synthesised jointly: (b) Stephenson six-bar
+  parameters: psi_s -14.15, P4y 18.75, P4z -3.25, Qy 15.70, Qz 8.00, Gy 42.30, Gz 1.90, Hy 46.75, Hz 6.00
+  drive: straight at Link angle psi_s = -14.15 deg -> f_straight = -55.8 deg (current design -56.0); abduction-command room when straight +-34 deg
+  pivots (y, z) mm, straight pose: P4 (18.75, -3.25), Q (15.70, 8.00), G (42.30, 1.90), H (46.75, 6.00), A (44.35, -6.00), B (64.80, 3.35); fixed: O_M (0, 0), O_L (0, -6), PIP (47, 0), DIP (73, 0)
+  Link pins in the stock Link frame (cf. design.json P4_in_link_frame): P4 [18.853, -7.917] (|O_L-P4| 18.95), G [42.948, -8.68] (|O_L-G| 43.03)
+  pin-to-pin lengths (mm): link_P4_G 24.11, K_P4_Q 11.66, D_G_H 6.05, P1_Q_PIP 32.31, P2_H_PIP 6.01, P2_H_DIP 26.93; loop 2: L2 22.49, PIP-A 6.56, DIP-B 8.86
+  f =  -90 (psi -26.7):  MCP  -14.0  PIP  -17.6  DIP  -13.3   (P2 vs ground  -31.6)
+  f =  -56 (psi -14.3):  MCP   -0.1  PIP   -0.2  DIP   -0.1   (P2 vs ground   -0.3)
+  f =   +0 (psi  31.3):  MCP   46.5  PIP   64.5  DIP   44.7   (P2 vs ground  111.0)
+  f =  +45 (psi  64.1):  MCP   76.0  PIP   84.9  DIP   59.9   (P2 vs ground  160.9)
+  f =  +90 (psi  81.5):  MCP   90.0  PIP  100.0  DIP   69.7   (P2 vs ground  190.0)
+  coupling straight..full: PIP/MCP slope 1.009, rms dev. from PIP = 1.124 MCP 7.1 deg; DIP/PIP slope 0.713, rms dev. from DIP = 0.7 PIP 0.60 deg
+  transmission, distance from a dead point (deg): flexion range / whole travel
+    link_K            40.3 /  40.3
+    K_P1              64.6 /  64.6
+    linkrelP1_D       43.5 /  43.5
+    D_P2crank         40.0 /  40.0
+    P1crank_L2        41.5 /  32.3
+    L2_P3crank        47.7 /  25.0
+  rules: min same-part pin spacing 6.01 mm (>= 6.0); envelope violation 0.00 mm; in-plane clearances (mm, >= 0.5): linkP4_vs_PIPpin 19.09, linkG_vs_PIPpin 0.50, K_vs_PIPpin 19.09, D_vs_PIPpin 0.86, linkP4_vs_Qpin 4.54, linkG_vs_Qpin 4.14, D_vs_Qpin 23.27
+  loop 2 rules: P1 crank PIP-A 6.56, P3 crank DIP-B 8.86 mm (>= 6.0), A-Q spacing on P1 31.89 mm (>= 6.0); hard clearances (mm, >= 0.5): L2_vs_PIPpin 0.50, L2_vs_DIPpin 4.71, L2_vs_Hpin 6.34, Apin_vs_Link_P4 17.60, Apin_vs_Link_G 4.77, Apin_vs_K 17.60, Apin_vs_D 4.77
+  L2 overlaps in-plane with (=> different layer): none
+  centre-region layers needed by the bars (overlap graph colouring): 2; overlaps: Link-D,K; K-Link; D-Link
+  Newton check (generic body/pin model incl. loop 2): residual 3.6e-14, max |closed form - Newton| MCP 3.6e-14, PIP 3.4e-13, DIP 3.4e-13 deg
+  pin play (0.05 mm radial in every finger pin, worst-case linear stack) and speed ratios:
+    f =  +0: MCP +-0.67, PIP +-4.25, DIP +-4.54 deg, tip +-3.57 mm; dPIP/dpsi 0.84, tip speed 83 mm/rad; vs current: tip force per Link torque x1.15, PIP torque per Link torque x1.04
+    f = +45: MCP +-0.71, PIP +-6.20, DIP +-5.82 deg, tip +-4.66 mm; dPIP/dpsi 0.66, tip speed 50 mm/rad; vs current: tip force per Link torque x1.17, PIP torque per Link torque x0.75
+    f = +90: MCP +-0.72, PIP +-7.97, DIP +-5.96 deg, tip +-5.42 mm; dPIP/dpsi 1.15, tip speed 45 mm/rad; vs current: tip force per Link torque x1.04, PIP torque per Link torque x0.14
+  cost vs the current design: +2 parts (K (MCP coupler), D (PIP coupler)), +3 pins (Q, G, H (P4 now joins Link-K)): 10 finger pin joints instead of 7
+
+== DESIGN (c), best PIP found with mu >= 25 (cannot reach the target): (c) virtual-P4 six-bar
+  parameters: psi_s -12.65, U1y 42.25, U1z 3.80, U2y 36.20, U2z 3.55, V1y 44.90, V1z -5.80, V2y 48.10, V2z 5.90
+  drive: straight at Link angle psi_s = -12.65 deg -> f_straight = -53.7 deg (current design -56.0); abduction-command room when straight +-36 deg
+  pivots (y, z) mm, straight pose: U1 (42.25, 3.80), U2 (36.20, 3.55), V1 (44.90, -5.80), V2 (48.10, 5.90), A (48.35, -8.05), B (62.95, 3.05); fixed: O_M (0, 0), O_L (0, -6), PIP (47, 0), DIP (73, 0)
+  Link pins in the stock Link frame (cf. design.json P4_in_link_frame): U1 [43.371, -5.69] (|O_L-U1| 43.37), U2 [37.413, -4.609] (|O_L-U2| 37.44)
+  pin-to-pin lengths (mm): link_U1_U2 6.06, X_U1_V1 9.96, Y_U2_V2 12.13, P2_V1_V2 12.13, P2_V1_PIP 6.17, P2_V2_PIP 6.00, P2_V1_DIP 28.69, P2_V2_DIP 25.59; loop 2: L2 18.34, PIP-A 8.16, DIP-B 10.50
+  f =  -90 (psi -26.7):  MCP  -16.8  PIP  -16.7  DIP  -17.6   (P2 vs ground  -33.5)
+  f =  -54 (psi -12.8):  MCP   -0.2  PIP   -0.2  DIP   -0.2   (P2 vs ground   -0.5)
+  f =   +0 (psi  31.3):  MCP   44.9  PIP   47.6  DIP   37.2   (P2 vs ground   92.5)
+  f =  +45 (psi  64.1):  MCP   74.7  PIP   71.6  DIP   54.2   (P2 vs ground  146.3)
+  f =  +90 (psi  81.5):  MCP   90.0  PIP   76.7  DIP   57.0   (P2 vs ground  166.7)
+  coupling straight..full: PIP/MCP slope 0.864, rms dev. from PIP = 1.124 MCP 11.9 deg; DIP/PIP slope 0.740, rms dev. from DIP = 0.7 PIP 3.49 deg
+  transmission, distance from a dead point (deg): flexion range / whole travel
+    link_eqcrank      58.1 /  39.8
+    eqcrank_P1        43.7 /  26.9
+    X_P2              29.9 /  29.9
+    Y_P2              30.8 /  30.8
+    P1crank_L2        39.2 /  39.2
+    L2_P3crank        54.9 /  24.9
+  rules: min same-part pin spacing 6.00 mm (>= 6.0); envelope violation 0.00 mm; in-plane clearances (mm, >= 0.5): linkU1_vs_PIPpin 3.00, linkU2_vs_PIPpin 5.04, X_vs_PIPpin 0.50, Y_vs_PIPpin 0.49
+  loop 2 rules: P1 crank PIP-A 8.16, P3 crank DIP-B 10.50 mm (>= 6.0); hard clearances (mm, >= 0.5): L2_vs_PIPpin 3.85, L2_vs_DIPpin 6.91, L2_vs_V1pin -0.47, L2_vs_V2pin 6.54, Apin_vs_Link_U1 9.48, Apin_vs_Link_U2 12.89, Apin_vs_X -0.47, Apin_vs_Y 6.54
+  L2 overlaps in-plane with (=> different layer): X
+  centre-region layers needed by the bars (overlap graph colouring): 3; overlaps: Link-X,Y; X-L2,Link,Y; Y-Link,X; L2-X
+  Newton check (generic body/pin model incl. loop 2): residual 3.6e-14, max |closed form - Newton| MCP 4.8e-03, PIP 1.8e-01, DIP 9.6e-02 deg
+  pin play (0.05 mm radial in every finger pin, worst-case linear stack) and speed ratios:
+    f =  +0: MCP +-0.41, PIP +-3.18, DIP +-3.55 deg, tip +-3.02 mm; dPIP/dpsi 0.96, tip speed 101 mm/rad; vs current: tip force per Link torque x0.94, PIP torque per Link torque x0.91
+    f = +45: MCP +-0.40, PIP +-3.31, DIP +-3.08 deg, tip +-2.75 mm; dPIP/dpsi 0.46, tip speed 58 mm/rad; vs current: tip force per Link torque x1.01, PIP torque per Link torque x1.07
+    f = +90: MCP +-0.40, PIP +-3.28, DIP +-2.81 deg, tip +-2.63 mm; dPIP/dpsi 0.13, tip speed 47 mm/rad; vs current: tip force per Link torque x1.01, PIP torque per Link torque x1.22
+  cost vs the current design: +2 parts (X, Y (two P2 hangers)), +3 pins (U1, U2, V1, V2 replace P4): 10 finger pin joints instead of 7
+
+-- sensitivity: the same PIP-100 designs when the curl must stay near-proportional (rms <= 6 deg from PIP = 1.12 MCP; current design: 10.2)
+   (a) Watt six-bar: MCP 88.2, PIP 100.0, rms 6.0, transmission margin 40.0 / 39.9 (flexion / whole)  vs 46.7 / 37.5 at rms 7.9
+   (b) Stephenson six-bar: MCP 90.0, PIP 100.0, rms 6.0, transmission margin 40.0 / 40.0 (flexion / whole)  vs 40.0 / 40.0 at rms 7.1
+
+-- summary (f = +90 unless stated)
+   design                       MCP    PIP    DIP  f_str  margin flex/whole: drive | incl. loop 2   play PIP@45  tip force@45  layers  +parts/+pins  all rules  binding angle
+   current 4-bar                 88.8   78.1   54.4  -56.0        47.1 / 25.1 |  47.1 / 24.9       +-2.52       x1.00       1     +0/+0       no         P2crank_P1
+   (a) Watt six-bar              88.0  100.0   69.6  -56.0        46.7 / 37.5 |  40.1 / 25.0       +-5.04       x1.34       3     +2/+3       yes        P1crank_L2
+   (b) Stephenson six-bar        90.0  100.0   69.7  -55.8        40.0 / 40.0 |  40.0 / 25.0       +-6.20       x1.17       2     +2/+3       yes        D_P2crank
+   (c) virtual-P4 six-bar        90.0   76.7   57.0  -53.7        29.9 / 26.9 |  29.9 / 24.9       +-3.31       x1.01       3     +2/+3       no         X_P2
+   (drive = gimbal-Link-...-P1/P2 linkage only; play = worst-case stack of 0.05 mm radial play in every finger pin; tip force = per unit Link torque along the tip motion)
+   current: fails only the 6 mm pin rule (P2 crank 5.48). (c): loop 2 was added after the drive synthesis, not jointly as for (a)/(b), and clashes in-plane; (c) is no candidate anyway (PIP < 80).
+   loop 2 (DIP coupler) margins flexion / whole at PIP 100: (a) Watt six-bar 40.1 / 25.0 for a 122 deg PIP swing, (b) Stephenson six-bar 41.5 / 25.0 for a 118 deg PIP swing (current: 52.0 / 24.9 for 99 deg).
+   So loop 2 is at the 40 / 25 rule too: PIP well beyond ~100 would also need a re-thought DIP drive (or a lower DIP ratio), not just a better six-bar.
+   ranking score (drive margin flex + 0.5 drive margin whole - 5 x layers - 2 x worst PIP play over the travel): (a) Watt six-bar 39.5, (b) Stephenson six-bar 34.1
+   -> best layout for PIP 100: (a) Watt six-bar (see the ranking above; build / no-build advice is in the study summary, not decided here)
+
+figure: sixbar_study.png   [total 764 s]

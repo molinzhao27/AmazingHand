@@ -1,0 +1,46 @@
+<mujoco model="scene">
+    <include file="robot.xml" />
+
+    <visual>
+        <headlight diffuse="0.6 0.6 0.6" ambient="0.3 0.3 0.3" specular="0 0 0" />
+        <rgba haze="0.15 0.25 0.35 1" />
+        <global azimuth="160" elevation="-20" />
+    </visual>
+
+    <asset>
+        <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512"
+            height="3072" />
+        <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4"
+            rgb2="0.1 0.2 0.3"
+            markrgb="0.8 0.8 0.8" width="300" height="300" />
+        <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5"
+            reflectance="0.2" />
+    </asset>
+
+    <worldbody>
+        <light pos="0 0 3.5" dir="0 0 -1" directional="true" />
+        <geom name="floor" size="0 0 0.05" pos="0 0 0" type="plane" material="groundplane" />
+
+        <body name="finger1_target" pos="0.0557001719 0.0159792622 0.119593744" quat="0.68377475 -0.180144584 0.295795319 -0.642265637" mocap="true">
+          <geom type="sphere" size=".01" contype="0" conaffinity="0" rgba="1 0. 0. .2"/>
+        </body>
+
+        <body name="finger2_target" pos="0.0557001142 -0.0135241656 0.114157549" quat="0.68377097 -0.180158933 0.295808022 -0.642259787" mocap="true">
+          <geom type="sphere" size=".01" contype="0" conaffinity="0" rgba="1 0. 0. .2"/>
+        </body>
+
+        <body name="finger3_target" pos="0.0557001078 -0.0421178616 0.103813184" quat="0.683770452 -0.180160898 0.295808924 -0.642259372" mocap="true">
+          <geom type="sphere" size=".01" contype="0" conaffinity="0" rgba="1 0. 0. .2"/>
+        </body>
+
+        <body name="finger4_target" pos="0.0811900898 0.0443377475 0.0895819809" quat="0.961321865 -0.0375346245 0.215357598 0.167548585" mocap="true">
+          <geom type="sphere" size=".01" contype="0" conaffinity="0" rgba="1 0. 0. .2"/>
+        </body>
+
+        <body name="finger5_target" pos="0.0475864911 -0.0694974762 0.08679518" quat="0.686261094 -0.170427974 0.286650258 -0.646398984" mocap="true">
+          <geom type="sphere" size=".01" contype="0" conaffinity="0" rgba="1 0. 0. .2"/>
+        </body>
+
+    </worldbody>
+    <include file="keyframes.xml"/>
+</mujoco>

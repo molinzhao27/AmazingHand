@@ -1,0 +1,833 @@
+{
+ "units": "mm, deg",
+ "frame": "finger design frame of the stock CAD (x lateral = pin axes, y distal, z dorsal, MCP at the origin); parts drawn in place in the straight pose; UF_Link in the stock Link frame; thumb parts in the stock 2-phalanx finger frame",
+ "linkage_source": "cad/five_finger/three_segment/design.json (unchanged)",
+ "geometry": {
+  "L1": 47.0,
+  "L2": 26.0,
+  "L3_tip": 13.847,
+  "L3_end": 18.497,
+  "O_M": [
+   0.0,
+   0.0
+  ],
+  "O_L": [
+   0.0,
+   -6.0
+  ],
+  "PIP": [
+   47.0,
+   0.0
+  ],
+  "DIP": [
+   73.0,
+   0.0
+  ],
+  "P4": [
+   43.2,
+   3.95
+  ],
+  "A": [
+   45.65,
+   -5.85
+  ],
+  "B": [
+   65.45,
+   3.65
+  ],
+  "tip": [
+   86.847,
+   -4.436
+  ],
+  "P4_in_link_frame": [
+   44.32,
+   -6.99
+  ],
+  "link_length": 44.331,
+  "crank_P2": 5.481,
+  "crank_A": 6.004,
+  "crank_B": 8.386,
+  "coupler_L2": 21.961,
+  "scale": 1.0
+ },
+ "drive": {
+  "psi_straight_deg": -14.25,
+  "f_straight_deg": -55.98,
+  "f_full_deg": 90.0,
+  "stock_f_straight_deg": -37.5
+ },
+ "predicted": {
+  "f_straight_deg": -55.98,
+  "mcp_at_f90": 88.83,
+  "pip_at_f90": 78.14,
+  "dip_at_f90": 54.43,
+  "mcp_at_fm90": -14.85,
+  "pip_at_fm90": -20.9,
+  "dip_at_fm90": -17.19
+ },
+ "layers": {
+  "C": [
+   -1.5,
+   1.5
+  ],
+  "g1": [
+   1.5,
+   1.75
+  ],
+  "M": [
+   1.75,
+   4.0
+  ],
+  "g2": [
+   4.0,
+   4.25
+  ],
+  "O": [
+   4.25,
+   6.0
+  ],
+  "tip_O": [
+   4.25,
+   4.75
+  ],
+  "running_gap": 0.25,
+  "in_plane_clearance": 0.6
+ },
+ "pins": {
+  "MCP": {
+   "spec": "2x16 (stock)",
+   "held_by": "P1",
+   "centre": [
+    0.0,
+    0.0
+   ],
+   "half_length": 8.0
+  },
+  "LinkPivot": {
+   "spec": "2x10 (stock)",
+   "held_by": "gimbal",
+   "centre": [
+    0.0,
+    -6.0
+   ],
+   "half_length": 5.0
+  },
+  "PIP": {
+   "spec": "2x12",
+   "held_by": "P1",
+   "centre": [
+    47.0,
+    0.0
+   ],
+   "half_length": 6.0
+  },
+  "A": {
+   "spec": "2x12",
+   "held_by": "P1",
+   "centre": [
+    45.650000000000006,
+    -5.85
+   ],
+   "half_length": 6.0
+  },
+  "P4": {
+   "spec": "2x8",
+   "held_by": "P2",
+   "centre": [
+    43.2,
+    3.95
+   ],
+   "half_length": 4.0
+  },
+  "DIP": {
+   "spec": "2x12",
+   "held_by": "P2",
+   "centre": [
+    73.0,
+    0.0
+   ],
+   "half_length": 6.0
+  },
+  "B": {
+   "spec": "2x8",
+   "held_by": "P3",
+   "centre": [
+    65.44999999999999,
+    3.65
+   ],
+   "half_length": 4.0
+  }
+ },
+ "holes": {
+  "press": 1.95,
+  "running": 2.15
+ },
+ "shells": {
+  "clear": 0.25,
+  "clear_moving": 0.6,
+  "wall": 1.2,
+  "joint_clear": 0.5,
+  "planes": {
+   "P1_Shell": {
+    "start": [
+     13.870388203202207,
+     -0.25
+    ],
+    "end": [
+     43.402098048640724,
+     0.1999999999999999
+    ]
+   },
+   "P2_Shell": {
+    "start": [
+     54.45632778078669,
+     -0.7
+    ],
+    "end": [
+     66.37690481051547,
+     -0.6
+    ]
+   },
+   "P3_Shell": {
+    "start": [
+     76.57990195135929,
+     -0.2
+    ]
+   }
+  },
+  "land": 0.45,
+  "rim": 0.8,
+  "pad_gap": 0.1,
+  "pad_t": 0.8,
+  "groove": [
+   0.45,
+   0.3
+  ],
+  "rib_pitch": 1.0,
+  "nail": null,
+  "sleeve_style": {
+   "P1_Shell": {
+    "gx": 0.25,
+    "gz": 0.6,
+    "r_max": 3.6
+   },
+   "P2_Shell": {
+    "gx": 0.0,
+    "gz": 0.6,
+    "r_max": 3.6
+   }
+  },
+  "tip": {
+   "a_max": 6.7,
+   "dome": 0.35,
+   "pulp": 0.6,
+   "rt": 3.6,
+   "rb": 3.4,
+   "apex_frac": 0.35,
+   "wrap": 3.2,
+   "pad_h": 0.6,
+   "neck": 4.5,
+   "nose": 6.0
+  },
+  "style": {
+   "P1_Shell": {
+    "corner_radius": [
+     3.4,
+     3.6
+    ]
+   },
+   "P2_Shell": {
+    "corner_radius": [
+     3.0,
+     3.2
+    ]
+   },
+   "P3_Shell": {
+    "neck_y": 78.0,
+    "nose_y": 85.75,
+    "apex_z": -3.02,
+    "core_trim_from_y": 76.0,
+    "width": 13.4
+   }
+  },
+  "pads": {
+   "P1_Pad": [
+    -6.35,
+    18.117,
+    6.35,
+    39.645
+   ],
+   "P2_Pad": [
+    -5.95,
+    61.109,
+    5.95,
+    67.836
+   ],
+   "P3_Pad": [
+    -5.9,
+    80.916,
+    5.9,
+    96.817
+   ]
+  }
+ },
+ "thumb": {
+  "source": "cad/five_finger/slim_fingers (Proximal_Slim, Distal_Slim cores; slim shells + styled pad set)",
+  "pads": {
+   "proximal_pad": [
+    -4.369492840532159,
+    17.0,
+    4.369492840532159,
+    44.0
+   ],
+   "distal_pad": [
+    -3.6000000000000005,
+    64.0,
+    3.6000000000000005,
+    90.39795872007109
+   ]
+  }
+ },
+ "parts": {
+  "link": {
+   "file": "UF_Link.stl",
+   "watertight": true,
+   "volume_mm3": 1112.4641895117174,
+   "bounds": [
+    [
+     -5.15,
+     -2.999,
+     -14.051
+    ],
+    [
+     5.15,
+     46.917,
+     -2.125
+    ]
+   ],
+   "valid": true,
+   "solids": 1
+  },
+  "P1": {
+   "file": "UF_P1_Proximal.stl",
+   "watertight": true,
+   "volume_mm3": 4612.939719531048,
+   "bounds": [
+    [
+     -8.7,
+     -3.3,
+     -8.446
+    ],
+    [
+     7.5,
+     49.996,
+     9.573
+    ]
+   ],
+   "valid": true,
+   "solids": 1
+  },
+  "P2": {
+   "file": "UF_P2_Middle.stl",
+   "watertight": true,
+   "volume_mm3": 1579.3530246776706,
+   "bounds": [
+    [
+     -6.0,
+     40.7,
+     -4.4
+    ],
+    [
+     6.0,
+     75.997,
+     6.45
+    ]
+   ],
+   "valid": true,
+   "solids": 1
+  },
+  "P3": {
+   "file": "UF_P3_Distal.stl",
+   "watertight": true,
+   "volume_mm3": 1824.8922171710026,
+   "bounds": [
+    [
+     -4.75,
+     62.953,
+     -5.594
+    ],
+    [
+     4.75,
+     91.413,
+     6.15
+    ]
+   ],
+   "valid": true,
+   "solids": 1
+  },
+  "L2": {
+   "file": "UF_L2_Coupler.stl",
+   "watertight": true,
+   "volume_mm3": 286.10019181297184,
+   "bounds": [
+    [
+     -1.5,
+     43.05,
+     -8.45
+    ],
+    [
+     1.5,
+     68.047,
+     6.247
+    ]
+   ],
+   "valid": true,
+   "solids": 1
+  },
+  "pin_PIP": {
+   "file": "pin_2x12_PIP.stl",
+   "watertight": true,
+   "volume_mm3": 37.44831891931769,
+   "bounds": [
+    [
+     -6.0,
+     46.0,
+     -1.0
+    ],
+    [
+     6.0,
+     48.0,
+     1.0
+    ]
+   ],
+   "valid": true,
+   "solids": 1
+  },
+  "pin_A": {
+   "file": "pin_2x12_A.stl",
+   "watertight": true,
+   "volume_mm3": 37.44831510961054,
+   "bounds": [
+    [
+     -6.0,
+     44.65,
+     -6.85
+    ],
+    [
+     6.0,
+     46.65,
+     -4.85
+    ]
+   ],
+   "valid": true,
+   "solids": 1
+  },
+  "pin_DIP": {
+   "file": "pin_2x12_DIP.stl",
+   "watertight": true,
+   "volume_mm3": 37.44831922118666,
+   "bounds": [
+    [
+     -6.0,
+     72.0,
+     -1.0
+    ],
+    [
+     6.0,
+     74.0,
+     1.0
+    ]
+   ],
+   "valid": true,
+   "solids": 1
+  },
+  "pin_P4": {
+   "file": "pin_2x8_P4.stl",
+   "watertight": true,
+   "volume_mm3": 24.88714829950146,
+   "bounds": [
+    [
+     -4.0,
+     42.2,
+     2.95
+    ],
+    [
+     4.0,
+     44.2,
+     4.95
+    ]
+   ],
+   "valid": true,
+   "solids": 1
+  },
+  "pin_B": {
+   "file": "pin_2x8_B.stl",
+   "watertight": true,
+   "volume_mm3": 24.88713476834764,
+   "bounds": [
+    [
+     -4.0,
+     64.45,
+     2.65
+    ],
+    [
+     4.0,
+     66.45,
+     4.65
+    ]
+   ],
+   "valid": true,
+   "solids": 1
+  },
+  "pin_MCP": {
+   "file": "pin_2x16_MCP.stl",
+   "watertight": true,
+   "volume_mm3": 50.009475240497466,
+   "bounds": [
+    [
+     -8.6,
+     -1.0,
+     -1.0
+    ],
+    [
+     7.4,
+     1.0,
+     1.0
+    ]
+   ],
+   "valid": true,
+   "solids": 1
+  },
+  "P1_Shell": {
+   "file": "UF_P1_Shell.stl",
+   "watertight": true,
+   "volume_mm3": 3177.1909703003307,
+   "bounds": [
+    [
+     -7.889,
+     11.027,
+     -8.92
+    ],
+    [
+     7.889,
+     45.719,
+     11.583
+    ]
+   ],
+   "valid": true,
+   "solids": 1
+  },
+  "P2_Shell": {
+   "file": "UF_P2_Shell.stl",
+   "watertight": true,
+   "volume_mm3": 1045.6573554695024,
+   "bounds": [
+    [
+     -7.483,
+     49.735,
+     -7.758
+    ],
+    [
+     7.483,
+     70.416,
+     8.557
+    ]
+   ],
+   "valid": true,
+   "solids": 1
+  },
+  "P3_Shell": {
+   "file": "UF_P3_Shell.stl",
+   "watertight": true,
+   "volume_mm3": 1027.2489483376028,
+   "bounds": [
+    [
+     -6.733,
+     75.222,
+     -9.175
+    ],
+    [
+     6.734,
+     93.084,
+     7.131
+    ]
+   ],
+   "valid": true,
+   "solids": 1
+  },
+  "P1_Pad": {
+   "file": "UF_P1_Pad.stl",
+   "watertight": true,
+   "volume_mm3": 190.80402668109676,
+   "bounds": [
+    [
+     -6.351,
+     18.116,
+     -9.061
+    ],
+    [
+     6.354,
+     39.649,
+     -6.065
+    ]
+   ],
+   "valid": true,
+   "solids": 1
+  },
+  "P2_Pad": {
+   "file": "UF_P2_Pad.stl",
+   "watertight": true,
+   "volume_mm3": 55.39777670013195,
+   "bounds": [
+    [
+     -5.95,
+     61.104,
+     -8.1
+    ],
+    [
+     5.954,
+     67.838,
+     -6.772
+    ]
+   ],
+   "valid": true,
+   "solids": 1
+  },
+  "P3_Pad": {
+   "file": "UF_P3_Pad.stl",
+   "watertight": true,
+   "volume_mm3": 150.61873201370375,
+   "bounds": [
+    [
+     -6.488,
+     80.832,
+     -9.89
+    ],
+    [
+     6.492,
+     93.817,
+     0.206
+    ]
+   ],
+   "valid": true,
+   "solids": 1
+  },
+  "Thumb_Proximal_Shell": {
+   "file": "Thumb_Proximal_Shell.stl",
+   "watertight": true,
+   "volume_mm3": 3262.6902120574414,
+   "bounds": [
+    [
+     -9.707,
+     9.968,
+     -9.32
+    ],
+    [
+     9.708,
+     52.126,
+     13.225
+    ]
+   ],
+   "valid": true,
+   "solids": 1
+  },
+  "Thumb_Proximal_Pad": {
+   "file": "Thumb_Proximal_Pad.stl",
+   "watertight": true,
+   "volume_mm3": 151.42722925207553,
+   "bounds": [
+    [
+     -4.374,
+     16.999,
+     -9.67
+    ],
+    [
+     4.366,
+     44.006,
+     -7.736
+    ]
+   ],
+   "valid": true,
+   "solids": 1
+  },
+  "Thumb_Distal_Shell": {
+   "file": "Thumb_Distal_Shell.stl",
+   "watertight": true,
+   "volume_mm3": 1927.7379470231056,
+   "bounds": [
+    [
+     -7.432,
+     57.479,
+     -8.906
+    ],
+    [
+     7.429,
+     93.0,
+     9.016
+    ]
+   ],
+   "valid": true,
+   "solids": 1
+  },
+  "Thumb_Distal_Pad": {
+   "file": "Thumb_Distal_Pad.stl",
+   "watertight": true,
+   "volume_mm3": 134.8102690775336,
+   "bounds": [
+    [
+     -3.605,
+     63.998,
+     -9.667
+    ],
+    [
+     3.6,
+     90.398,
+     -5.965
+    ]
+   ],
+   "valid": true,
+   "solids": 1
+  }
+ },
+ "material": {
+  "link": "PA-CF (or PETG)",
+  "P1": "PLA (or PETG)",
+  "P2": "PA-CF (or PETG)",
+  "P3": "PLA (or PETG)",
+  "L2": "PA-CF (or PETG)",
+  "pin_PIP": "steel (hardened dowel ISO 8734)",
+  "pin_A": "steel (hardened dowel ISO 8734)",
+  "pin_DIP": "steel (hardened dowel ISO 8734)",
+  "pin_P4": "steel (hardened dowel ISO 8734)",
+  "pin_B": "steel (hardened dowel ISO 8734)",
+  "pin_MCP": "steel (hardened dowel ISO 8734)",
+  "P1_Shell": "TPU 82A",
+  "P2_Shell": "TPU 82A",
+  "P3_Shell": "TPU 82A",
+  "P1_Pad": "TPU 82A grey",
+  "P2_Pad": "TPU 82A grey",
+  "P3_Pad": "TPU 82A grey",
+  "Thumb_Proximal_Shell": "TPU 82A",
+  "Thumb_Proximal_Pad": "TPU 82A grey",
+  "Thumb_Distal_Shell": "TPU 82A",
+  "Thumb_Distal_Pad": "TPU 82A grey"
+ },
+ "sim": {
+  "bodies": {
+   "link": [
+    "link"
+   ],
+   "P1": [
+    "P1",
+    "P1_Shell",
+    "P1_Pad",
+    "pin_MCP",
+    "pin_PIP",
+    "pin_A"
+   ],
+   "P2": [
+    "P2",
+    "P2_Shell",
+    "P2_Pad",
+    "pin_P4",
+    "pin_DIP"
+   ],
+   "P3": [
+    "P3",
+    "P3_Shell",
+    "P3_Pad",
+    "pin_B"
+   ],
+   "L2": [
+    "L2"
+   ]
+  },
+  "thumb": {
+   "proximal_shell": "Thumb_Proximal_Shell",
+   "proximal_pad": "Thumb_Proximal_Pad",
+   "distal_shell": "Thumb_Distal_Shell",
+   "distal_pad": "Thumb_Distal_Pad"
+  }
+ },
+ "checks": {
+  "hole_walls": [
+   {
+    "part": "P1",
+    "pin": "PIP",
+    "hole": 1.95,
+    "wall": 2.024
+   },
+   {
+    "part": "P1",
+    "pin": "A",
+    "hole": 1.95,
+    "wall": 1.624
+   },
+   {
+    "part": "P2",
+    "pin": "PIP",
+    "hole": 2.15,
+    "wall": 1.624
+   },
+   {
+    "part": "P2",
+    "pin": "P4",
+    "hole": 1.95,
+    "wall": 1.524
+   },
+   {
+    "part": "P2",
+    "pin": "DIP",
+    "hole": 1.95,
+    "wall": 2.024
+   },
+   {
+    "part": "P3",
+    "pin": "DIP",
+    "hole": 2.15,
+    "wall": 1.923
+   },
+   {
+    "part": "P3",
+    "pin": "B",
+    "hole": 1.95,
+    "wall": 1.524
+   },
+   {
+    "part": "L2",
+    "pin": "A",
+    "hole": 2.15,
+    "wall": 1.524
+   },
+   {
+    "part": "L2",
+    "pin": "B",
+    "hole": 2.15,
+    "wall": 1.524
+   },
+   {
+    "part": "link_arm",
+    "pin": "P4",
+    "hole": 2.15,
+    "wall": 1.524
+   }
+  ],
+  "widths": {
+   "proximal": {
+    "widest": 16.2,
+    "at_y": 1.0,
+    "shell": 15.779
+   },
+   "middle": {
+    "widest": 14.965,
+    "at_y": 57.5,
+    "shell": 14.965
+   },
+   "distal": {
+    "widest": 13.459,
+    "at_y": 85.5,
+    "shell": 13.459
+   }
+  }
+ }
+}
