@@ -1,0 +1,99 @@
+model: AHSimulation/AHSimulation/AH_Right_5F_3S_Wrist/mjcf/scene.xml (mujoco 3.15.0)
+== 1. structure
+  nbody=62 njnt=54 nq=105 nv=88 nu=12 neq=31 ngeom=259 nkey=1 nmocap=5 timestep=0.002
+  names unique; actuators: 10 finger actuators in the AH_Right_5F_3S order, then ['wrist_motor1', 'wrist_motor2']
+  wrist_motor1: ctrlrange [-75.  75.] deg, kp 17.1 N.m/rad, forcerange [-2.94  2.94] N.m; joint damping 0.56, armature 0.027, frictionloss 0.068
+  wrist_motor2: ctrlrange [-75.  75.] deg, kp 17.1 N.m/rad, forcerange [-2.94  2.94] N.m; joint damping 0.56, armature 0.027, frictionloss 0.068
+  wrist_flexion: qpos[0], range [-65.  65.] deg, axis (root) [0.         0.98325483 0.18223597]
+  wrist_deviation: qpos[1], range [-30.  30.] deg, axis (root) [-1.  0.  0.]
+  hand joints at qpos[2:95] in the AH_Right_5F_3S order; keyframe matches the AH_Right_5F_3S key to 1.5e-04
+  keyframe: max equality error 0.0006 mm; wrist at (-0.06, +0.08) deg
+  masses: hand 466.3 g (lumped mass model + finger bodies), hand + adapter + ring 530.4 g, each push rod 4.8 / 6.4 g
+  CoM of everything the wrist carries: [-5.9 98.4  3.7] mm from the wrist centre (W axes: x ulnar, y along the forearm, z back), 98.6 mm
+== 2. stability sweeps (fingers open = OpenHand, closed = CloseHand)
+  OpenHand: each wrist servo alone 0 -> +75 -> -75 -> 0 deg   15.0 s  max|qvel|   1.14 rad/s  push-rod closure err max 0.023 mm (settled 0.023)  finger closures max 0.004 mm  segments ending on a wrist stop 4/6  warnings none
+  OpenHand: both wrist servos around their +-75 deg box   12.0 s  max|qvel|   4.99 rad/s  push-rod closure err max 0.065 mm (settled 0.039)  finger closures max 0.004 mm  segments ending on a wrist stop 5/6  warnings none
+  OpenHand: IK around the coupled ROM boundary (outer loop)   25.2 s  max|qvel|   1.57 rad/s  push-rod closure err max 0.005 mm (settled 0.004)  finger closures max 0.004 mm  segments ending on a wrist stop 0/14  warnings none
+  CloseHand: each wrist servo alone 0 -> +75 -> -75 -> 0 deg   15.0 s  max|qvel|   1.13 rad/s  push-rod closure err max 0.023 mm (settled 0.023)  finger closures max 0.012 mm  segments ending on a wrist stop 4/6  warnings none
+  CloseHand: both wrist servos around their +-75 deg box   12.0 s  max|qvel|   4.94 rad/s  push-rod closure err max 0.063 mm (settled 0.039)  finger closures max 0.012 mm  segments ending on a wrist stop 5/6  warnings none
+  CloseHand: IK around the coupled ROM boundary (outer loop)   25.2 s  max|qvel|   1.56 rad/s  push-rod closure err max 0.005 mm (settled 0.003)  finger closures max 0.012 mm  segments ending on a wrist stop 0/14  warnings none
+  60 abrupt random steps of all 12 actuators             36.0 s  max|qvel|  90.93 rad/s  push-rod closure err max 0.067 mm (settled 0.030)  finger closures max 1.200 mm  segments ending on a wrist stop 36/60  warnings none
+== 3. range of motion
+  operating ROM (coupled, enforced by wrist_design.clamp_wrist): flexion -60..+60 deg, deviation +-25 deg up to +-40 deg of flexion, tapering to +-15 deg at +-60 deg
+  linkage (analytic): even the whole +-60 x +-25 deg rectangle is reachable: True; max |servo angle| needed on the operating ROM 54.9 deg (ctrlrange +-75); within +-75 deg servo travel the linkage alone reaches flexion -70..+70 deg, deviation -35..+35 deg - the joint stops (+-65 / +-30 deg) end the travel first
+  ball-link misalignment over the ROM (angle between rod and the plane normal to the stud): rod 1 bottom 1.7 deg, rod 1 top 26.7 deg, rod 2 bottom 1.2 deg, rod 2 top 26.2 deg
+  push rods vs the flexion axis (rod / link-neck surface, |x| <= 26 mm): min 5.37 mm on the ROM, -0.55 mm over the stop rectangle -> nothing on that axis may sit at |x| ~ 16..26 mm; clearance to the compact fork lugs (|x| 10.5..15.5, r 5.5): 3.63 mm on the ROM, 1.72 mm at the stops
+  sim, hand up, OpenHand, 15 poses on the ROM: |achieved - commanded| open loop (servo goal = IK, P sag) max 3.53 deg (worst at (-60, -15.0)); with the servo-angle outer loop max 0.08 deg
+    command (-60, -15) deg: open loop error (-3.53, -1.42), outer loop (-0.04, -0.08) deg
+    command (-60,  +0) deg: open loop error (-2.95, +0.02), outer loop (+0.07, -0.01) deg
+    command (-60, +15) deg: open loop error (-3.02, +1.17), outer loop (+0.04, +0.01) deg
+    command ( +0,  +0) deg: open loop error (-0.08, +0.08), outer loop (+0.02, -0.02) deg
+    command (+60, -15) deg: open loop error (+2.19, -0.41), outer loop (-0.05, +0.02) deg
+    command (+60,  +0) deg: open loop error (+2.27, +0.06), outer loop (-0.06, +0.00) deg
+    command (+60, +15) deg: open loop error (+2.07, +0.48), outer loop (-0.05, -0.01) deg
+== 4. wrist torque budget (model servo STS3215 C018 @ 12 V: stall 2.94 N.m, rated 0.98 N.m)
+  hand                             forearm vertical, hand up            max per-servo static torque 0.441 N.m (15.0 % of stall) at (-60.0, -15.0); analytic 0.439 N.m (max |sim - analytic| 0.041)
+  hand                             forearm vertical, hand hanging down  max per-servo static torque 0.439 N.m (14.9 % of stall) at (-60.0, -15.0); analytic 0.441 N.m (max |sim - analytic| 0.035)
+  hand                             forearm horizontal, palm down        max per-servo static torque 0.364 N.m (12.4 % of stall) at (40.0, 25.0); analytic 0.378 N.m (max |sim - analytic| 0.036)
+  hand                             forearm horizontal, palm up          max per-servo static torque 0.366 N.m (12.4 % of stall) at (40.0, 25.0); analytic 0.378 N.m (max |sim - analytic| 0.037)
+  hand                             forearm horizontal, thumb up         max per-servo static torque 0.624 N.m (21.2 % of stall) at (-60.0, -15.0); analytic 0.606 N.m (max |sim - analytic| 0.027)
+  hand                             forearm horizontal, thumb down       max per-servo static torque 0.605 N.m (20.6 % of stall) at (-60.0, -15.0); analytic 0.605 N.m (max |sim - analytic| 0.024)
+  -> hand: worst 0.624 N.m = 21 % of stall, 0.64 x rated, at ('forearm horizontal, thumb up', (-60.0, -15.0)); as % of the stall torque of: STS3215 C001 @ 6 V (hand rail) 39 %, STS3215 C001 @ 7.4 V 33 %, STS3215 C018 @ 12 V 21 %, STS3250 @ 12 V 13 %
+  hand + 200 g at the fingertips   forearm vertical, hand up            max per-servo static torque 0.843 N.m (28.7 % of stall) at (-60.0, 7.5); analytic 0.789 N.m (max |sim - analytic| 0.072)
+  hand + 200 g at the fingertips   forearm vertical, hand hanging down  max per-servo static torque 0.804 N.m (27.4 % of stall) at (-60.0, -15.0); analytic 0.794 N.m (max |sim - analytic| 0.032)
+  hand + 200 g at the fingertips   forearm horizontal, palm down        max per-servo static torque 0.687 N.m (23.4 % of stall) at (40.0, -25.0); analytic 0.688 N.m (max |sim - analytic| 0.073)
+  hand + 200 g at the fingertips   forearm horizontal, palm up          max per-servo static torque 0.685 N.m (23.3 % of stall) at (40.0, 25.0); analytic 0.688 N.m (max |sim - analytic| 0.035)
+  hand + 200 g at the fingertips   forearm horizontal, thumb up         max per-servo static torque 1.167 N.m (39.7 % of stall) at (-60.0, -15.0); analytic 1.124 N.m (max |sim - analytic| 0.068)
+  hand + 200 g at the fingertips   forearm horizontal, thumb down       max per-servo static torque 1.133 N.m (38.5 % of stall) at (-60.0, -15.0); analytic 1.116 N.m (max |sim - analytic| 0.066)
+  -> hand + 200 g at the fingertips: worst 1.167 N.m = 40 % of stall, 1.19 x rated, at ('forearm horizontal, thumb up', (-60.0, -15.0)); as % of the stall torque of: STS3215 C001 @ 6 V (hand rail) 72 %, STS3215 C001 @ 7.4 V 61 %, STS3215 C018 @ 12 V 40 %, STS3250 @ 12 V 24 %
+  hand, neutral wrist: max per-servo torque over the six orientations 0.308 N.m (10 % of stall)
+  hand + 200 g, neutral wrist: max per-servo torque over the six orientations 0.591 N.m (20 % of stall)
+  dynamic: minimum-jerk wrist moves (servo model: kp 17.11 N.m/rad, force limit 2.94 N.m, damping 0.56 N.m.s/rad -> no-load speed 5.25 rad/s; datasheet 4.7 rad/s)
+    hand          forearm horizontal, palm down    (-60, 0)->(60, 0) deg in 2.0 s (peak 2.0 rad/s, 3 rad/s2 at the wrist): peak servo torque 0.69 N.m (24 % stall), at the limit for 0 ms, peak servo speed 1.6 rad/s, max tracking error 2.6 deg
+    hand          forearm horizontal, palm down    (-60, 0)->(60, 0) deg in 1.2 s (peak 3.3 rad/s, 8 rad/s2 at the wrist): peak servo torque 1.36 N.m (46 % stall), at the limit for 0 ms, peak servo speed 2.7 rad/s, max tracking error 5.2 deg
+    hand          forearm horizontal, palm down    (-60, 0)->(60, 0) deg in 0.8 s (peak 4.9 rad/s, 19 rad/s2 at the wrist): peak servo torque 2.30 N.m (78 % stall), at the limit for 0 ms, peak servo speed 4.2 rad/s, max tracking error 9.0 deg
+    hand          forearm horizontal, palm down    (0, -25)->(0, 25) deg in 0.6 s (peak 2.7 rad/s, 14 rad/s2 at the wrist): peak servo torque 1.85 N.m (63 % stall), at the limit for 0 ms, peak servo speed 2.4 rad/s, max tracking error 6.1 deg
+    hand          forearm vertical, hand up        (-60, 0)->(60, 0) deg in 2.0 s (peak 2.0 rad/s, 3 rad/s2 at the wrist): peak servo torque 1.13 N.m (38 % stall), at the limit for 0 ms, peak servo speed 1.7 rad/s, max tracking error 4.5 deg
+    hand          forearm vertical, hand up        (-60, 0)->(60, 0) deg in 1.2 s (peak 3.3 rad/s, 8 rad/s2 at the wrist): peak servo torque 1.81 N.m (62 % stall), at the limit for 0 ms, peak servo speed 2.8 rad/s, max tracking error 7.1 deg
+    hand          forearm vertical, hand up        (-60, 0)->(60, 0) deg in 0.8 s (peak 4.9 rad/s, 19 rad/s2 at the wrist): peak servo torque 2.73 N.m (93 % stall), at the limit for 0 ms, peak servo speed 4.3 rad/s, max tracking error 11.0 deg
+    hand          forearm vertical, hand up        (0, -25)->(0, 25) deg in 0.6 s (peak 2.7 rad/s, 14 rad/s2 at the wrist): peak servo torque 1.67 N.m (57 % stall), at the limit for 0 ms, peak servo speed 2.5 rad/s, max tracking error 6.5 deg
+    hand + 200 g  forearm horizontal, palm down    (-60, 0)->(60, 0) deg in 2.0 s (peak 2.0 rad/s, 3 rad/s2 at the wrist): peak servo torque 0.43 N.m (15 % stall), at the limit for 0 ms, peak servo speed 1.6 rad/s, max tracking error 2.3 deg
+    hand + 200 g  forearm horizontal, palm down    (-60, 0)->(60, 0) deg in 1.2 s (peak 3.3 rad/s, 8 rad/s2 at the wrist): peak servo torque 1.10 N.m (37 % stall), at the limit for 0 ms, peak servo speed 2.7 rad/s, max tracking error 4.1 deg
+    hand + 200 g  forearm horizontal, palm down    (-60, 0)->(60, 0) deg in 0.8 s (peak 4.9 rad/s, 19 rad/s2 at the wrist): peak servo torque 2.23 N.m (76 % stall), at the limit for 0 ms, peak servo speed 4.4 rad/s, max tracking error 8.8 deg
+    hand + 200 g  forearm horizontal, palm down    (0, -25)->(0, 25) deg in 0.6 s (peak 2.7 rad/s, 14 rad/s2 at the wrist): peak servo torque 2.22 N.m (76 % stall), at the limit for 0 ms, peak servo speed 2.5 rad/s, max tracking error 6.6 deg
+    hand + 200 g  forearm vertical, hand up        (-60, 0)->(60, 0) deg in 2.0 s (peak 2.0 rad/s, 3 rad/s2 at the wrist): peak servo torque 1.39 N.m (47 % stall), at the limit for 0 ms, peak servo speed 1.7 rad/s, max tracking error 7.9 deg
+    hand + 200 g  forearm vertical, hand up        (-60, 0)->(60, 0) deg in 1.2 s (peak 3.3 rad/s, 8 rad/s2 at the wrist): peak servo torque 2.01 N.m (68 % stall), at the limit for 0 ms, peak servo speed 2.9 rad/s, max tracking error 10.3 deg
+    hand + 200 g  forearm vertical, hand up        (-60, 0)->(60, 0) deg in 0.8 s (peak 4.9 rad/s, 19 rad/s2 at the wrist): peak servo torque 2.94 N.m (100 % stall), at the limit for 264 ms, peak servo speed 4.8 rad/s, max tracking error 15.9 deg
+    hand + 200 g  forearm vertical, hand up        (0, -25)->(0, 25) deg in 0.6 s (peak 2.7 rad/s, 14 rad/s2 at the wrist): peak servo torque 1.94 N.m (66 % stall), at the limit for 0 ms, peak servo speed 2.6 rad/s, max tracking error 7.7 deg
+  inertia about the wrist axes (hand, fingers at the keyframe): flexion 69.0e-4 kg.m2, deviation 71.3e-4 kg.m2 -> at 20 rad/s2 0.138 / 0.143 N.m at the joint
+  inertia about the wrist axes (hand + 200 g, fingers at the keyframe): flexion 172.0e-4 kg.m2, deviation 174.3e-4 kg.m2 -> at 20 rad/s2 0.344 / 0.349 N.m at the joint
+== 5. clearance over the wrist ROM (surface samples every 1 mm, 0.3 mm below 3 mm; < 0.23 mm = touching)
+  143 wrist poses on the operating ROM x hand poses ['keyframe', 'OpenHand', 'CloseHand', 'SpreadHand'], plus 8 poses at the hard stops (+-65 / +-30 deg and their combined corners, outside the operating ROM) [127 s]
+  hand (+ shells, pads)      vs forearm (shells, fork, frame, servos)  ROM: min > 5 mm; touching poses 0 | stops:  3.55 mm at (+65, +30)
+  hand (+ shells, pads)      vs gimbal ring                            ROM: min > 5 mm; touching poses 0 | stops: > 5 mm
+  hand (+ shells, pads)      vs rod 1 (links + rod)                    ROM: min > 5 mm; touching poses 0 | stops: > 5 mm
+  hand (+ shells, pads)      vs rod 2 (links + rod)                    ROM: min > 5 mm; touching poses 0 | stops: > 5 mm
+  hand adapter               vs forearm (shells, fork, frame, servos)  ROM: min  1.06 mm at keyframe wrist (-60, -15.0); touching poses 0 | stops:  0.05 mm at (+65, +30)
+  adapter studs              vs forearm (shells, fork, frame, servos)  ROM: min  3.70 mm at keyframe wrist (-60, -15.0); touching poses 0 | stops:  1.43 mm at (-65, -30)
+  hand adapter               vs gimbal ring                            ROM: min  0.73 mm at keyframe wrist (-40, -20.0); touching poses 0 | stops:  0.74 mm at (+65, +30)
+  gimbal ring                vs fork                                   ROM: min  0.73 mm at keyframe wrist (+60, -15.0); touching poses 0 | stops:  0.73 mm at (+0, -30)
+  rod 1 (links + rod)        vs forearm w/o servos                     ROM: min  1.25 mm at keyframe wrist (-60, +0.0); touching poses 0 | stops:  0.08 mm at (-65, -30)
+  rod 2 (links + rod)        vs forearm w/o servos                     ROM: min  1.25 mm at keyframe wrist (-60, +0.0); touching poses 0 | stops:  0.12 mm at (-65, +30)
+  rod 1 (links + rod)        vs servo 1                                ROM: min  1.38 mm at keyframe wrist (-60, -15.0); touching poses 0 | stops:  0.02 mm at (-65, -30)
+  rod 2 (links + rod)        vs servo 2                                ROM: min  1.55 mm at keyframe wrist (-60, +15.0); touching poses 0 | stops:  0.06 mm at (-65, +30)
+  rod 1 (links + rod)        vs servo 2                                ROM: min > 5 mm; touching poses 0 | stops: > 5 mm
+  rod 2 (links + rod)        vs servo 1                                ROM: min > 5 mm; touching poses 0 | stops: > 5 mm
+  rod 1 (links + rod)        vs hand adapter                           ROM: min  0.75 mm at keyframe wrist (+0, +25.0); touching poses 0 | stops:  0.21 mm at (+0, +30)
+  rod 2 (links + rod)        vs hand adapter                           ROM: min  0.68 mm at keyframe wrist (+0, -25.0); touching poses 0 | stops:  0.12 mm at (+0, -30)
+  rod 1 (links + rod)        vs gimbal ring                            ROM: min > 5 mm; touching poses 0 | stops: > 5 mm
+  rod 2 (links + rod)        vs gimbal ring                            ROM: min > 5 mm; touching poses 0 | stops: > 5 mm
+  rod 1 (links + rod)        vs rod 2 (links + rod)                    ROM: min > 5 mm; touching poses 0 | stops: > 5 mm
+  rod 1 (links + rod)        vs horn arm 2                             ROM: min > 5 mm; touching poses 0 | stops: > 5 mm
+  rod 2 (links + rod)        vs horn arm 1                             ROM: min > 5 mm; touching poses 0 | stops: > 5 mm
+  horn arm 1                 vs forearm w/o servos                     ROM: min  0.78 mm at keyframe wrist (-20, -20.0); touching poses 0 | stops:  0.78 mm at (+0, +30)
+  horn arm 2                 vs forearm w/o servos                     ROM: min  0.78 mm at keyframe wrist (-10, -25.0); touching poses 0 | stops:  0.78 mm at (+0, -30)
+  horn arm 1                 vs horn arm 2                             ROM: min > 5 mm; touching poses 0 | stops: > 5 mm
+  horn arm 1                 vs servo 2                                ROM: min > 5 mm; touching poses 0 | stops: > 5 mm
+  horn arm 2                 vs servo 1                                ROM: min > 5 mm; touching poses 0 | stops: > 5 mm
+  thumb over a 7x7 grid of its motors (other fingers OpenHand) x 21 wrist poses on the ROM boundary and axes: hand vs forearm / rods / ring min > 5 mm [2 s]
+total 221 s

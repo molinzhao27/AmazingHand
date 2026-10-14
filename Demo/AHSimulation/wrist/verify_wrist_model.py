@@ -13,7 +13,7 @@
   5. clearance: hand (with 5F shells and pads; keyframe / OpenHand / CloseHand / thumb over a 7x7 grid)
      vs forearm, fork, ring, push rods, horns; and the wrist parts against each other, over the ROM.
 
-Usage: python verify_wrist_model.py [--quick]
+Usage: python verify_wrist_model.py [--quick] [--model AH_Right_5F_Wrist | AH_Right_5F_3S_Wrist | ...]
 """
 
 import argparse
@@ -27,7 +27,10 @@ import numpy as np
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+import wrist_sim  # noqa: E402
 from wrist_sim import DEMO_POSES_5F, HAND_POSES, MJCF, PAYLOAD_CAD, WristModel, aid, jid, wd  # noqa: E402
+
+HAND = "AH_Right_5F"  # the hand model the wrist model was built from
 from verify_5f_model import Group, group_distance  # noqa: E402
 
 STALL = 2.94           # N.m, STS3215 C018 at 12 V (30 kg.cm), the servo in the model
@@ -106,10 +109,10 @@ def check_structure(w):
         names = [x for x in (mujoco.mj_id2name(m, obj, i) for i in range(n)) if x]
         assert len(names) == len(set(names))
     acts = [mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_ACTUATOR, i) for i in range(m.nu)]
-    ref = mujoco.MjModel.from_xml_path(str(MJCF.parent.parent / "AH_Right_5F" / "mjcf" / "scene.xml"))
+    ref = mujoco.MjModel.from_xml_path(str(MJCF.parent.parent / HAND / "mjcf" / "scene.xml"))
     ref_acts = [mujoco.mj_id2name(ref, mujoco.mjtObj.mjOBJ_ACTUATOR, i) for i in range(ref.nu)]
     assert acts[:10] == ref_acts and acts[10:] == ["wrist_motor1", "wrist_motor2"]
-    log(f"  names unique; actuators: 10 finger actuators in the AH_Right_5F order, then {acts[10:]}")
+    log(f"  names unique; actuators: 10 finger actuators in the {HAND} order, then {acts[10:]}")
     for i in w.a_wrist:
         log(f"  {acts[i]}: ctrlrange {np.degrees(m.actuator_ctrlrange[i]).round(1)} deg, kp {m.actuator_gainprm[i, 0]:.3g} N.m/rad, "
             f"forcerange {m.actuator_forcerange[i]} N.m; joint damping {m.dof_damping[m.jnt_dofadr[m.actuator_trnid[i, 0]]]:.3g}, "
@@ -119,7 +122,7 @@ def check_structure(w):
         log(f"  {name}: qpos[{m.jnt_qposadr[j]}], range {np.degrees(m.jnt_range[j]).round(1)} deg, axis (root) {m.jnt_axis[j]}")
     a0 = m.jnt_qposadr[jid(m, "finger1_motor1")]
     assert np.allclose(w.m.key_qpos[0][a0:a0 + ref.nq], ref.key_qpos[0], atol=2e-4)
-    log(f"  hand joints at qpos[{a0}:{a0 + ref.nq}] in the AH_Right_5F order; keyframe matches the AH_Right_5F key to "
+    log(f"  hand joints at qpos[{a0}:{a0 + ref.nq}] in the {HAND} order; keyframe matches the {HAND} key to "
         f"{np.abs(w.m.key_qpos[0][a0:a0 + ref.nq] - ref.key_qpos[0]).max():.1e}")
     w.reset()
     eqs = [e for e in range(m.neq)]
@@ -584,7 +587,12 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--quick", action="store_true")
     ap.add_argument("--skip-clearance", action="store_true")
+    ap.add_argument("--model", default="AH_Right_5F_Wrist", help="wrist model (build_wrist_model.py [--hand ...]), "
+                    "e.g. AH_Right_5F_3S_Wrist")
     args = ap.parse_args()
+    global MJCF, HAND
+    MJCF = wrist_sim.MJCF = MJCF.parent.parent / args.model / "mjcf"
+    HAND = args.model.removesuffix("_Wrist")
     t0 = time.time()
     log(f"model: {MJCF.relative_to(MJCF.parents[3])}/scene.xml (mujoco {mujoco.__version__})")
     w = WristModel()
@@ -596,8 +604,8 @@ def main():
         check_clearance(args.quick)
     log(f"total {time.time() - t0:.0f} s")
     (HERE / "reports").mkdir(exist_ok=True)
-    (HERE / "reports" / "verify_AH_Right_5F_Wrist.txt").write_text("\n".join(LINES) + "\n")
-    (HERE / "reports" / "verify_AH_Right_5F_Wrist.json").write_text(json.dumps(OUT, indent=1, default=str) + "\n")
+    (HERE / "reports" / f"verify_{args.model}.txt").write_text("\n".join(LINES) + "\n")
+    (HERE / "reports" / f"verify_{args.model}.json").write_text(json.dumps(OUT, indent=1, default=str) + "\n")
 
 
 if __name__ == "__main__":

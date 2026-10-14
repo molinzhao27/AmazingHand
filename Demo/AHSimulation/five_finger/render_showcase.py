@@ -3,7 +3,11 @@
 shells and grip pads (default model AH_Right_5F_Slim_Wrist: slim fingers).
 
 Usage: python render_showcase.py [--model AH_Right_5F_Slim_Wrist] [--out renders/showcase.jpg]
+       python render_showcase.py --model AH_Right_5F_3S_Wrist --poses ../ultimate_finger/data/hand_poses.json \
+           --shots gestures --out renders/showcase_3s.jpg      (3-phalanx fingers: their own pose commands)
 """
+
+import json
 
 import argparse
 import sys
@@ -29,6 +33,15 @@ SHOTS = [
     ("Index_Pointing, wrist flexed 20 / radial 10", "Index_Pointing", 20, 10, 210, -12),
     ("Victory, wrist extended 40", "Victory", -40, 0, 135, -20),
 ]
+# the gestures (peace sign, middle finger, OK, pinch) for a pose file that has them
+GESTURE_SHOTS = [
+    ("OpenHand, wrist neutral", "OpenHand", 0, 0, 150, -12),
+    ("Peace, wrist extended 20", "Peace", -20, 0, 165, -10),
+    ("MiddleFinger, wrist neutral", "MiddleFinger", 0, 0, 200, -8),
+    ("Perfect (OK), wrist extended 25 / ulnar 10", "Perfect", -25, -10, 165, -8),
+    ("Pinched, wrist flexed 20", "Pinched", 20, 0, 130, -15),
+    ("CloseHand, wrist flexed 40", "CloseHand", 40, 0, 120, -15),
+]
 
 
 def main():
@@ -36,7 +49,12 @@ def main():
     ap.add_argument("--model", default="AH_Right_5F_Slim_Wrist")
     ap.add_argument("--out", type=Path, default=HERE / "renders" / "showcase.jpg")
     ap.add_argument("--size", type=int, default=480)
+    ap.add_argument("--poses", type=Path, help="JSON {pose: {digit: [m1, m2] deg}} overriding the demo poses")
+    ap.add_argument("--shots", choices=["demo", "gestures"], default="demo")
     args = ap.parse_args()
+    poses = dict(DEMO_POSES_5F)
+    if args.poses:
+        poses.update(json.loads(args.poses.read_text()))
 
     m = mujoco.MjModel.from_xml_path(str(SIM_DIR / args.model / "mjcf" / "scene_shells.xml"))
     m.vis.global_.offwidth, m.vis.global_.offheight = 2400, 2400
@@ -49,10 +67,10 @@ def main():
     act = {mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_ACTUATOR, i): i for i in range(m.nu)}
     r = mujoco.Renderer(m, args.size, int(args.size * 0.8))
     tiles = []
-    for title, pose, phi, psi, az, el in SHOTS:
+    for title, pose, phi, psi, az, el in (SHOTS if args.shots == "demo" else GESTURE_SHOTS):
         mujoco.mj_resetDataKeyframe(m, d, 0)
         target = np.zeros(m.nu)
-        for dig, (a1, a2) in DEMO_POSES_5F[pose].items():
+        for dig, (a1, a2) in poses[pose].items():
             target[[act[f"{DIGITS[dig]}_motor1"], act[f"{DIGITS[dig]}_motor2"]]] = np.radians([a1, a2])
         target[[act["wrist_motor1"], act["wrist_motor2"]]] = wd.servo_ik(*wd.clamp_wrist(np.radians(phi), np.radians(psi)))
         for k in range(1500):

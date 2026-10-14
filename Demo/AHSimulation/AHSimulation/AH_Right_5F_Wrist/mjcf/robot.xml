@@ -98,8 +98,8 @@
           <site name="wrist_ball2_hand" pos="-0.02125 0.0206484 0.00382695" size="0.002" group="3"/>
           <site name="wrist_centre" pos="0 0 0" size="0.003" group="3"/>
           <body name="r_wrist_interface" pos="-0 -0.00191797 0.0504897" quat="1 0 0 0" childclass="mjcf">
-            <!-- lumped inertial: hand mass model 495.1 g (Demo/AHSimulation/wrist/hand_mass_model.py) minus the finger bodies' own 110.6 g -->
-            <inertial pos="-0.00934991 -0.0120509 0.05154" mass="0.384464" fullinertia="0.000865244 0.000617411 0.000603309 -3.29797e-05 -1.64787e-05 3.74391e-06"/>
+            <!-- lumped inertial: hand mass model 492.3 g (Demo/AHSimulation/wrist/hand_mass_model.py) minus the finger bodies' own 110.6 g -->
+            <inertial pos="-0.00950003 -0.0117769 0.0514774" mass="0.381669" fullinertia="0.000858398 0.000615241 0.000596146 -3.52035e-05 -1.60876e-05 3.8787e-06"/>
             <!-- Part scs0009 -->
             <geom type="mesh" class="visual" pos="-0.022075 0.0312422 0.0704655" quat="0.70431 0.062827 -0.062827 0.70431" mesh="scs0009" material="scs0009_material"/>
             <!-- Part finger_frame_1 -->

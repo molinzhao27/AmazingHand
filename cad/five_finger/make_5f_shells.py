@@ -4,8 +4,8 @@
 The shells are built as implicit (signed-distance) solids on a voxel grid in the CAD part-studio
 frame (mm; x from the index towards the pinky, y up the fingers, z towards the back):
 
-1. Keep-out volumes from the MuJoCo model (AH_Right_5F), every digit settled on an N x N grid of
-   its two motor commands:
+1. Keep-out volumes from the MuJoCo models (AH_Right_5F with the stock 2-phalanx fingers and AH_Right_5F_3S
+   with the 3-phalanx fingers, merged), every digit settled on an N x N grid of its two motor commands:
      K_enc   parts the shell must enclose: palm plate, wrist interface, servos, finger frames and
              bushings, plus the servo horns and push rods over all poses;
      K_free  parts the shell must stay clear of: every finger's knuckle (gimbal), lever and both
@@ -32,7 +32,7 @@ R-Palm_Shell_5F, R-Palm_Pad_Palm_5F and their mirrored L-* versions for the left
 hand (the stock left shells are exactly the right ones mirrored about x = -50 mm).
 
 Usage: python make_5f_shells.py [--vox 0.5] [--grid 19] [--cache keepout.npz] [--no-wrist]
-       python make_5f_shells.py --model AH_Right_5F_3S --out cad/five_finger/stl_3s   (other finger variants)
+       python make_5f_shells.py --model AH_Right_5F --out /tmp/shells   (fitted to one finger variant only)
 """
 
 import argparse
@@ -59,7 +59,8 @@ import wrist_design as wd  # noqa: E402
 from build_5f_model import child_by_name, get_pose, parse  # noqa: E402
 
 OUT_STL = HERE / "stl"
-MODEL = "AH_Right_5F"  # hand model (folder under Demo/AHSimulation/AHSimulation) the shells are fitted to
+MODEL = "AH_Right_5F"  # hand model (folder under Demo/AHSimulation/AHSimulation) being swept
+MODELS = ["AH_Right_5F", "AH_Right_5F_3S"]  # the shells clear the moving parts of all of these (2- and 3-phalanx fingers)
 LO = np.array([-40.0, -142.0, -62.0])  # voxel grid bounds (plate frame, mm)
 HI = np.array([128.0, 22.0, 42.0])
 # plate pose in the MuJoCo root frame: part-studio frame (mm) <-> MJCF (m)
@@ -557,21 +558,29 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--vox", type=float, default=0.5, help="voxel size, mm")
     ap.add_argument("--grid", type=int, default=19, help="poses per motor for the swept volumes")
-    ap.add_argument("--cache", type=Path, help="npz cache for the keep-out volumes")
-    ap.add_argument("--model", default=MODEL, help="5-digit hand model to fit the shells to (e.g. AH_Right_5F_3S)")
+    ap.add_argument("--cache", type=Path, help="npz cache for the keep-out volumes (one file per model: <stem>_<model>.npz "
+                    "when several models are given)")
+    ap.add_argument("--model", nargs="+", default=MODELS, help="5-digit hand model(s) to fit the shells to; with several "
+                    "(same palm, different fingers), the shells clear the moving parts of all of them")
     ap.add_argument("--out", type=Path, default=OUT_STL, help="output folder for the STLs")
     ap.add_argument("--no-wrist", action="store_true", help="stock wrist cut, no powered wrist (no adapter, no wrist section)")
     args = ap.parse_args()
-    MODEL, OUT_STL, WRIST = args.model, args.out, not args.no_wrist
+    OUT_STL, WRIST = args.out, not args.no_wrist
     t0 = time.time()
-    if args.cache and args.cache.exists():
-        z = np.load(args.cache)
-        K_enc, K_free, K_thumb, K_plate = z["K_enc"], z["K_free"], z["K_thumb"], z["K_plate"]
-    else:
-        K_enc, K_free, K_thumb = keepout(args.grid, args.vox)
-        K_plate = keepout_palm(args.vox, K_enc.shape)
-        if args.cache:
-            np.savez_compressed(args.cache, K_enc=K_enc, K_free=K_free, K_thumb=K_thumb, K_plate=K_plate)
+    K_enc = K_free = K_thumb = K_plate = None
+    for MODEL in args.model:
+        cache = args.cache if args.cache is None or len(args.model) == 1 else \
+            args.cache.with_name(f"{args.cache.stem}_{MODEL}{args.cache.suffix}")
+        if cache and cache.exists():
+            z = np.load(cache)
+            k = z["K_enc"], z["K_free"], z["K_thumb"], z["K_plate"]
+        else:
+            k = (*keepout(args.grid, args.vox), None)
+            k = (*k[:3], keepout_palm(args.vox, k[0].shape))
+            if cache:
+                np.savez_compressed(cache, K_enc=k[0], K_free=k[1], K_thumb=k[2], K_plate=k[3])
+        K_enc, K_free, K_thumb, K_plate = k if K_enc is None else [a | b for a, b in zip((K_enc, K_free, K_thumb, K_plate), k)]
+    MODEL = args.model[0]  # the knuckle line (the palms are the same)
     if WRIST:  # the wrist's hand adapter is rigid with the hand: enclose it / keep clear of it
         K_enc = K_enc | mesh_voxels(trimesh.load(ADAPTER_STL), args.vox, K_enc.shape)
     log(f"keep-out volumes {K_enc.shape} ({time.time() - t0:.0f} s)")

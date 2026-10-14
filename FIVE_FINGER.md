@@ -14,7 +14,8 @@ A fourth finger (pinky, `finger5`) is added next to the ring finger. It uses the
 | Styled finger shells with grip pads (fits the stock finger kit) | [cad/five_finger/fingers/](cad/five_finger/fingers/) |
 | Slim fingers (−18 % / −31 % width), sim model `AH_Right_5F_Slim` | [cad/five_finger/slim_fingers/README.md](cad/five_finger/slim_fingers/README.md) |
 | Powered 2-DOF wrist + forearm base, sim model `AH_Right_5F_Wrist` | [cad/five_finger/wrist/README.md](cad/five_finger/wrist/README.md) |
-| Study: 3-phalanx fingers (prototype model + concept CAD) | [cad/five_finger/three_segment/README.md](cad/five_finger/three_segment/README.md) |
+| **Styled 3-phalanx fingers** (the final finger), sim models `AH_Right_5F_3S`, `AH_Right_5F_3S_Wrist` | [cad/five_finger/ultimate_finger/README.md](cad/five_finger/ultimate_finger/README.md) |
+| Study: 3-phalanx fingers (prototype model + concept CAD, superseded by the styled fingers) | [cad/five_finger/three_segment/README.md](cad/five_finger/three_segment/README.md) |
 
 View the models:
 
@@ -40,9 +41,15 @@ uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python mujoco s
 .venv/bin/python cad/five_finger/make_5f_plate.py
 .venv/bin/python Demo/AHSimulation/five_finger/build_5f_model.py --keyframe
 .venv/bin/python Demo/AHSimulation/five_finger/build_5f_model.py --side left --keyframe
-.venv/bin/python cad/five_finger/make_5f_shells.py                         # fitted to the model just built
+.venv/bin/python cad/five_finger/ultimate_finger/make_ultimate_finger.py   # 3-phalanx finger CAD
+.venv/bin/python cad/five_finger/ultimate_finger/make_ultimate_finger.py --scale 0.88 --no-figures   # the x0.88 pinky
+.venv/bin/python Demo/AHSimulation/ultimate_finger/build_models.py         # AH_Right_5F_3S
+.venv/bin/python cad/five_finger/make_5f_shells.py                         # fitted to AH_Right_5F and AH_Right_5F_3S
 .venv/bin/python Demo/AHSimulation/five_finger/build_5f_model.py           # copies the shells into the models
 .venv/bin/python Demo/AHSimulation/five_finger/build_5f_model.py --side left
+.venv/bin/python Demo/AHSimulation/slim_fingers/build_slim_model.py
+.venv/bin/python Demo/AHSimulation/ultimate_finger/build_models.py
+.venv/bin/python Demo/AHSimulation/wrist/build_wrist_model.py --hand AH_Right_5F_3S --keyframe   # (and the others, see the wrist README)
 .venv/bin/python Demo/AHSimulation/five_finger/verify_5f_model.py
 .venv/bin/python Demo/AHSimulation/five_finger/verify_5f_model.py --model AH_Left_5F
 ```
@@ -127,7 +134,7 @@ The stock Palm_Shell and Top_Shell cannot go on the widened plate: [check_shells
 
 *Before (the earlier box-like shells) and after, on the slim fingers.*
 
-- **Shape.** The shells are implicit (signed-distance) solids on a 0.5 mm voxel grid, in the same frame as the stock parts. From the sim, every digit is settled on a 19×19 grid of its two motors, and that gives two keep-out sets:
+- **Shape.** The shells are implicit (signed-distance) solids on a 0.5 mm voxel grid, in the same frame as the stock parts. From the sim, every digit is settled on a 19×19 grid of its two motors, on both the 2-phalanx hand (`AH_Right_5F`) and the 3-phalanx hand (`AH_Right_5F_3S`), and the two are merged into two keep-out sets, so one set of shells fits either finger:
   - **Enclose:** plate, wrist interface, servos, finger frames, servo horns, push rods (and the wrist's hand adapter). The walls stay at least 1 mm from these.
   - **Stay clear of:** each finger's knuckle, lever and phalanges, and the thumb. The walls stay at least 1.2 mm from these (2.2 mm from the thumb).
 
@@ -145,7 +152,7 @@ The stock Palm_Shell and Top_Shell cannot go on the widened plate: [check_shells
 - **Parts and materials.** Same split as stock:
   - `R-Top_Shell_5F`, PLA, rigid.
   - `R-Palm_Shell_5F`, Filaflex 82A / TPU.
-  - `R-Palm_Pad_Palm_5F`, one black TPU insert (63 cm² seen from the palm). It covers the palm-facing surface with an even 5 mm border to every edge and opening, so it runs under the fingers, down the pinky side and around the thumb opening. It sits in a 1 mm recess, stands 0.8 mm proud, has rounded grip ribs across the palm at a 1.8 mm pitch, and a 0.15 mm side gap. Glue it in with flexible CA, or print the palm shell with a second material.
+  - `R-Palm_Pad_Palm_5F`, one black TPU insert (52 cm² seen from the palm). It covers the palm-facing surface with an even 5 mm border to every edge and opening, so it runs under the fingers, down the pinky side and around the thumb opening. It sits in a 1 mm recess, stands 0.8 mm proud, has rounded grip ribs across the palm at a 1.8 mm pitch, and a 0.15 mm side gap. Glue it in with flexible CA, or print the palm shell with a second material.
 
   The left parts (`L-*`) are the right ones mirrored about x = −50 mm, exactly how the stock left shells relate to the right ones (checked: 0 mm³ difference).
 - **Assembly:**
@@ -155,7 +162,7 @@ The stock Palm_Shell and Top_Shell cannot go on the widened plate: [check_shells
   - The stock palm shell's flange screws and the side screws into the wrist interface are not used.
 - **Verification.** I checked the shells and pads against every digit over a 13×13 grid per digit, which is not the grid the shells were built from ([right](Demo/AHSimulation/five_finger/reports/shells_5f_on_AH_Right_5F.txt), [left](Demo/AHSimulation/five_finger/reports/shells_5f_on_AH_Left_5F.txt)).
   - No moving part touches any shell or pad in any of the 169 poses, on either hand.
-  - The smallest clearances on the right are 2.28 mm (thumb vs palm shell) and 2.71 mm (the fingers' proximal shells in a fist); the grip pad is at least 4.8 mm from every digit. On the left the thumb comes to 1.14 mm, because the stock left export is not an exact mirror of the right (the thumb opening has 2.2 mm of clearance instead of 1.2 mm to absorb that). On the slim fingers every finger keeps at least 3.4 mm, the thumb 2.32 mm.
+  - The smallest clearances on the right are 2.28 mm (thumb vs palm shell) and 4.6 mm (fingers); the grip pad is at least 4.8 mm from every digit. On the left the thumb comes to 1.14 mm, because the stock left export is not an exact mirror of the right (the thumb opening has 2.2 mm of clearance instead of 1.2 mm to absorb that). On the slim fingers every finger keeps at least 4.6 mm, the thumb 2.35 mm. On the 3-phalanx hand ([report](Demo/AHSimulation/five_finger/reports/shells_5f_on_AH_Right_5F_3S.txt)), which curls deeper into the palm, the closest is the pinky in a full fist (1.50 mm), then the other fingers (≥ 2.65 mm) and the thumb (2.39 mm); the pad keeps 3.65 mm.
   - For comparison, the stock shells on the stock hand touch the ring's horn screw at 36 of 81 poses and the thumb at 6.
   - The only contacts with fixed parts are by design: the bosses seat on the plate, and the flange rests on the wrist interface, 0.18 mm beside the plate's foot.
 - **Printing.**
@@ -169,19 +176,25 @@ The stock Palm_Shell and Top_Shell cannot go on the widened plate: [check_shells
 
 ## Extensions
 
-![full build](Demo/AHSimulation/five_finger/renders/showcase.jpg)
+![full build, 3-phalanx fingers](Demo/AHSimulation/five_finger/renders/showcase_3s.jpg)
 
-*Full build: forearm, powered wrist, the 5-digit hand with slim fingers, and the new palm/back shells with grip pads. Model `AH_Right_5F_Slim_Wrist`; render with [render_showcase.py](Demo/AHSimulation/five_finger/render_showcase.py).*
+*Full build: forearm, powered wrist, the 5-digit hand with the styled 3-phalanx fingers, and the sculpted palm/back shells with the black grip pad. Model `AH_Right_5F_3S_Wrist`; the gestures use the pose commands in [hand_poses.json](Demo/AHSimulation/ultimate_finger/data/hand_poses.json).*
 
 ```bash
-.venv/bin/python -m mujoco.viewer --mjcf=Demo/AHSimulation/AHSimulation/AH_Right_5F_Slim_Wrist/mjcf/scene_shells.xml
+.venv/bin/python -m mujoco.viewer --mjcf=Demo/AHSimulation/AHSimulation/AH_Right_5F_3S_Wrist/mjcf/scene_shells.xml
+.venv/bin/python Demo/AHSimulation/five_finger/render_showcase.py --model AH_Right_5F_3S_Wrist --poses Demo/AHSimulation/ultimate_finger/data/hand_poses.json --shots gestures --out Demo/AHSimulation/five_finger/renders/showcase_3s.jpg
 ```
+
+![full build, slim fingers](Demo/AHSimulation/five_finger/renders/showcase.jpg)
+
+*The same build with the 2-phalanx slim fingers (`AH_Right_5F_Slim_Wrist`), rendered with [render_showcase.py](Demo/AHSimulation/five_finger/render_showcase.py).*
 
 The variants are generated from one another:
 
 - `AH_Right_5F` → `AH_Right_5F_Slim`, via [build_slim_model.py](Demo/AHSimulation/slim_fingers/build_slim_model.py);
 - `AH_Right_5F` → `AH_Right_5F_Wrist`, via [build_wrist_model.py](Demo/AHSimulation/wrist/build_wrist_model.py);
-- `AH_Right_5F_Slim` → `AH_Right_5F_Slim_Wrist`, via `build_wrist_model.py --hand AH_Right_5F_Slim --keyframe`.
+- `AH_Right_5F_Slim` → `AH_Right_5F_Slim_Wrist`, via `build_wrist_model.py --hand AH_Right_5F_Slim --keyframe`;
+- `AH_Right_5F` → `AH_Right_5F_3S`, via [ultimate_finger/build_models.py](Demo/AHSimulation/ultimate_finger/build_models.py), and on to `AH_Right_5F_3S_Wrist` with `build_wrist_model.py --hand AH_Right_5F_3S --keyframe`.
 
 The wrist mass model still uses the stock-width finger masses for the slim hand. The slim parts are a little lighter, so the torque numbers are slightly conservative.
 
@@ -308,6 +321,29 @@ The commands are right-hand (m1, m2) in degrees, for `AH_Right_5F_Slim`. For the
 ```bash
 .venv/bin/python Demo/AHSimulation/five_finger/hand_poses.py --model AH_Right_5F_Slim --render-model AH_Right_5F_Slim_Wrist
 ```
+
+### Styled 3-phalanx fingers (final)
+
+![3-phalanx finger](Demo/AHSimulation/ultimate_finger/renders/finger_closeup.jpg)
+
+[cad/five_finger/ultimate_finger/README.md](cad/five_finger/ultimate_finger/README.md) is the finger to build: three phalanges on the stock two-servo drive, slim, styled after the reference hand.
+
+- **Look:** white TPU sleeves with rounded-rectangle sections and black ribbed TPU pads on the palm face of every phalanx; a nail-like fingertip cap, a little fuller than its neck, that the ribbed pad wraps round the tip. Knuckles stay exposed, with metal-grey links.
+- **Size:** 15.8 / 15.0 / 13.5 mm wide (proximal / middle / fingertip); the pinky's phalanges are 0.88× as long.
+- **Range:** MCP 89° / PIP 78° / DIP 54° at full travel (stock 75° / 69°). Straight at f = −56°.
+- **Strength:** holds 7.5 N at the fingertip straight and 26 N from f = +30°. Set the SCS0009 `max_torque_limit` to 800 and limit the load in software above f = +45°.
+- **Checks:** single finger and the 5-digit hand pass (stable, no self-contact in the working range). Neighbouring fingers touch in about half as many pose pairs as stock fingers on the same layout. No contact with the palm plate or the palm shells (closest: pinky 1.50 mm in a full fist).
+- **On the wrist:** `AH_Right_5F_3S_Wrist` ([report](Demo/AHSimulation/wrist/reports/verify_AH_Right_5F_3S_Wrist.txt)).
+- **Poses:** peace sign, middle finger, OK and pad-to-pad pinch all work without interpenetration. hand_poses.py finds the same gestures from intent:
+
+  | Pose (`AH_Right_5F_3S`) | Index | Middle | Ring | Pinky | Thumb |
+  |---|---|---|---|---|---|
+  | Open | (−56, 56) | (−56, 56) | (−56, 56) | (−56, 56) | (−35, 35) |
+  | PeaceSign | (−26, 86) | (−86, 26) | (90, −90) | (90, −90) | (90, −90) tucked |
+  | MiddleFinger | (90, −90) | (−56, 56) | (90, −90) | (90, −90) | (15, −60), 1.1 mm from the curled fingers |
+
+  ![3-phalanx poses](Demo/AHSimulation/five_finger/renders/poses_AH_Right_5F_3S_Wrist.jpg)
+- **Not done:** printing and fit; the thumb keeps the slim shells (with the new black pads); the left hand.
 
 ### Three phalanges per finger (study)
 
