@@ -1,26 +1,21 @@
 make_ultimate_finger.py report (all mm, finger design frame); phalanx length scale 1.0
-2D layout: 15 parts, motion sampled at 434 Link angles -26.8..81.5 deg [6 s]
-cores and pins: 11 solids [4 s]
-  P1_Shell style: {'corner_radius': [3.4, 3.6]}
-  P2_Shell style: {'corner_radius': [3.0, 3.2]}
-  P3_Shell style: {'neck_y': 78.0, 'nose_y': 85.75, 'apex_z': -3.02, 'core_trim_from_y': 76.0, 'width': 13.4}
-shell sections [10 s]
-  P1_Shell  start plane y = 13.87 -0.25 z  end plane y = 43.40 +0.20 z
-  P2_Shell  start plane y = 54.46 -0.70 z  end plane y = 66.38 -0.60 z
-  P3_Shell  start plane y = 76.58 -0.20 z
-end planes [132 s]
-  P1_Shell: shell + 1 pad(s) (pad top-edge fillet: [False]; end edges rounded: None) [12 s]
-  P2_Shell: shell + 1 pad(s) (pad top-edge fillet: [True]; end edges rounded: 0.4) [23 s]
-  P3_Shell: shell + 1 pad(s) (pad top-edge fillet: [False]; end edges rounded: None) [34 s]
-  thumb Thumb_Proximal: slim shell + land/pocket + pad (pad top-edge fillet False) [10 s]
-  thumb Thumb_Distal: slim shell + land/pocket + pad (pad top-edge fillet True) [25 s]
-exported 21 parts [223 s]
+2D layout: 15 parts, motion sampled at 434 Link angles -26.8..81.5 deg [11 s]
+cores and pins: 11 solids [6 s]
+  P1 cover: back 150000 / glove 120000 faces; skin (inner offset to outer surface) min 1.22, 1st percentile 1.24, median 1.31 mm; thinner than 1.0 mm (opening r 0.5): 14.7 mm3, up to 0.27 mm deep
+  P2 cover: back 109000 / glove 150000 faces; skin (inner offset to outer surface) min 1.23, 1st percentile 1.24, median 1.31 mm; thinner than 1.0 mm (opening r 0.5): 12.2 mm3, up to 0.17 mm deep
+  P3 cover: back 125074 / glove 150000 faces; skin (inner offset to outer surface) min 1.23, 1st percentile 1.26, median 1.32 mm; thinner than 1.0 mm (opening r 0.5): 7.4 mm3, up to 0.27 mm deep
+implicit covers [96 s]
+  P3 core tip trimmed to the cap cavity - 0.30 mm from y = 78.00 (mesh boolean): 2330 -> 1760 mm3, watertight True
+  prox cover: back 150000 / glove 150000 faces; skin (inner offset to outer surface) min 1.22, 1st percentile 1.23, median 1.30 mm; thinner than 1.0 mm (opening r 0.5): 18.8 mm3, up to 0.17 mm deep
+  dist cover: back 150000 / glove 150000 faces; skin (inner offset to outer surface) min 1.22, 1st percentile 1.24, median 1.31 mm; thinner than 1.0 mm (opening r 0.5): 13.0 mm3, up to 0.17 mm deep
+thumb covers [77 s]
+exported 21 parts [202 s]
 
-== parts (B-rep validity of the re-imported STEP; STL watertight; volume from the STL; bbox mm)
+== parts (B-rep validity of the re-imported STEP, 'STL only' for the implicit covers; STL watertight; volume from the STL; bbox mm)
   link                   valid True  solids 1  watertight True  volume   1112.5 mm3  x [ -5.15,   5.15] y [ -3.00,  46.92] z [-14.05,  -2.12]
   P1                     valid True  solids 1  watertight True  volume   4612.9 mm3  x [ -8.70,   7.50] y [ -3.30,  50.00] z [ -8.45,   9.57]
-  P2                     valid True  solids 1  watertight True  volume   1579.4 mm3  x [ -6.00,   6.00] y [ 40.70,  76.00] z [ -4.40,   6.45]
-  P3                     valid True  solids 1  watertight True  volume   1824.9 mm3  x [ -4.75,   4.75] y [ 62.95,  91.41] z [ -5.59,   6.15]
+  P2                     valid True  solids 1  watertight True  volume   1579.5 mm3  x [ -6.00,   6.00] y [ 40.70,  76.00] z [ -4.40,   6.45]
+  P3                     valid True  solids 1  watertight True  volume   1760.1 mm3  x [ -4.75,   4.75] y [ 62.95,  96.27] z [ -5.52,   6.15]
   L2                     valid True  solids 1  watertight True  volume    286.1 mm3  x [ -1.50,   1.50] y [ 43.05,  68.05] z [ -8.45,   6.25]
   pin_PIP                valid True  solids 1  watertight True  volume     37.4 mm3  x [ -6.00,   6.00] y [ 46.00,  48.00] z [ -1.00,   1.00]
   pin_A                  valid True  solids 1  watertight True  volume     37.4 mm3  x [ -6.00,   6.00] y [ 44.65,  46.65] z [ -6.85,  -4.85]
@@ -28,16 +23,16 @@ exported 21 parts [223 s]
   pin_P4                 valid True  solids 1  watertight True  volume     24.9 mm3  x [ -4.00,   4.00] y [ 42.20,  44.20] z [  2.95,   4.95]
   pin_B                  valid True  solids 1  watertight True  volume     24.9 mm3  x [ -4.00,   4.00] y [ 64.45,  66.45] z [  2.65,   4.65]
   pin_MCP                valid True  solids 1  watertight True  volume     50.0 mm3  x [ -8.60,   7.40] y [ -1.00,   1.00] z [ -1.00,   1.00]
-  P1_Shell               valid True  solids 1  watertight True  volume   3177.2 mm3  x [ -7.89,   7.89] y [ 11.03,  45.72] z [ -8.92,  11.58]
-  P2_Shell               valid True  solids 1  watertight True  volume   1045.7 mm3  x [ -7.48,   7.48] y [ 49.73,  70.42] z [ -7.76,   8.56]
-  P3_Shell               valid True  solids 1  watertight True  volume   1027.2 mm3  x [ -6.73,   6.73] y [ 75.22,  93.08] z [ -9.18,   7.13]
-  P1_Pad                 valid True  solids 1  watertight True  volume    190.8 mm3  x [ -6.35,   6.35] y [ 18.12,  39.65] z [ -9.06,  -6.07]
-  P2_Pad                 valid True  solids 1  watertight True  volume     55.4 mm3  x [ -5.95,   5.95] y [ 61.10,  67.84] z [ -8.10,  -6.77]
-  P3_Pad                 valid True  solids 1  watertight True  volume    150.6 mm3  x [ -6.49,   6.49] y [ 80.83,  93.82] z [ -9.89,   0.21]
-  Thumb_Proximal_Shell   valid True  solids 1  watertight True  volume   3262.7 mm3  x [ -9.71,   9.71] y [  9.97,  52.13] z [ -9.32,  13.22]
-  Thumb_Proximal_Pad     valid True  solids 1  watertight True  volume    151.4 mm3  x [ -4.37,   4.37] y [ 17.00,  44.01] z [ -9.67,  -7.74]
-  Thumb_Distal_Shell     valid True  solids 1  watertight True  volume   1927.7 mm3  x [ -7.43,   7.43] y [ 57.48,  93.00] z [ -8.91,   9.02]
-  Thumb_Distal_Pad       valid True  solids 1  watertight True  volume    134.8 mm3  x [ -3.60,   3.60] y [ 64.00,  90.40] z [ -9.67,  -5.96]
+  P1_Shell               valid STL only  solids 1  watertight True  volume    878.6 mm3  x [ -8.44,   8.44] y [  8.43,  43.69] z [  5.97,  11.94]
+  P1_Pad                 valid STL only  solids 1  watertight True  volume   1485.8 mm3  x [ -8.45,   8.45] y [  8.34,  43.71] z [ -7.44,   6.83]
+  P2_Shell               valid STL only  solids 1  watertight True  volume    341.6 mm3  x [ -7.94,   7.94] y [ 49.83,  69.32] z [  2.37,   7.31]
+  P2_Pad                 valid STL only  solids 1  watertight True  volume    609.2 mm3  x [ -7.95,   7.95] y [ 50.88,  70.16] z [ -7.97,   2.61]
+  P3_Shell               valid STL only  solids 1  watertight True  volume    383.2 mm3  x [ -6.67,   6.67] y [ 75.05,  93.47] z [ -1.08,   6.79]
+  P3_Pad                 valid STL only  solids 1  watertight True  volume    592.7 mm3  x [ -6.67,   6.67] y [ 76.25,  97.82] z [ -8.25,   2.87]
+  Thumb_Proximal_Shell   valid STL only  solids 1  watertight True  volume   1265.6 mm3  x [ -9.89,   9.88] y [  7.40,  48.51] z [  7.40,  14.23]
+  Thumb_Proximal_Pad     valid STL only  solids 1  watertight True  volume   2357.1 mm3  x [ -9.90,   9.90] y [  9.46,  50.19] z [-10.32,   7.73]
+  Thumb_Distal_Shell     valid STL only  solids 1  watertight True  volume   1074.9 mm3  x [ -7.60,   7.60] y [ 56.14,  91.06] z [  0.24,   9.25]
+  Thumb_Distal_Pad       valid STL only  solids 1  watertight True  volume   1036.1 mm3  x [ -7.60,   7.60] y [ 55.79,  93.42] z [ -6.47,   6.44]
 
 == pin-hole walls in the rigid parts (in-plane, from the carved profiles; rule >= 1.5 mm)
   P1        PIP  hole d1.95: 4 slab(s), thinnest wall 2.02 mm (|x| band 4.25..6.00)
@@ -53,41 +48,47 @@ exported 21 parts [223 s]
 
 == thin features: slab material narrower than 1.2 mm in-plane (volume, share of the part)
   P1            7.3 of  4591.1 mm3 ( 0.2 %)
-  P2            9.5 of  2086.5 mm3 ( 0.5 %)
-  P3            0.5 of  1922.1 mm3 ( 0.0 %)
+  P2            9.5 of  2086.7 mm3 ( 0.5 %)
+  P3            0.5 of  2373.6 mm3 ( 0.0 %)
   L2            0.0 of   307.8 mm3 ( 0.0 %)
   link_arm      0.5 of   746.6 mm3 ( 0.1 %)
 
-== widths across the finger (x), including shells, pads and pins
-  proximal widest  16.20 mm at y   1.0 (x -8.70..+7.50); shell alone  15.78 mm at y  39.0
-  middle   widest  14.96 mm at y  57.5 (x -7.48..+7.48); shell alone  14.96 mm at y  57.5
-  distal   widest  13.46 mm at y  85.5 (x -6.73..+6.73); shell alone  13.46 mm at y  85.5
+== widths across the finger (x) and depths (z), including covers and pins
+  proximal widest  16.90 mm at y  19.5 (x -8.45..+8.45); cover (shell + glove)  16.90 mm at y  19.5; cover depth 19.37 mm
+  middle   widest  15.90 mm at y  64.0 (x -7.95..+7.95); cover (shell + glove)  15.90 mm at y  64.0; cover depth 15.28 mm
+  distal   widest  13.33 mm at y  78.0 (x -6.67..+6.67); cover (shell + glove)  13.33 mm at y  78.0; cover depth 15.04 mm
   knuckles (cores + pins): MCP end 16.2 (stock Proximal ears around the stock gimbal), PIP 12.0, DIP 12.0
 
-== TPU shells: wall (sections of the 0.01 mm tessellation every 0.5 mm, two-loop sections)
-  P1_Shell  50 sections between the cut ends: min 1.268 mm at y 16.9, median 1.286; 3-D sampled (nearest opposite-facing surface, pad lands / nail / cut faces excluded): 1st percentile 1.29, median 1.52 mm
-  P2_Shell  2 sections between the cut ends: min 1.257 mm at y 60.2, median 1.258; 3-D sampled (nearest opposite-facing surface, pad lands / nail / cut faces excluded): 1st percentile 1.26, median 1.33 mm
-  P3_Shell  24 sections between the cut ends: min 1.224 mm at y 78.7, median 1.295; 3-D sampled (nearest opposite-facing surface, pad lands / nail / cut faces excluded): 1st percentile 1.25, median 1.31 mm
+== cover skin (implicit field): inner offset surface to the outer surface, where the cover exists (rule >= 1.2);
+   cut rims: material thinner than 1.0 mm (what an opening with a 0.5 mm ball removes; < 0.3 mm deep = rounded rim corners, deeper = a feathered wedge)
+  P1         min 1.22, 1st percentile 1.24, median 1.31 mm; thinner than 1.0 mm: 14.7 mm3, at most 0.27 mm deep
+  P2         min 1.23, 1st percentile 1.24, median 1.31 mm; thinner than 1.0 mm: 12.2 mm3, at most 0.17 mm deep
+  P3         min 1.23, 1st percentile 1.26, median 1.32 mm; thinner than 1.0 mm: 7.4 mm3, at most 0.27 mm deep
+  thumb prox min 1.22, 1st percentile 1.23, median 1.30 mm; thinner than 1.0 mm: 18.8 mm3, at most 0.17 mm deep
+  thumb dist min 1.22, 1st percentile 1.24, median 1.31 mm; thinner than 1.0 mm: 13.0 mm3, at most 0.17 mm deep
 
-== shells on their own core (straight finger): min gap core surface -> shell surface
-  P1_Shell  overlap with its core 0.000 mm3; min gap 0.168 mm
-  P2_Shell  overlap with its core 0.000 mm3; min gap 0.193 mm
-  P3_Shell  overlap with its core 0.000 mm3; min gap 0.171 mm
+== covers on their own core (straight finger): overlap and min gap core surface -> cover surfaces
+  P1_Shell  overlap with its core 0.000 mm3; min gap 0.255 mm
+  P1_Pad    overlap with its core 0.000 mm3; min gap 0.233 mm
+  P2_Shell  overlap with its core 0.000 mm3; min gap 0.252 mm
+  P2_Pad    overlap with its core 0.000 mm3; min gap 0.241 mm
+  P3_Shell  overlap with its core 0.000 mm3; min gap 0.184 mm
+  P3_Pad    overlap with its core 0.000 mm3; min gap 0.226 mm
+  Thumb_Proximal_Shell   overlap with its slim core 0.000 mm3; min gap 0.239 mm
+  Thumb_Proximal_Pad     overlap with its slim core 0.000 mm3; min gap 0.204 mm
+  Thumb_Distal_Shell     overlap with its slim core 0.000 mm3; min gap 0.329 mm
+  Thumb_Distal_Pad       overlap with its slim core 0.000 mm3; min gap 0.276 mm
 
-== pads do not widen the finger: pad |x| vs shell half width at the pad's y range
-  UF_P1_Pad            |x| <= 6.35 vs shell |x| <= 7.89 over y 18.1..39.6; thickness 0.80 mm (0.45 in the land pocket + 0.35 proud), 0.50 under a 0.30 groove; ribs 0.55 / grooves 0.45 mm, 1.0 mm pitch
-  UF_P2_Pad            |x| <= 5.95 vs shell |x| <= 7.48 over y 61.1..67.8; thickness 0.80 mm (0.45 in the land pocket + 0.35 proud), 0.50 under a 0.30 groove; ribs 0.55 / grooves 0.45 mm, 1.0 mm pitch
-  UF_P3_Pad            |x| <= 6.49 vs shell |x| <= 6.73 over y 80.8..93.8; thickness 0.80 mm (0.45 in the land pocket + 0.35 proud), 0.50 under a 0.30 groove; ribs 0.55 / grooves 0.45 mm, 1.0 mm pitch
-  Thumb_Proximal_Pad   |x| <= 4.37 vs shell |x| <= 9.71 over y 17.0..44.0; thickness 0.80 mm (0.45 in the land pocket + 0.35 proud), 0.50 under a 0.30 groove; ribs 0.55 / grooves 0.45 mm, 1.0 mm pitch
-  Thumb_Distal_Pad     |x| <= 3.61 vs shell |x| <= 7.43 over y 64.0..90.4; thickness 0.80 mm (0.45 in the land pocket + 0.35 proud), 0.50 under a 0.30 groove; ribs 0.55 / grooves 0.45 mm, 1.0 mm pitch
-
-== joint sweeps (3-D, whole servo travel, 0.5 deg Link steps): shells vs everything moving past them
-  P1_Shell  (+ its pad) min clearance to swept: gimbal 2.15, link 0.51, P2 1.65, P3 >3, L2 1.22
-  P2_Shell  (+ its pad) min clearance to swept: gimbal >3, link >3, P1 0.54, P3 0.56, L2 1.46
-  P3_Shell  (+ its pad) min clearance to swept: gimbal >3, link >3, P1 >3, P2 0.51, L2 >3
+== joint sweeps (3-D, whole servo travel, 0.5 deg Link steps): covers vs everything moving past them
+  P1 cover (shell + glove) min clearance to swept: gimbal 0.83, link 0.61 (glove), P2 0.79 (glove), P3 >3, L2 0.81 (glove)
+  P2 cover (shell + glove) min clearance to swept: gimbal >3, link >3, P1 0.79 (glove), P3 0.77 (glove), L2 0.72 (glove)
+  P3 cover (shell + glove) min clearance to swept: gimbal >3, link >3, P1 >3, P2 0.77 (glove), L2 >3
+  thumb (stock four-bar, MCP range of the slim finger, 0.5 deg steps):
+    thumb prox cover min clearance to swept: dist 0.81, link 0.72, gimbal 0.87
+    thumb dist cover min clearance to swept: prox 0.71, link >3, gimbal >3
 figures: layers.png
 figures: sections.png, width_profile.png
 figures: assembly.png, exploded.png
 figures: side_poses.png
 
-done [472 s]
+done [819 s]

@@ -200,13 +200,13 @@ def sections(W, log):
                              (8, 51.5, 19.41, "slim proximal 19.4"), (58.8, 93, 14.86, "slim distal 14.9")):
         ax.plot([y0, y1], [w, w], lw=1, ls=(0, (4, 2)), color="#888" if "stock" in lab else "#bbb")
         ax.text(y0, w + 0.2, lab, fontsize=7.5, color="#666")
-    for (y0, y1, w, lab) in ((10, yp, 17.0, "target <= 17"), (yp, yd, 15.0, "target <= 15"), (yd, U.TIP_END + 2, 13.5, "target <= 13.5")):
+    for (y0, y1, w, lab) in ((10, yp, 17.0, "limit <= 17"), (yp, yd, 16.0, "limit <= 16"), (yd, U.TIP_END + 2, 15.0, "limit <= 15")):
         ax.plot([y0, y1], [w, w], lw=1.2, color="#e05050")
         ax.text(y1, w, lab, fontsize=7.5, color="#e05050", ha="right", va="bottom")
     ax.set_xlabel("y (mm from the MCP, straight finger)")
     ax.set_ylabel("width across the pins (mm)")
     ax.set_title("Finger width along its length (cores + shells + pads + pins)")
-    ax.set_ylim(8, 25)
+    ax.set_ylim(4, 25)
     ax.legend(loc="lower left", fontsize=8)
     ax.grid(True, lw=0.3)
     fig.tight_layout()

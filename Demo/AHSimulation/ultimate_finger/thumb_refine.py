@@ -20,6 +20,9 @@ with exact mesh booleans for every digit pair.
 
 Writes reports/thumb_poses.txt and updates data/hand_poses.json (thumb and index commands of these poses).
 Usage: python thumb_refine.py [--poses CloseHand,Perfect,Pinched]
+In parallel shards (one process per pose / index flexion, then a merge):
+  python thumb_refine.py --poses Pinched --index-f 0 --part DIR    (... one per shard)
+  python thumb_refine.py --merge DIR
 """
 
 import argparse
@@ -113,64 +116,111 @@ def first_clean(h, exact, base, ordered, n_max=25, min_dt=0.1e-3):
     return None, tried
 
 
+def refine(h, exact, name, pose, index_f=None):
+    """Search the thumb command of one pose (optionally only the index flexions in index_f). Returns
+    (key, new pose, result) of the best overlap-free fine candidate, or None."""
+    tip = (["thumb_distal_pad", "thumb_distal_shell"], ("index", ["uf_p3_pad", "uf_p3_shell"]))
+    pads = (["thumb_distal_pad"], ["uf_p3_pad"])
+    candidates, pd = [], None
+    if name == "CloseHand":
+        candidates.append((pose, (["thumb_distal_pad", "thumb_distal_shell"], ("index", ["uf_p2_shell", "uf_p2_pad"]))))
+    elif name in ("Perfect", "Pinched"):
+        pd = pads
+        for fi in ((30.0, 45.0) if name == "Perfect" else (0.0, 10.0, 20.0)):
+            if index_f is not None and fi not in index_f:
+                continue
+            for ai in (-10.0, 0.0, 10.0):
+                candidates.append((dict(pose, index=VH.cmd(fi, ai)), tip))
+    coarse = []
+    for cand, (ta, tb) in candidates:
+        base = {k: v for k, v in cand.items() if k != "thumb"}
+        found = search(h, base, ta, tb, pd)
+        if not found:
+            V.log(f"  {name:<10} index {cand['index']}: no coarse thumb command clear of the other digits")
+            continue
+        c0 = min(found, key=coarse_score)
+        coarse.append((c0, cand, ta, tb))
+        V.log(f"  {name:<10} index {cand['index']}: coarse thumb {c0[2]} {'/'.join(ta)} to {tb[0]} "
+              f"{'/'.join(tb[1])} {c0[0] * 1e3:.2f} mm" + (f", pad to pad {c0[3] * 1e3:.2f} mm" if pd else ""))
+    best = None
+    for c0, cand, ta, tb in sorted(coarse, key=lambda c: coarse_score(c[0]))[:2]:
+        base = {k: v for k, v in cand.items() if k != "thumb"}
+        found = search(h, base, ta, tb, pd, centre=c0[2], span=9.0, step=1.5) or [c0]
+        res, tried = first_clean(h, exact, base, preference(found, pd))
+        if res is None:
+            V.log(f"  {name:<10} index {cand['index']}: no overlap-free fine candidate in {tried} tried")
+            continue
+        V.log(f"  {name:<10} index {cand['index']}: fine thumb {res[2]} ({tried} exact-checked): {'/'.join(ta)} "
+              f"to {tb[0]} {'/'.join(tb[1])} {res[0] * 1e3:.2f} mm (sampled)"
+              + (f", pad to pad {res[3] * 1e3:.2f} mm" if pd else "")
+              + f", every other thumb part >= {min(res[1], 1e-3) * 1e3:.2f} mm, no exact overlap")
+        key = (res[0] > TOUCH, res[3]) if pd else (res[0],)
+        if best is None or key < best[0]:
+            best = (key, dict(cand, thumb=res[2]), res)
+    return best
+
+
+def finish(h, exact, poses, name, new):
+    """Report every digit pair of the chosen pose (exact booleans) and store it in data/hand_poses.json."""
+    VH.settle(h, new)
+    groups = {d: V.Group(h, h.geoms[d][0] + h.geoms[d][1], 0.3e-3) for d in h.digits}
+    VH.all_pair_report(h, f"{name} {new} - every digit pair:", groups, exact)
+    poses[name] = {k: list(v) for k, v in new.items()}
+    (HERE / "data" / "hand_poses.json").write_text(json.dumps(poses, indent=1) + "\n")
+    V.log(f"  updated data/hand_poses.json ({name})")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--poses", default="CloseHand,Perfect,Pinched")
+    ap.add_argument("--index-f", default=None, help="shard: only these index flexions (Perfect / Pinched), e.g. 0,10")
+    ap.add_argument("--part", default=None, help="shard mode: write the best candidate and the log to this directory "
+                    "instead of updating data/hand_poses.json (combine the shards with --merge)")
+    ap.add_argument("--merge", default=None, help="merge the shards in this directory: best candidate per pose, every "
+                    "digit pair, data/hand_poses.json and reports/thumb_poses.txt")
     args = ap.parse_args()
     poses = json.loads((HERE / "data" / "hand_poses.json").read_text())
+    if args.part:
+        part = Path(args.part)
+        part.mkdir(parents=True, exist_ok=True)
+        tag = args.poses.replace(",", "+") + ("_f" + args.index_f.replace(",", "+") if args.index_f else "")
+        with open(part / f"{tag}.log", "w") as fh, contextlib.redirect_stdout(VH.Tee(sys.stdout, fh)):
+            h = V.Hand(VH.HAND)
+            exact = VH.Exact(h)
+            out = {}
+            for name in args.poses.split(","):
+                best = refine(h, exact, name, {k: tuple(v) for k, v in poses[name].items()},
+                              [float(f) for f in args.index_f.split(",")] if args.index_f else None)
+                out[name] = None if best is None else dict(key=[float(k) for k in best[0]],
+                                                          new={k: list(v) for k, v in best[1].items()})
+        (part / f"{tag}.json").write_text(json.dumps(out, indent=1) + "\n")
+        return
     with open(HERE / "reports" / "thumb_poses.txt", "w") as fh, contextlib.redirect_stdout(VH.Tee(sys.stdout, fh)):
         h = V.Hand(VH.HAND)
         exact = VH.Exact(h)
-        tip = (["thumb_distal_pad", "thumb_distal_shell"], ("index", ["uf_p3_pad", "uf_p3_shell"]))
-        pads = (["thumb_distal_pad"], ["uf_p3_pad"])
         V.log("== thumb commands where the thumb meets the ultimate index (coarse 7.5 deg grid, then 1.5 deg)")
+        if args.merge:   # shards: their logs, then the best candidate of each pose over all shards
+            part = Path(args.merge)
+            bests = {}
+            for js in sorted(part.glob("*.json")):
+                V.log((part / (js.stem + ".log")).read_text().rstrip("\n"))
+                for name, b in json.loads(js.read_text()).items():
+                    if b is not None and (name not in bests or b["key"] < bests[name]["key"]):
+                        bests[name] = b
+            V.log(f"  merged {len(list(part.glob('*.json')))} shards (each searched its own index candidates and refined its "
+                  "best two; the pose keeps the best of all)")
+            for name in args.poses.split(","):
+                if name not in bests:
+                    V.log(f"  {name}: kept the previous commands")
+                    continue
+                finish(h, exact, poses, name, {k: tuple(v) for k, v in bests[name]["new"].items()})
+            return
         for name in args.poses.split(","):
-            pose = {k: tuple(v) for k, v in poses[name].items()}
-            candidates, pd = [], None
-            if name == "CloseHand":
-                candidates.append((pose, (["thumb_distal_pad", "thumb_distal_shell"], ("index", ["uf_p2_shell", "uf_p2_pad"]))))
-            elif name in ("Perfect", "Pinched"):
-                pd = pads
-                for fi in ((30.0, 45.0) if name == "Perfect" else (0.0, 10.0, 20.0)):
-                    for ai in (-10.0, 0.0, 10.0):
-                        candidates.append((dict(pose, index=VH.cmd(fi, ai)), tip))
-            coarse = []
-            for cand, (ta, tb) in candidates:
-                base = {k: v for k, v in cand.items() if k != "thumb"}
-                found = search(h, base, ta, tb, pd)
-                if not found:
-                    V.log(f"  {name:<10} index {cand['index']}: no coarse thumb command clear of the other digits")
-                    continue
-                c0 = min(found, key=coarse_score)
-                coarse.append((c0, cand, ta, tb))
-                V.log(f"  {name:<10} index {cand['index']}: coarse thumb {c0[2]} {'/'.join(ta)} to {tb[0]} "
-                      f"{'/'.join(tb[1])} {c0[0] * 1e3:.2f} mm" + (f", pad to pad {c0[3] * 1e3:.2f} mm" if pd else ""))
-            best = None
-            for c0, cand, ta, tb in sorted(coarse, key=lambda c: coarse_score(c[0]))[:2]:
-                base = {k: v for k, v in cand.items() if k != "thumb"}
-                found = search(h, base, ta, tb, pd, centre=c0[2], span=9.0, step=1.5) or [c0]
-                res, tried = first_clean(h, exact, base, preference(found, pd))
-                if res is None:
-                    V.log(f"  {name:<10} index {cand['index']}: no overlap-free fine candidate in {tried} tried")
-                    continue
-                V.log(f"  {name:<10} index {cand['index']}: fine thumb {res[2]} ({tried} exact-checked): {'/'.join(ta)} "
-                      f"to {tb[0]} {'/'.join(tb[1])} {res[0] * 1e3:.2f} mm (sampled)"
-                      + (f", pad to pad {res[3] * 1e3:.2f} mm" if pd else "")
-                      + f", every other thumb part >= {min(res[1], 1e-3) * 1e3:.2f} mm, no exact overlap")
-                key = (res[0] > TOUCH, res[3]) if pd else (res[0],)
-                if best is None or key < best[2]:
-                    best = (res, cand, key)
+            best = refine(h, exact, name, {k: tuple(v) for k, v in poses[name].items()})
             if best is None:
                 V.log(f"  {name}: kept the previous commands")
                 continue
-            res, cand, _ = best
-            new = dict(cand, thumb=res[2])
-            VH.settle(h, new)
-            groups = {d: V.Group(h, h.geoms[d][0] + h.geoms[d][1], 0.3e-3) for d in h.digits}
-            VH.all_pair_report(h, f"{name} {new} - every digit pair:", groups, exact)
-            poses[name] = {k: list(v) for k, v in new.items()}
-            (HERE / "data" / "hand_poses.json").write_text(json.dumps(poses, indent=1) + "\n")
-            V.log(f"  updated data/hand_poses.json ({name})")
+            finish(h, exact, poses, name, best[1])
 
 
 if __name__ == "__main__":

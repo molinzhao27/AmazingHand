@@ -4,11 +4,11 @@
   nbody 12, njnt 10, nq 19, nv 16, nu 2, neq 6, ngeom 47 (stock finger: nbody 10, nq 17, neq 5)
   names unique; actuators: finger1_motor1 ctrlrange [-90.  90.], finger1_motor2 ctrlrange [-90.  90.]
   loop closures: closing_1 (1)_1 <-> closing_1 (1)_2; closing_1 (1)_1_z <-> closing_1 (1)_2_z; closing_3 (1)_1 <-> closing_3 (1)_2; closing_3 (1)_1_z <-> closing_3 (1)_2_z; closing_ball1_1 <-> closing_ball1_2; closing_dip (1)_1 <-> closing_dip (1)_2
-  moving finger mass beyond the gimbal (Link + phalanges + coupler + shells + pads + pins): 21.0 g (stock 18.4 g; 3-phalanx concept 23.5 g)
-  keyframe (settled at ctrl = 0): max loop error 0.0001 mm
+  moving finger mass beyond the gimbal (Link + phalanges + coupler + shells + pads + pins): 19.3 g (stock 18.4 g; 3-phalanx concept 23.5 g)
+  keyframe (settled at ctrl = 0): max loop error 0.0000 mm
 
 -- 2. kinematics along the flexion line (m1 = f, m2 = -f), settled, up and down
-  sim vs planar design: max |dMCP| 0.023, |dPIP| 0.200, |dDIP| 0.374 deg; up/down hysteresis 1.871 deg; loop error max 0.0125 mm
+  sim vs planar design: max |dMCP| 0.023, |dPIP| 0.200, |dDIP| 0.374 deg; up/down hysteresis 1.874 deg; loop error max 0.0126 mm
   drive unchanged: Link angle psi(f) vs stock max 0.219 deg; abduction 0.014 deg
   straight finger (MCP = 0) at f = -55.9 deg; there PIP -0.02, DIP -0.03 deg
       f     psi     MCP     PIP     DIP  total | stock MCP  PIP
@@ -28,7 +28,7 @@
 -- 3. stability
   each actuator alone 0 -> max -> min -> 0    9.0 s  max|qvel|    3.3 rad/s  loop err max  0.012 mm (settled 0.0009)  |q_motor - ctrl| settled  0.10 deg  warnings none
   range corners                              12.0 s  max|qvel|    2.2 rad/s  loop err max  0.031 mm (settled 0.0038)  |q_motor - ctrl| settled  0.09 deg  warnings none
-  60 abrupt random full-range steps          36.0 s  max|qvel|   87.0 rad/s  loop err max  0.520 mm (settled 0.0058)  |q_motor - ctrl| settled  0.20 deg  warnings none
+  60 abrupt random full-range steps          36.0 s  max|qvel|   87.0 rad/s  loop err max  0.521 mm (settled 0.0059)  |q_motor - ctrl| settled  0.20 deg  warnings none
   branch check, 60 abrupt random steps (DIP sampled every 10 ms): DIP -33.0..56.1 deg (kinematic range -16.8..54.4, soft stops at -22 / +62; the other branch of loop 2 lies below -47 for any PIP >= -25): stays on its branch; settled DIP after the last step 15.5
    baseline, stock finger:
   each actuator alone 0 -> max -> min -> 0    9.0 s  max|qvel|    3.3 rad/s  loop err max  0.007 mm (settled 0.0004)  |q_motor - ctrl| settled  0.05 deg  warnings none
@@ -36,11 +36,11 @@
   60 abrupt random full-range steps          36.0 s  max|qvel|   86.6 rad/s  loop err max  0.561 mm (settled 0.0015)  |q_motor - ctrl| settled  0.14 deg  warnings none
 
 -- 4. grid over (m1, m2) and fingertip workspace
-  ultimate  25x25: abduction -38.5..38.4, MCP -14.6..88.8, PIP -20.5..78.1, DIP -16.8..54.4 deg; loop err settled max 0.0106 mm; motor tracking max 0.242 deg; tip hull 119.0 cm3
+  ultimate  25x25: abduction -38.5..38.4, MCP -14.6..88.8, PIP -20.5..78.1, DIP -16.8..54.4 deg; loop err settled max 0.0106 mm; motor tracking max 0.242 deg; tip hull 148.0 cm3
   stock     25x25: abduction -38.5..38.4, MCP -30.3..75.4, PIP -32.3..68.8 deg; loop err settled max 0.0039 mm; motor tracking max 0.188 deg; tip hull 222.1 cm3
 
 -- 5. self-collision (exact mesh booleans, manifold3d), 13x13 grid + flexion line
-  stock baseline: Link/Proximal/Distal (+shells) vs every other part: 242 poses, 165 part pairs checked [35 s]
+  stock baseline: Link/Proximal/Distal (+shells) vs every other part: 242 poses, 165 part pairs checked [40 s]
     pairs with overlap > 0.05 mm^3 in some pose: 18
       finger_frame_1@r_wrist_interface       x proximal@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b max  185.38 mm^3 in  43/242 poses
       distal@parallel_pin_2_x_10__fee063fca0c8b40e46bbc4ffff61d999 x proximal@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b max   71.91 mm^3 in 242/242 poses
@@ -71,7 +71,7 @@
       rotule_ball@rotule_ball                x proximal@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b min gap  1.213 mm (at (m1 +90, m2 -90))
       rotule_ball@rotule_ball                x proximal_shell@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b min gap  1.629 mm (at (m1 +90, m2 -90))
       rotule_ball@rotule_ball                x proximal_shell@parallel_pin_2_x_16__da4b7ddbe9d803fe3fbc70f2e822b99b min gap  1.629 mm (at (m1 +90, m2 -90))
-  ultimate: new parts (cores, shells, pads, pins) vs every other part: 242 poses, 579 part pairs checked [134 s]
+  ultimate: new parts (cores, shells, pads, pins) vs every other part: 242 poses, 579 part pairs checked [586 s]
     pairs with overlap > 0.05 mm^3 in some pose: 5
       finger_frame_1@r_wrist_interface       x uf_p1@p1                               max   67.39 mm^3 in  20/242 poses  -> only in hyperextension (MCP < -3 deg): the stop against the palm-fixed parts, as stock
       uf_link@rotule_ball                    x rotule_lever@m2_rod_l18                max    9.23 mm^3 in 242/242 poses  -> same as stock (overlaps in every pose: mesh artefact of the stock ball joints)
@@ -83,128 +83,128 @@
       gimbal@std00333_plast_tcb_torx_2_5x8__configuration_copy_of_default x uf_p1@p1                               min gap  0.001 mm (at f +77.5)
       uf_link@rotule_ball                    x uf_p2@p2                               min gap  0.250 mm (at f -90.0)
       uf_link@rotule_ball                    x uf_p1@p1                               min gap  0.250 mm (at f -67.5)
-      uf_p2@p2                               x uf_p1@p1                               min gap  0.250 mm (at (m1 +75, m2 -75))
-      uf_p2@p2                               x uf_p3@p3                               min gap  0.250 mm (at (m1 +60, m2 +60))
+      uf_p2@p2                               x uf_p1@p1                               min gap  0.250 mm (at f +75.0)
+      uf_p2@p2                               x uf_p3@p3                               min gap  0.250 mm (at (m1 -90, m2 +15))
       uf_pin_p4@p2                           x uf_p1@p1                               min gap  0.250 mm (at f -62.5)
-      uf_l2@l2                               x uf_p3@p3                               min gap  0.250 mm (at f -80.0)
-      uf_p2@p2                               x uf_l2@l2                               min gap  0.250 mm (at (m1 -90, m2 +15))
-      uf_p2@p2                               x uf_pin_b@p3                            min gap  0.250 mm (at f -75.0)
-      uf_p2@p2                               x uf_p3_shell@p3                         min gap  0.511 mm (at f -60.0)
-      uf_p2_shell@p2                         x uf_p1@p1                               min gap  0.536 mm (at f +90.0)
-      uf_p2_shell@p2                         x uf_p3@p3                               min gap  0.565 mm (at f -45.0)
+      uf_l2@l2                               x uf_p3@p3                               min gap  0.250 mm (at (m1 -90, m2 +90))
+      uf_p2@p2                               x uf_l2@l2                               min gap  0.250 mm (at (m1 -60, m2 -60))
+      uf_p2@p2                               x uf_pin_b@p3                            min gap  0.250 mm (at (m1 -90, m2 +75))
       uf_p2@p2                               x uf_pin_a@p1                            min gap  0.571 mm (at f +90.0)
-      uf_p2_shell@p2                         x uf_p3_shell@p3                         min gap  0.674 mm (at f +90.0)
-      uf_link@rotule_ball                    x uf_p1_shell@p1                         min gap  0.892 mm (at f -90.0)
+      uf_link@rotule_ball                    x uf_p1_pad@p1                           min gap  0.607 mm (at f -90.0)
+      uf_p2_shell@p2                         x uf_l2@l2                               min gap  0.715 mm (at f -10.0)
+      uf_p2_pad@p2                           x uf_l2@l2                               min gap  0.715 mm (at f +17.5)
+      bushing_0608_04@r_wrist_interface      x uf_p1_shell@p1                         min gap  0.762 mm (at f -90.0)
+      uf_p2_pad@p2                           x uf_p3_pad@p3                           min gap  0.764 mm (at f +90.0)
+      uf_p2@p2                               x uf_p3_pad@p3                           min gap  0.782 mm (at f +67.5)
+      uf_p2_pad@p2                           x uf_p3@p3                               min gap  0.783 mm (at f +90.0)
+      uf_p2_pad@p2                           x uf_p1_pad@p1                           min gap  0.789 mm (at f +90.0)
+      finger_frame_1@r_wrist_interface       x uf_p1_shell@p1                         min gap  0.802 mm (at f -90.0)
+      uf_p2_shell@p2                         x uf_p3@p3                               min gap  0.805 mm (at (m1 -75, m2 +30))
+      uf_p2_pad@p2                           x uf_p1@p1                               min gap  0.806 mm (at f +42.5)
+      uf_p1_pad@p1                           x uf_l2@l2                               min gap  0.810 mm (at (m1 +90, m2 +75))
+      uf_p2@p2                               x uf_p3_shell@p3                         min gap  0.833 mm (at (m1 +90, m2 +45))
       uf_link@rotule_ball                    x uf_pin_pip@p1                          min gap  0.933 mm (at f +90.0)
       uf_pin_pip@p1                          x uf_l2@l2                               min gap  1.065 mm (at f -90.0)
       rotule_lever@ball_link                 x uf_p1@p1                               min gap  1.077 mm (at f +90.0)
-      uf_p1_shell@p1                         x uf_l2@l2                               min gap  1.222 mm (at (m1 -15, m2 -90))
-      uf_p1_shell@p1                         x rotule_lever@m2_rod_l18                min gap  1.370 mm (at f +90.0)
-      uf_p1@p1                               x uf_l2@l2                               min gap  1.429 mm (at (m1 -60, m2 -30))
-      uf_p2_shell@p2                         x uf_l2@l2                               min gap  1.458 mm (at f -10.0)
-      uf_p1@p1                               x rotule_lever@m2_rod_l18                min gap  1.461 mm (at (m1 +90, m2 -90))
-      uf_p2@p2                               x uf_p1_shell@p1                         min gap  1.656 mm (at f -20.0)
-      r_hand_plate@r_wrist_interface         x uf_p1@p1                               min gap  1.689 mm (at f -90.0)
-      bushing_0608_04@r_wrist_interface      x uf_p1_shell@p1                         min gap  1.726 mm (at f -90.0)
-      rotule_lever@ball_link                 x uf_p1_shell@p1                         min gap  1.734 mm (at (m1 +75, m2 -15))
-      uf_link@rotule_ball                    x uf_pin_mcp@p1                          min gap  1.750 mm (at f -47.5)
-      uf_p2_pad@p2                           x uf_p3_shell@p3                         min gap  1.879 mm (at f +90.0)
+      uf_p2_shell@p2                         x uf_p1@p1                               min gap  1.134 mm (at f +90.0)
+      rotule_lever@ball_link                 x uf_p1_pad@p1                           min gap  1.193 mm (at (m1 +90, m2 -90))
+      uf_p1_pad@p1                           x rotule_lever@m2_rod_l18                min gap  1.193 mm (at (m1 +90, m2 -90))
     overlapping pairs in total: 5; in the working range (MCP >= -3 deg): 0
 
 -- 6. statics and strength (thin parts)
   loads for a 5 N push on the fingertip pad, frictionless pins (MuJoCo constraint forces), straight .. f = +75:
      f   motor torque  |  pin forces (N): MCP    P4   PIP     A   DIP     B   | Link-arm moment at s=8 / 20 / 35 (N mm) | L2 axial (N) | P1 / P2 / P3 bending moment (N mm)
-    -56   0.309 N m     |   33.7  67.7  77.4  10.7  13.6  10.7  |    689 /   461 /   177           |  10.7        |    27 /  125 /   50
-    -30   0.272 N m     |   25.2  47.3  59.0   8.5  12.7   8.5  |    508 /   340 /   130           |   8.5        |    25 /  120 /   50
-     +0   0.156 N m     |   22.9  41.0  53.9   8.3  13.0   8.3  |    302 /   203 /    78           |   8.3        |    25 /  112 /   49
-    +30   0.065 N m     |   23.1  41.8  53.4   8.5  13.5   8.5  |    145 /    97 /    37           |   8.5        |    24 /  102 /   49
-    +45   0.035 N m     |   23.5  43.0  53.6   8.7  13.6   8.7  |     90 /    60 /    23           |   8.7        |    23 /   98 /   49
-    +60   0.015 N m     |   23.8  43.9  53.9   8.7  13.7   8.7  |     48 /    32 /    12           |   8.7        |    22 /   96 /   49
-    +75   0.004 N m     |   24.0  44.4  54.1   8.8  13.8   8.8  |     21 /    14 /     5           |   8.8        |    22 /   94 /   49
+    -56   0.342 N m     |   39.1  78.4  91.7  14.5  17.4  14.5  |    762 /   510 /   196           |  14.5        |    36 /  146 /   75
+    -30   0.303 N m     |   29.3  55.4  70.2  11.6  15.8  11.6  |    566 /   379 /   145           |  11.6        |    35 /  141 /   75
+     +0   0.181 N m     |   26.9  48.9  64.7  11.2  16.0  11.2  |    352 /   236 /    90           |  11.2        |    35 /  133 /   74
+    +30   0.082 N m     |   27.4  50.3  64.5  11.6  16.5  11.6  |    185 /   124 /    48           |  11.6        |    33 /  123 /   74
+    +45   0.048 N m     |   27.9  51.7  64.8  11.8  16.8  11.8  |    124 /    83 /    32           |  11.8        |    32 /  119 /   74
+    +60   0.024 N m     |   28.3  52.8  65.2  11.9  16.9  11.9  |     78 /    52 /    20           |  11.9        |    31 /  116 /   74
+    +75   0.009 N m     |   28.5  53.5  65.4  11.9  16.9  11.9  |     47 /    31 /    12           |  11.9        |    30 /  114 /   74
   (stock finger for comparison: f -38: P4 36 N; f +0: P4 29 N; f +30: P4 30 N)
 
   section properties used: Link arm 3.0 mm thick, in-plane height h(s) from the CAD: s 8: 7.73, s 12: 7.26, s 16: 6.78, s 20: 6.31, s 25: 5.72, s 30: 5.14, s 35: 4.55, s 38: 4.50, s 41: 4.50
-  P1 at y 25: A 116.1 mm2, I 1536 mm4, c 6.60; P2 mid-shaft: A 78.4, I 537, c 4.68; P3 at y 77.0: A 90.2, I 677, c 4.75
+  P1 at y 25: A 116.1 mm2, I 1536 mm4, c 6.60; P2 mid-shaft: A 78.4, I 537, c 4.68; P3 at y 77.0: A 89.5, I 663, c 4.72
 
   stresses (MPa) for a 5 N fingertip force, by pose (bearing = F / (d t n); pins: hardened dowels):
                               f  -56  f  -30  f   +0  f  +30  f  +45  f  +60  f  +75  
-  PIP: P1 fork                   11.1     8.4     7.7     7.6     7.7     7.7     7.7 
-  PIP: P2                         8.6     6.6     6.0     5.9     6.0     6.0     6.0 
-  PIP: pin bending              110.9    84.6    77.2    76.5    76.8    77.2    77.5 
-  PIP: pin shear                 12.3     9.4     8.6     8.5     8.5     8.6     8.6 
-  A: P1 fork                      1.5     1.2     1.2     1.2     1.2     1.2     1.3 
-  A: L2 eye                       1.8     1.4     1.4     1.4     1.4     1.5     1.5 
-  A: pin bending                 29.7    23.8    23.0    23.8    24.1    24.3    24.4 
-  A: pin shear                    1.7     1.4     1.3     1.4     1.4     1.4     1.4 
-  P4: P2                          7.5     5.3     4.6     4.6     4.8     4.9     4.9 
-  P4: Link eye                   11.3     7.9     6.8     7.0     7.2     7.3     7.4 
-  P4: pin bending                91.6    64.0    55.5    56.6    58.1    59.4    60.1 
-  P4: pin shear                  10.8     7.5     6.5     6.7     6.8     7.0     7.1 
-  DIP: P2 fork                    2.1     2.0     2.0     2.1     2.1     2.1     2.2 
-  DIP: P3                         1.5     1.4     1.4     1.5     1.5     1.5     1.5 
-  DIP: pin bending               18.9    17.6    18.0    18.7    18.9    19.0    19.1 
-  DIP: pin shear                  2.2     2.0     2.1     2.1     2.2     2.2     2.2 
-  B: P3                           1.2     0.9     0.9     0.9     1.0     1.0     1.0 
-  B: L2 eye                       1.8     1.4     1.4     1.4     1.4     1.5     1.5 
-  B: pin bending                 14.4    11.5    11.2    11.5    11.7    11.8    11.9 
-  B: pin shear                    1.7     1.4     1.3     1.4     1.4     1.4     1.4 
-  Link arm s=8                   25.9    19.0    11.9     6.7     4.9     3.5     2.6 
-  Link arm s=12                  26.3    19.3    12.1     6.8     5.0     3.6     2.8 
-  Link arm s=16                  26.5    19.4    12.2     7.0     5.1     3.8     2.9 
-  Link arm s=20                  26.6    19.5    12.3     7.1     5.3     3.9     3.1 
-  Link arm s=25                  26.2    19.1    12.2     7.1     5.4     4.1     3.3 
-  Link arm s=30                  24.8    18.1    11.7     7.1     5.5     4.3     3.5 
-  Link arm s=35                  21.9    15.9    10.5     6.7     5.4     4.4     3.8 
-  Link arm s=38                  16.7    12.1     8.2     5.6     4.7     4.1     3.7 
-  Link arm s=41                  11.1     7.9     5.7     4.4     4.0     3.7     3.5 
-  L2 axial                        1.0     0.8     0.8     0.8     0.8     0.8     0.8 
-  P1 bending y25                  0.1     0.1     0.1     0.1     0.1     0.1     0.1 
-  P2 bending mid                  1.1     1.0     1.0     0.9     0.9     0.8     0.8 
-  P3 bending                      0.4     0.3     0.3     0.3     0.3     0.3     0.3 
+  PIP: P1 fork                   13.1    10.0     9.2     9.2     9.3     9.3     9.3 
+  PIP: P2                        10.2     7.8     7.2     7.2     7.2     7.2     7.3 
+  PIP: pin bending              131.4   100.6    92.6    92.4    92.9    93.4    93.7 
+  PIP: pin shear                 14.6    11.2    10.3    10.3    10.3    10.4    10.4 
+  A: P1 fork                      2.1     1.7     1.6     1.7     1.7     1.7     1.7 
+  A: L2 eye                       2.4     1.9     1.9     1.9     2.0     2.0     2.0 
+  A: pin bending                 40.5    32.4    31.3    32.3    32.8    33.1    33.2 
+  A: pin shear                    2.3     1.9     1.8     1.8     1.9     1.9     1.9 
+  P4: P2                          8.7     6.2     5.4     5.6     5.7     5.9     5.9 
+  P4: Link eye                   13.1     9.2     8.2     8.4     8.6     8.8     8.9 
+  P4: pin bending               106.1    74.9    66.2    68.1    70.0    71.5    72.3 
+  P4: pin shear                  12.5     8.8     7.8     8.0     8.2     8.4     8.5 
+  DIP: P2 fork                    2.7     2.5     2.5     2.6     2.6     2.6     2.6 
+  DIP: P3                         1.9     1.8     1.8     1.8     1.9     1.9     1.9 
+  DIP: pin bending               24.0    21.8    22.1    22.9    23.2    23.4    23.5 
+  DIP: pin shear                  2.8     2.5     2.5     2.6     2.7     2.7     2.7 
+  B: P3                           1.6     1.3     1.2     1.3     1.3     1.3     1.3 
+  B: L2 eye                       2.4     1.9     1.9     1.9     2.0     2.0     2.0 
+  B: pin bending                 19.7    15.7    15.2    15.7    15.9    16.1    16.1 
+  B: pin shear                    2.3     1.9     1.8     1.8     1.9     1.9     1.9 
+  Link arm s=8                   28.8    21.3    13.9     8.4     6.4     4.9     3.9 
+  Link arm s=12                  29.2    21.6    14.1     8.6     6.6     5.1     4.0 
+  Link arm s=16                  29.5    21.8    14.3     8.7     6.7     5.2     4.2 
+  Link arm s=20                  29.6    21.8    14.4     8.9     6.9     5.4     4.4 
+  Link arm s=25                  29.1    21.5    14.2     8.9     7.0     5.6     4.6 
+  Link arm s=30                  27.7    20.4    13.6     8.8     7.1     5.8     4.9 
+  Link arm s=35                  24.5    18.0    12.3     8.3     6.9     5.8     5.1 
+  Link arm s=38                  18.7    13.7     9.6     6.9     6.0     5.3     4.8 
+  Link arm s=41                  12.5     9.1     6.7     5.4     4.9     4.6     4.4 
+  L2 axial                        1.4     1.1     1.1     1.1     1.1     1.1     1.1 
+  P1 bending y25                  0.2     0.1     0.2     0.1     0.1     0.1     0.1 
+  P2 bending mid                  1.3     1.2     1.2     1.1     1.0     1.0     1.0 
+  P3 bending                      0.5     0.5     0.5     0.5     0.5     0.5     0.5 
 
   -- servo torque limit
   At a torque limit tau_lim the pad force is F(f) = tau_lim / k(f), k = motor torque per N of pad force (from the 5 N case); every stress scales with F. The limit for contact anywhere in straight..f_max is the minimum over f.
   all PLA:
-    contact at f  -56: allowable pad force    4.7 N (limited by Link arm s=20) -> motor torque 0.291 N m = 128.9 % of stall
-    contact at f  -30: allowable pad force    6.4 N (limited by Link arm s=20) -> motor torque 0.349 N m = 154.7 % of stall
-    contact at f   +0: allowable pad force   10.2 N (limited by Link arm s=20) -> motor torque 0.317 N m = 140.6 % of stall
-    contact at f  +30: allowable pad force   16.4 N (limited by PIP: P1 fork) -> motor torque 0.212 N m =  93.9 % of stall
-    contact at f  +45: allowable pad force   16.3 N (limited by PIP: P1 fork) -> motor torque 0.114 N m =  50.4 % of stall
-    contact at f  +60: allowable pad force   16.2 N (limited by PIP: P1 fork) -> motor torque 0.048 N m =  21.5 % of stall
-    contact at f  +75: allowable pad force   16.2 N (limited by PIP: P1 fork) -> motor torque 0.013 N m =   5.9 % of stall
+    contact at f  -56: allowable pad force    4.2 N (limited by Link arm s=20) -> motor torque 0.289 N m = 128.0 % of stall
+    contact at f  -30: allowable pad force    5.7 N (limited by Link arm s=20) -> motor torque 0.347 N m = 153.7 % of stall
+    contact at f   +0: allowable pad force    8.7 N (limited by Link arm s=20) -> motor torque 0.316 N m = 140.0 % of stall
+    contact at f  +30: allowable pad force   13.6 N (limited by PIP: P1 fork) -> motor torque 0.224 N m =  99.2 % of stall
+    contact at f  +45: allowable pad force   13.5 N (limited by PIP: P1 fork) -> motor torque 0.130 N m =  57.8 % of stall
+    contact at f  +60: allowable pad force   13.4 N (limited by PIP: P1 fork) -> motor torque 0.064 N m =  28.6 % of stall
+    contact at f  +75: allowable pad force   13.4 N (limited by PIP: P1 fork) -> motor torque 0.024 N m =  10.7 % of stall
   all PETG:
-    contact at f  -56: allowable pad force    4.1 N (limited by Link arm s=20) -> motor torque 0.256 N m = 113.4 % of stall
-    contact at f  -30: allowable pad force    5.7 N (limited by Link arm s=20) -> motor torque 0.307 N m = 136.1 % of stall
-    contact at f   +0: allowable pad force    9.0 N (limited by Link arm s=20) -> motor torque 0.279 N m = 123.7 % of stall
-    contact at f  +30: allowable pad force   13.1 N (limited by PIP: P1 fork) -> motor torque 0.169 N m =  75.1 % of stall
-    contact at f  +45: allowable pad force   13.1 N (limited by PIP: P1 fork) -> motor torque 0.091 N m =  40.3 % of stall
-    contact at f  +60: allowable pad force   13.0 N (limited by PIP: P1 fork) -> motor torque 0.039 N m =  17.2 % of stall
-    contact at f  +75: allowable pad force   12.9 N (limited by PIP: P1 fork) -> motor torque 0.011 N m =   4.7 % of stall
+    contact at f  -56: allowable pad force    3.7 N (limited by Link arm s=20) -> motor torque 0.254 N m = 112.6 % of stall
+    contact at f  -30: allowable pad force    5.0 N (limited by Link arm s=20) -> motor torque 0.305 N m = 135.2 % of stall
+    contact at f   +0: allowable pad force    7.7 N (limited by Link arm s=20) -> motor torque 0.278 N m = 123.2 % of stall
+    contact at f  +30: allowable pad force   10.9 N (limited by PIP: P1 fork) -> motor torque 0.179 N m =  79.4 % of stall
+    contact at f  +45: allowable pad force   10.8 N (limited by PIP: P1 fork) -> motor torque 0.104 N m =  46.2 % of stall
+    contact at f  +60: allowable pad force   10.7 N (limited by PIP: P1 fork) -> motor torque 0.052 N m =  22.9 % of stall
+    contact at f  +75: allowable pad force   10.7 N (limited by PIP: P1 fork) -> motor torque 0.019 N m =   8.5 % of stall
   recommended: Link, L2, P1, P2 in PA-CF; P3 in PLA:
-    contact at f  -56: allowable pad force    7.5 N (limited by Link arm s=20) -> motor torque 0.465 N m = 206.2 % of stall
-    contact at f  -30: allowable pad force   10.3 N (limited by Link arm s=20) -> motor torque 0.558 N m = 247.5 % of stall
-    contact at f   +0: allowable pad force   16.3 N (limited by Link arm s=20) -> motor torque 0.507 N m = 225.0 % of stall
-    contact at f  +30: allowable pad force   26.2 N (limited by PIP: P1 fork) -> motor torque 0.339 N m = 150.3 % of stall
-    contact at f  +45: allowable pad force   26.1 N (limited by PIP: P1 fork) -> motor torque 0.182 N m =  80.7 % of stall
-    contact at f  +60: allowable pad force   26.0 N (limited by PIP: P1 fork) -> motor torque 0.078 N m =  34.4 % of stall
-    contact at f  +75: allowable pad force   25.9 N (limited by PIP: P1 fork) -> motor torque 0.021 N m =   9.4 % of stall
+    contact at f  -56: allowable pad force    6.8 N (limited by Link arm s=20) -> motor torque 0.462 N m = 204.8 % of stall
+    contact at f  -30: allowable pad force    9.2 N (limited by Link arm s=20) -> motor torque 0.555 N m = 245.8 % of stall
+    contact at f   +0: allowable pad force   13.9 N (limited by Link arm s=20) -> motor torque 0.505 N m = 224.0 % of stall
+    contact at f  +30: allowable pad force   21.7 N (limited by PIP: P1 fork) -> motor torque 0.358 N m = 158.7 % of stall
+    contact at f  +45: allowable pad force   21.6 N (limited by PIP: P1 fork) -> motor torque 0.209 N m =  92.5 % of stall
+    contact at f  +60: allowable pad force   21.5 N (limited by PIP: P1 fork) -> motor torque 0.103 N m =  45.7 % of stall
+    contact at f  +75: allowable pad force   21.4 N (limited by PIP: P1 fork) -> motor torque 0.038 N m =  17.1 % of stall
 
   one fixed limit (SCS0009 EEPROM max_torque_limit, addr 16, 0..1000 = 0..100 %) that keeps every part below its limit for contact anywhere from straight up to f_max, and the fingertip force it then allows:
     plan                                              f_max   limit   pad force straight / f=0 / f=+30 / f=+45 (N)
-    all PLA                                            +30    93.9 %     3.4 /   6.8 /  16.4 /  16.3
-    all PLA                                            +45    50.4 %     1.8 /   3.6 /   8.8 /  16.3
-    all PLA                                            +60    21.5 %     0.8 /   1.6 /   3.7 /   6.9
-    all PLA                                            +75     5.9 %     0.2 /   0.4 /   1.0 /   1.9
-    all PETG                                           +30    75.1 %     2.7 /   5.4 /  13.1 /  13.1
-    all PETG                                           +45    40.3 %     1.5 /   2.9 /   7.0 /  13.1
-    all PETG                                           +60    17.2 %     0.6 /   1.2 /   3.0 /   5.6
-    all PETG                                           +75     4.7 %     0.2 /   0.3 /   0.8 /   1.5
-    recommended: Link, L2, P1, P2 in PA-CF; P3 in PL   +30   100.0 %     3.6 /   7.2 /  17.4 /  26.1
-    recommended: Link, L2, P1, P2 in PA-CF; P3 in PL   +45    80.7 %     2.9 /   5.8 /  14.1 /  26.1
-    recommended: Link, L2, P1, P2 in PA-CF; P3 in PL   +60    34.4 %     1.3 /   2.5 /   6.0 /  11.1
-    recommended: Link, L2, P1, P2 in PA-CF; P3 in PL   +75     9.4 %     0.3 /   0.7 /   1.6 /   3.0
+    all PLA                                            +30    99.2 %     3.3 /   6.2 /  13.6 /  13.5
+    all PLA                                            +45    57.8 %     1.9 /   3.6 /   7.9 /  13.5
+    all PLA                                            +60    28.6 %     0.9 /   1.8 /   3.9 /   6.7
+    all PLA                                            +75    10.7 %     0.4 /   0.7 /   1.5 /   2.5
+    all PETG                                           +30    79.4 %     2.6 /   4.9 /  10.9 /  10.8
+    all PETG                                           +45    46.2 %     1.5 /   2.9 /   6.3 /  10.8
+    all PETG                                           +60    22.9 %     0.8 /   1.4 /   3.1 /   5.3
+    all PETG                                           +75     8.5 %     0.3 /   0.5 /   1.2 /   2.0
+    recommended: Link, L2, P1, P2 in PA-CF; P3 in PL   +30   100.0 %     3.3 /   6.2 /  13.7 /  21.6
+    recommended: Link, L2, P1, P2 in PA-CF; P3 in PL   +45    92.5 %     3.1 /   5.7 /  12.7 /  21.6
+    recommended: Link, L2, P1, P2 in PA-CF; P3 in PL   +60    45.7 %     1.5 /   2.8 /   6.3 /  10.7
+    recommended: Link, L2, P1, P2 in PA-CF; P3 in PL   +75    17.1 %     0.6 /   1.1 /   2.3 /   4.0
 
-  holdable fingertip force at stall (normal to the pad): f -56: 3.7 N, f +0: 7.1 N, f +30: 16.7 N, f +45: 30.3 N, f +60: 67.6 N, f +75: 218.7 N
+  holdable fingertip force at stall (normal to the pad): f -56: 3.3 N, f +0: 6.1 N, f +30: 13.2 N, f +45: 22.3 N, f +60: 43.9 N, f +75: 112.9 N
   L2 buckling (pinned-pinned, 22.0 mm, 3.0 x 3.5 mm): PLA 564 N, PETG 338 N, PA-CF 1048 N
 
-VERDICT: PASS - sim matches the design (<0.5 deg), stable without warnings, no new-part interference(s) in the working range  [178 s]
+VERDICT: PASS - sim matches the design (<0.5 deg), stable without warnings, no new-part interference(s) in the working range  [634 s]

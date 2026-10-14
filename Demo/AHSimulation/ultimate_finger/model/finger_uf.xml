@@ -188,7 +188,7 @@
             </body>
             <!-- ultimate finger1: P2 (middle) on the Link at P4, P1 (proximal) on P2 at the PIP, L2 (DIP coupler) on P1 at A, P3 (distal) on P2 at the DIP; cad/five_finger/ultimate_finger -->
             <body name="p2" pos="-0.0192596403 -0.0360917275 0.0194867506" quat="0.255732683 0.175532898 0.675044001 -0.669406149">
-              <inertial pos="1.52288057e-06 0.0593149366 0.000396674496" mass="0.00378001" fullinertia="3.24623787e-07 1.25925705e-07 3.30282874e-07 2.42763252e-12 -4.47603943e-12 5.31025337e-08" />
+              <inertial pos="-1.02314484e-05 0.0592682604 0.000159204842" mass="0.0035984" fullinertia="3.08217875e-07 1.16790997e-07 3.27351836e-07 1.12648545e-10 3.95572424e-11 3.81772978e-08" />
               <joint name="passive4 (1)" type="hinge" axis="1 0 0" pos="0 0.0432 0.00395" />
               <geom class="visual" type="mesh" mesh="uf_p2" material="uf_core2" />
               <geom class="visual" type="mesh" mesh="uf_p2_shell" material="uf_shell" />
@@ -196,7 +196,7 @@
               <geom class="visual" type="mesh" mesh="uf_pin_p4" material="uf_pin" />
               <geom class="visual" type="mesh" mesh="uf_pin_dip" material="uf_pin" />
               <body name="p1" pos="0 0.016435116 -0.0357041715" quat="0.908382266 0.418140717 0 0">
-                <inertial pos="-7.55004497e-05 0.0263097831 0.00205964161" mass="0.0107758" fullinertia="2.05826271e-06 5.56381038e-07 1.98977056e-06 -1.88563168e-08 -7.34975834e-10 8.63759456e-08" />
+                <inertial pos="-8.27994814e-05 0.0255877802 0.00257907942" mass="0.00956141" fullinertia="1.87900608e-06 4.60790413e-07 1.87588278e-06 -1.81137412e-08 -1.11124277e-09 9.50759092e-08" />
                 <joint name="passive_5 (1)" type="hinge" axis="1 0 0" pos="0 0.047 0" range="-1.29912741 0.620734771" />
                 <geom class="visual" type="mesh" mesh="uf_p1" material="uf_core" />
                 <geom class="visual" type="mesh" mesh="uf_p1_shell" material="uf_shell" />
@@ -214,14 +214,14 @@
                 </body>
               </body>
               <body name="p3" pos="0 0.0129976201 0.0415778115" quat="0.954450211 -0.298370232 0 0">
-                <inertial pos="1.68024361e-10 0.0808798696 -0.000519801384" mass="0.00388345" fullinertia="2.70108958e-07 1.07892219e-07 2.49834953e-07 -4.81540793e-12 3.19501608e-12 3.66500709e-08" />
+                <inertial pos="-2.4094456e-06 0.0809503916 -0.000443357786" mass="0.00355873" fullinertia="2.72512898e-07 7.3362877e-08 2.60578533e-07 -3.49555339e-11 1.13288635e-11 3.59323837e-08" />
                 <joint name="dip (1)" type="hinge" axis="1 0 0" pos="0 0.073 0" range="-0.476134834 0.989941737" />
                 <geom class="visual" type="mesh" mesh="uf_p3" material="uf_core" />
                 <geom class="visual" type="mesh" mesh="uf_p3_shell" material="uf_shell" />
                 <geom class="visual" type="mesh" mesh="uf_p3_pad" material="uf_pad" />
                 <geom class="visual" type="mesh" mesh="uf_pin_b" material="uf_pin" />
                 <site name="closing_dip (1)_2" pos="0 0.06545 0.00365" group="3" />
-                <site name="tip1" pos="0 0.086847 -0.004436" group="3" />
+                <site name="tip1" pos="0 0.091847 -0.004436" group="3" />
               </body>
             </body>
           </body>

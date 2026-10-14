@@ -110,18 +110,23 @@ def clean(geom, min_area=1.0):
 # ---------------------------------------------------------------- design + motion
 # UF_SCALE (environment) < 1 builds a shorter variant (the pinky): the three phalanx lengths are scaled, the pin
 # offsets at the PIP and DIP (the cranks P4, A, B) and the whole drive are kept, so the four-bars keep their shape.
+# TIP_EXT: the distal segment is 5 mm longer than in the 3-phalanx study (a more slender fingertip, about as long as the
+# middle segment): the tip site and the end of the P3 core move out by TIP_EXT (x SCALE); the DIP, L2 and the whole
+# linkage are unchanged.
 SCALE = float(os.environ.get("UF_SCALE", "1.0"))
 SUFFIX = "" if SCALE == 1.0 else f"_S{int(round(SCALE * 100)):03d}"
+TIP_EXT = 5.0
 design3 = json.loads(DESIGN3.read_text())
 _g = design3["geometry"]
 _L1, _L2 = _g["L1"] * SCALE, _g["L2"] * SCALE
 _P, _Dp = np.array([_L1, 0.0]), np.array([_L1 + _L2, 0.0])
-D = Design(_L1, _L2, _g["L3_tip"] * SCALE, _P + np.array(_g["P4"]) - [_g["L1"], 0], _P + np.array(_g["A"]) - [_g["L1"], 0],
+D = Design(_L1, _L2, (_g["L3_tip"] + TIP_EXT) * SCALE, _P + np.array(_g["P4"]) - [_g["L1"], 0], _P + np.array(_g["A"]) - [_g["L1"], 0],
            _Dp + np.array(_g["B"]) - [_g["L1"] + _g["L2"], 0], np.radians(design3["drive"]["psi_straight_deg"]), _g["tip"][1])
 PIP, DIP, P4, A, B = D.PIP0, D.DIP0, D.P4_0, D.A0, D.B0
 P4L = D.link_arm_in_link_frame()
-TIP_END = D.L1 + D.L2 + _g["L3_end"] * SCALE            # 91.5 (full size): fingertip core end (the TPU cap adds ~1.5)
-g3 = dict(_g, L1=D.L1, L2=D.L2, L3_tip=round(D.L3t, 3), L3_end=round(_g["L3_end"] * SCALE, 3), PIP=PIP.tolist(),
+TIP_END = D.L1 + D.L2 + (_g["L3_end"] + TIP_EXT) * SCALE   # 96.5 (full size): fingertip core end (the TPU cap adds ~1.5)
+g3 = dict(_g, L1=D.L1, L2=D.L2, L3_tip=round(D.L3t, 3), L3_end=round((_g["L3_end"] + TIP_EXT) * SCALE, 3), tip_ext=TIP_EXT * SCALE,
+          PIP=PIP.tolist(),
           DIP=DIP.tolist(), P4=np.round(P4, 3).tolist(), A=np.round(A, 3).tolist(), B=np.round(B, 3).tolist(),
           tip=np.round(D.TIP0, 3).tolist(), P4_in_link_frame=np.round(P4L, 4).tolist(), link_length=round(D.L_link, 3),
           crank_P2=round(D.c, 3), crank_A=round(D.rA, 3), crank_B=round(D.rB, 3), coupler_L2=round(D.dAB, 3), scale=SCALE)

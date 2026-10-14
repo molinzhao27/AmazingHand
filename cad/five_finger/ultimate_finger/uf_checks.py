@@ -7,7 +7,6 @@ import numpy as np
 import trimesh
 from scipy.spatial import cKDTree
 from shapely.geometry import Point, Polygon
-from shapely.ops import unary_union
 
 import make_slim_fingers as SF
 import uf_layout as U
@@ -74,18 +73,20 @@ def width_at(meshes, y, plane_normal=(0, 1, 0)):
 
 
 def widths(rows):
-    seg = dict(proximal=(["UF_P1_Proximal", "UF_P1_Shell", "UF_P1_Pad", "pin_2x12_PIP", "pin_2x12_A"], np.arange(1.0, 50.0, 0.5)),
-               middle=(["UF_P2_Middle", "UF_P2_Shell", "UF_P2_Pad", "pin_2x12_DIP", "pin_2x8_P4"], np.arange(47.0, 76.0, 0.5)),
-               distal=(["UF_P3_Distal", "UF_P3_Shell", "UF_P3_Pad", "pin_2x8_B"], np.arange(73.0, 93.5, 0.5)))
+    yp, yd = float(U.PIP[0]), float(U.DIP[0])   # (scale-aware: the pinky's segments are shorter)
+    seg = dict(proximal=(["UF_P1_Proximal", "UF_P1_Shell", "UF_P1_Pad", "pin_2x12_PIP", "pin_2x12_A"], np.arange(1.0, yp + 3.0, 0.5)),
+               middle=(["UF_P2_Middle", "UF_P2_Shell", "UF_P2_Pad", "pin_2x12_DIP", "pin_2x8_P4"], np.arange(yp, yd + 3.0, 0.5)),
+               distal=(["UF_P3_Distal", "UF_P3_Shell", "UF_P3_Pad", "pin_2x8_B"], np.arange(yd, float(U.TIP_END) + 2.0, 0.5)))
     out = {}
     for k, (names, ys) in seg.items():
         ms = [mesh(n) for n in names]
-        shell = [m for n, m in zip(names, ms) if "Shell" in n][0]
+        cov = [m for n, m in zip(names, ms) if "Shell" in n or "Pad" in n]
         w_all = [(y, width_at(ms, y)) for y in ys]
-        w_shell = [(y, width_at([shell], y)) for y in ys]
+        w_shell = [(y, width_at(cov, y)) for y in ys]
+        depth = max(m.bounds[1, 2] for m in cov) - min(m.bounds[0, 2] for m in cov)
         w_all = [(y, w) for y, w in w_all if w]
         w_shell = [(y, w) for y, w in w_shell if w]
-        out[k] = dict(max_all=max(w_all, key=lambda t: t[1][0]), max_shell=max(w_shell, key=lambda t: t[1][0]),
+        out[k] = dict(max_all=max(w_all, key=lambda t: t[1][0]), max_shell=max(w_shell, key=lambda t: t[1][0]), depth=float(depth),
                       profile=[(float(y), round(w[0], 3)) for y, w in w_all])
     return out
 
@@ -170,8 +171,9 @@ def min_dist(a_pts, b_mesh, cutoff=3.0):
     return float(d.min())
 
 
-def run(P, S, shells, pads, B, sw, rows, design, log, figures=True):
-    log("\n== parts (B-rep validity of the re-imported STEP; STL watertight; volume from the STL; bbox mm)")
+def run(P, S, covers, cinfo, sw, rows, design, log, figures=True, thumb=None):
+    log("\n== parts (B-rep validity of the re-imported STEP, 'STL only' for the implicit covers; STL watertight; volume "
+        "from the STL; bbox mm)")
     for k, r in rows.items():
         b = np.array(r["bounds"])
         log(f"  {k:<22} valid {r['valid']}  solids {r['solids']}  watertight {r['watertight']}  volume {r['volume_mm3']:8.1f} mm3  "
@@ -184,36 +186,45 @@ def run(P, S, shells, pads, B, sw, rows, design, log, figures=True):
     log("\n== thin features: slab material narrower than 1.2 mm in-plane (volume, share of the part)")
     for part, (thin, tot) in thin_features(P).items():
         log(f"  {part:<9} {thin:7.1f} of {tot:7.1f} mm3 ({100 * thin / tot:4.1f} %)")
-    log("\n== widths across the finger (x), including shells, pads and pins")
+    log("\n== widths across the finger (x) and depths (z), including covers and pins")
     W = widths(rows)
     for k, v in W.items():
         (ya, wa), (ys, wsh) = v["max_all"], v["max_shell"]
-        log(f"  {k:<8} widest {wa[0]:6.2f} mm at y {ya:5.1f} (x {wa[1]:+.2f}..{wa[2]:+.2f}); shell alone {wsh[0]:6.2f} mm at y {ys:5.1f}")
+        log(f"  {k:<8} widest {wa[0]:6.2f} mm at y {ya:5.1f} (x {wa[1]:+.2f}..{wa[2]:+.2f}); cover (shell + glove) {wsh[0]:6.2f} mm "
+            f"at y {ys:5.1f}; cover depth {v['depth']:.2f} mm")
     log("  knuckles (cores + pins): MCP end 16.2 (stock Proximal ears around the stock gimbal), PIP 12.0, DIP 12.0")
-    log("\n== TPU shells: wall (sections of the 0.01 mm tessellation every 0.5 mm, two-loop sections)")
-    for k, (n, vmin, ymin, med, p1, med3) in shell_walls(shells, B).items():
-        log(f"  {k:<9} {n} sections between the cut ends: min {vmin:.3f} mm at y {ymin:.1f}, median {med:.3f}; 3-D sampled "
-            f"(nearest opposite-facing surface, pad lands / nail / cut faces excluded): 1st percentile {p1:.2f}, median {med3:.2f} mm")
-    log("\n== shells on their own core (straight finger): min gap core surface -> shell surface")
-    for name, core in (("P1_Shell", "UF_P1_Proximal"), ("P2_Shell", "UF_P2_Middle"), ("P3_Shell", "UF_P3_Distal")):
-        sm, cm = mesh(f"UF_{name}"), mesh(core)
-        try:
-            inside = trimesh.boolean.intersection([sm, cm], engine="manifold")
-            vol = float(inside.volume) if not inside.is_empty else 0.0
-        except ValueError:   # a mesh that is not a closed volume
-            vol = float("nan")
-        log(f"  {name:<9} overlap with its core {vol:.3f} mm3; min gap {min_dist(SF.sample_surface(cm, 0.2), sm):.3f} mm")
-    log("\n== pads do not widen the finger: pad |x| vs shell half width at the pad's y range")
-    for pname, shell in (("UF_P1_Pad", "UF_P1_Shell"), ("UF_P2_Pad", "UF_P2_Shell"), ("UF_P3_Pad", "UF_P3_Shell"),
-                         ("Thumb_Proximal_Pad", "Thumb_Proximal_Shell"), ("Thumb_Distal_Pad", "Thumb_Distal_Shell")):
-        if not (STL / f"{pname}{'' if pname.startswith('Thumb') else U.SUFFIX}.stl").exists():
-            continue
-        pm, sm = mesh(pname), mesh(shell)
-        y0, y1 = pm.bounds[0, 1], pm.bounds[1, 1]
-        sel = (sm.vertices[:, 1] >= y0) & (sm.vertices[:, 1] <= y1)
-        log(f"  {pname:<20} |x| <= {np.abs(pm.vertices[:, 0]).max():.2f} vs shell |x| <= {np.abs(sm.vertices[sel, 0]).max():.2f} "
-            f"over y {y0:.1f}..{y1:.1f}; thickness {PAD_INFO}")
-    log("\n== joint sweeps (3-D, whole servo travel, 0.5 deg Link steps): shells vs everything moving past them")
+    log("\n== cover skin (implicit field): inner offset surface to the outer surface, where the cover exists (rule >= 1.2);"
+        "\n   cut rims: material thinner than 1.0 mm (what an opening with a 0.5 mm ball removes; < 0.3 mm deep = rounded"
+        " rim corners, deeper = a feathered wedge)")
+    rows_ = [(k, v["skin"], v.get("thin")) for k, v in cinfo.items()]
+    if thumb:
+        rows_ += [(f"thumb {k}", sk, (thumb.get("thin") or {}).get(k)) for k, sk in thumb["skin"].items()]
+    for k, (mn, p1, med), th in rows_:
+        t = f"; thinner than 1.0 mm: {th[0]:.1f} mm3, at most {th[1]:.2f} mm deep" if th else ""
+        log(f"  {k:<10} min {mn:.2f}, 1st percentile {p1:.2f}, median {med:.2f} mm{t}")
+    log("\n== covers on their own core (straight finger): overlap and min gap core surface -> cover surfaces")
+    for fr, core in (("P1", "UF_P1_Proximal"), ("P2", "UF_P2_Middle"), ("P3", "UF_P3_Distal")):
+        cm = mesh(core)
+        for part in ("Shell", "Pad"):
+            sm = mesh(f"UF_{fr}_{part}")
+            try:
+                inside = trimesh.boolean.intersection([sm, cm], engine="manifold")
+                vol = float(inside.volume) if not inside.is_empty else 0.0
+            except ValueError:   # a mesh that is not a closed volume
+                vol = float("nan")
+            log(f"  {fr}_{part:<6} overlap with its core {vol:.3f} mm3; min gap {min_dist(SF.sample_surface(cm, 0.2), sm):.3f} mm")
+    if thumb:
+        for fr, names in (("prox", ("Thumb_Proximal_Shell", "Thumb_Proximal_Pad")), ("dist", ("Thumb_Distal_Shell", "Thumb_Distal_Pad"))):
+            cm = thumb["bodies"][fr][0]
+            for n in names:
+                sm = thumb["covers"][n]
+                try:
+                    inside = trimesh.boolean.intersection([sm, cm], engine="manifold")
+                    vol = float(inside.volume) if not inside.is_empty else 0.0
+                except ValueError:
+                    vol = float("nan")
+                log(f"  {n:<22} overlap with its slim core {vol:.3f} mm3; min gap {min_dist(SF.sample_surface(cm, 0.2), sm):.3f} mm")
+    log("\n== joint sweeps (3-D, whole servo travel, 0.5 deg Link steps): covers vs everything moving past them")
     shell_frames = dict(P1_Shell="P1", P2_Shell="P2", P3_Shell="P3")
     shm = {k: mesh(f"UF_{k}") for k in shell_frames}
     padm = {k: mesh(f"UF_{k.split('_')[0]}_Pad") for k in shell_frames}
@@ -228,15 +239,34 @@ def run(P, S, shells, pads, B, sw, rows, design, log, figures=True):
             ds = [(min_dist(c, shm[k]), min_dist(c, padm[k])) for c in sw.swept_chunks(fr, other)]
             d_sh, d_pad = min(x[0] for x in ds), min(x[1] for x in ds)
             d = min(d_sh, d_pad)
-            cells.append((f"{other} {d:.2f}" + (" (pad)" if d_pad < d_sh else "")) if np.isfinite(d) else f"{other} >3")
-        log(f"  {k:<9} (+ its pad) min clearance to swept: " + ", ".join(cells))
+            cells.append((f"{other} {d:.2f}" + (" (glove)" if d_pad < d_sh else "")) if np.isfinite(d) else f"{other} >3")
+        log(f"  {fr} cover (shell + glove) min clearance to swept: " + ", ".join(cells))
+    if thumb:
+        log("  thumb (stock four-bar, MCP range of the slim finger, 0.5 deg steps):")
+        pts = {k: np.concatenate([SF.sample_surface(m, 0.3) for m in ms]) for k, ms in thumb["bodies"].items()}
+        for fr, names in (("prox", ("Thumb_Proximal_Shell", "Thumb_Proximal_Pad")), ("dist", ("Thumb_Distal_Shell", "Thumb_Distal_Pad"))):
+            cm = [thumb["covers"][n] for n in names]
+            other_fr = "dist" if fr == "prox" else "prox"
+            pts_other = np.concatenate([pts[other_fr]] + [SF.sample_surface(thumb["covers"][n], 0.3) for n in
+                                        (("Thumb_Distal_Shell", "Thumb_Distal_Pad") if fr == "prox" else ("Thumb_Proximal_Shell", "Thumb_Proximal_Pad"))])
+            cells = []
+            for other, p in ((other_fr, pts_other), ("link", pts["link"]), ("gimbal", pts["gimbal"])):
+                best = np.inf
+                for kk in range(0, thumb["n"], 2):
+                    T = thumb["pose"](fr, other, kk)
+                    q = p.copy()
+                    q[:, 1:] = p[:, 1:] @ T[:2, :2].T + T[:2, 2]
+                    best = min(best, min(min_dist(q, m) for m in cm))
+                cells.append(f"{other} {best:.2f}" if np.isfinite(best) else f"{other} >3")
+            log(f"    thumb {fr} cover min clearance to swept: " + ", ".join(cells))
     design["checks"] = dict(hole_walls=[dict(part=a, pin=b, hole=c, wall=round(w, 3)) for a, b, c, _, w, _ in hw],
                             widths={k: dict(widest=round(v["max_all"][1][0], 3), at_y=v["max_all"][0],
-                                            shell=round(v["max_shell"][1][0], 3)) for k, v in W.items()})
+                                            cover=round(v["max_shell"][1][0], 3), cover_depth=round(v["depth"], 3))
+                                    for k, v in W.items()})
     (HERE / f"design{U.SUFFIX}.json").write_text(json.dumps(design, indent=1) + "\n")
     if figures:
         import uf_figures
-        uf_figures.all_figures(P, B, W, log)
+        uf_figures.all_figures(P, None, W, log)
 
 
 PAD_INFO = "0.80 mm (0.45 in the land pocket + 0.35 proud), 0.50 under a 0.30 groove; ribs 0.55 / grooves 0.45 mm, 1.0 mm pitch"
