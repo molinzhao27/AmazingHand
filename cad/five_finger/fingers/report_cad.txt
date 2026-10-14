@@ -1,0 +1,35 @@
+design: land 0.45 mm, pad 0.8 mm (glue gap 0.1), texture grooves 0.45 x 0.3 mm, nail plate 0.3 mm; palm side = -z (found by flexing the finger in the MuJoCo model)
+== Proximal shell: stock Amazing Hand Parts - Proximal_Shell.step  valid True  volume 3507.0 mm3, 26 faces (1 outer skin)
+  palm patch: 63x96 points, y 16.4..45.0, |x| <= 9.2; stock wall there 1.00..1.03 mm (median 1.00) [40 s]
+  styled shell: valid True  solids 1  volume 3564.6 mm3 (stock 3528.9)  faces 29 [45 s]
+  Proximal pad: valid True  solids 1  volume 140.0 mm3  faces 103 [50 s]
+== checks: Proximal
+  material removed from the stock shell: 0.00e+00 mm3; stock faces other than the outer skin found unchanged in the styled shell: 25/25
+  added material: 36.0 mm3 in x -5.82..5.82 (stock shell -11.88..11.88), y 18.11..43.39, z -10.20..-7.41
+  extent (fine mesh): stock x -11.881..11.881, z -9.838..14.420; styled x -11.881..11.881, z -10.202..14.420
+  max distance from the stock outer surface: styled shell 0.454 mm, pad 0.800 mm (pad back on the stock surface: 0.006 mm at the 1st percentile)
+  wall thickness (to the stock inner surface): stock skin min 0.96 / median 1.00 mm; styled, where >= 0.1 mm was added: min 1.09 mm; recess floor (untouched stock wall) min 0.98 / median 1.00 mm; whole styled skin min 0.96 mm
+  pad thickness: 0.80 mm, 0.50 mm under the texture grooves; pad proud of the land by 0.35 mm; recess depth 0.45 mm, glue gap 0.10 mm per side
+  wrote Proximal_Shell_Styled: STEP + STL (16702 triangles, watertight)
+  wrote Proximal_Pad: STEP + STL (18272 triangles, watertight)
+  Proximal pad print orientation: standing on its proximal end (3.8 mm2 on the bed), 21.3 mm tall; down-facing area steeper than 45 deg from vertical: 35.14 mm2 of 504 mm2 (groove ceilings, 0.30 mm deep ledges)
+== Distal shell: stock Amazing Hand Parts - Distal_Shell.step  valid True  volume 3437.5 mm3, 29 faces (3 outer skin)
+  palm patch: 49x97 points, y 62.6..91.2, |x| <= 8.9; stock wall there 1.00..1.02 mm (median 1.00) [100 s]
+  nail patch: back side y 77.6..91.0, stock wall 1.00..4.27 mm
+  styled shell: valid True  solids 1  volume 3561.9 mm3 (stock 3474.9)  faces 37 [193 s]
+  Distal pad: valid True  solids 1  volume 150.3 mm3  faces 53 [209 s]
+== checks: Distal
+  boolean copy of the stock with closed faces split: 35 faces, 23/29 stock faces unchanged, volume 3475.120 vs 3474.937 mm3
+  material removed from the stock shell: 0.00e+00 mm3; stock faces other than the outer skin found unchanged in the styled shell: 25/26
+    not bit-identical: PLANE face at (-0.0, 55.73, 3.02), area 70.2792 -> 70.2808 mm2, centre moved 0.78 um (same surface, boundary edge re-split by the closed-face split)
+  added material: 86.8 mm3 in x -7.73..7.73 (stock shell -10.75..10.75), y 63.87..89.82, z -9.57..9.15
+  extent (fine mesh): stock x -10.754..10.754, z -10.009..13.658; styled x -10.754..10.754, z -10.008..13.658
+  max distance from the stock outer surface: styled shell 0.453 mm, pad 0.802 mm (pad back on the stock surface: 0.006 mm at the 1st percentile)
+  wall thickness (to the stock inner surface): stock skin min 0.96 / median 1.00 mm; styled, where >= 0.1 mm was added: min 1.09 mm; recess floor (untouched stock wall) min 0.99 / median 1.00 mm; whole styled skin min 0.96 mm
+  pad thickness: 0.80 mm, 0.50 mm under the texture grooves; pad proud of the land by 0.35 mm; recess depth 0.45 mm, glue gap 0.10 mm per side
+  wrote Distal_Shell_Styled: STEP + STL (22336 triangles, watertight)
+  wrote Distal_Pad: STEP + STL (25294 triangles, watertight)
+  Distal pad print orientation: standing on its proximal end (6.5 mm2 on the bed), 21.3 mm tall; down-facing area steeper than 45 deg from vertical: 22.14 mm2 of 598 mm2 (groove ceilings, 0.30 mm deep ledges)
+== summary
+  Proximal: pad protrudes 0.80 mm, land 0.45 mm over the stock surface; additions within |x| <= 5.82 mm; min wall where material was added 1.09 mm (recess floor = untouched stock wall, min 0.98; stock skin min 0.96)
+  Distal: pad protrudes 0.80 mm, land 0.45 mm over the stock surface; additions within |x| <= 7.73 mm; min wall where material was added 1.09 mm (recess floor = untouched stock wall, min 0.99; stock skin min 0.96)
