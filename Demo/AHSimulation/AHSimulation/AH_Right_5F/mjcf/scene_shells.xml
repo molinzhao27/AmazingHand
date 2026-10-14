@@ -45,17 +45,15 @@
     <asset>
         <mesh name="r_top_shell_5f" file="r_top_shell_5f.stl" scale="0.001 0.001 0.001"/>
         <mesh name="r_palm_shell_5f" file="r_palm_shell_5f.stl" scale="0.001 0.001 0.001"/>
-        <mesh name="r_palm_pad_band_5f" file="r_palm_pad_band_5f.stl" scale="0.001 0.001 0.001"/>
         <mesh name="r_palm_pad_palm_5f" file="r_palm_pad_palm_5f.stl" scale="0.001 0.001 0.001"/>
     </asset>
 
     <worldbody>
         <!-- palm/back shells and grip pads (static: the palm is fixed to the world) -->
         <body name="shells" pos="-0.0115 0.0245 0.1022" quat="0.5 0.5 -0.5 -0.5">
-          <geom type="mesh" mesh="r_top_shell_5f" rgba="0.94 0.94 0.95 1" contype="0" conaffinity="0" group="2"/>
-          <geom type="mesh" mesh="r_palm_shell_5f" rgba="0.86 0.87 0.89 1" contype="0" conaffinity="0" group="2"/>
-          <geom type="mesh" mesh="r_palm_pad_band_5f" rgba="0.33 0.34 0.36 1" contype="0" conaffinity="0" group="2"/>
-          <geom type="mesh" mesh="r_palm_pad_palm_5f" rgba="0.33 0.34 0.36 1" contype="0" conaffinity="0" group="2"/>
+          <geom type="mesh" mesh="r_top_shell_5f" rgba="0.95 0.95 0.96 1" contype="0" conaffinity="0" group="2"/>
+          <geom type="mesh" mesh="r_palm_shell_5f" rgba="0.92 0.93 0.94 1" contype="0" conaffinity="0" group="2"/>
+          <geom type="mesh" mesh="r_palm_pad_palm_5f" rgba="0.07 0.07 0.08 1" contype="0" conaffinity="0" group="2"/>
         </body>
     </worldbody>
     <include file="keyframes.xml"/>

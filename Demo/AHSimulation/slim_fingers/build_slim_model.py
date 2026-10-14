@@ -44,7 +44,7 @@ STOCK_REL = "../../../AH_Right_5F/mjcf/assets/"   # from AH_Right_5F_Slim/mjcf/a
 SLIM = {"proximal": "Proximal_Slim", "proximal_shell": "Proximal_Shell_Slim",
         "distal": "Distal_Slim", "distal_shell": "Distal_Shell_Slim"}
 PAD = ("distal_pad", "Distal_Pad_Slim")
-PAD_RGBA = "0.22 0.23 0.25 1"
+PAD_RGBA = "0.07 0.07 0.08 1"
 SCREW6 = "std00447_thermoplastique_m2_5x6__configuration_default"
 SCREW5 = "thermo_screw_m2_5x5"
 

@@ -419,9 +419,8 @@ def build_scene(side, T, moves):
     (side["dst"] / "scene.xml").write_text(text)
 
 
-# 5-finger palm/back shells and grip pads from cad/five_finger/make_5f_shells.py: (part, rgba)
-SHELL_PARTS = [("Top_Shell", "0.94 0.94 0.95 1"), ("Palm_Shell", "0.86 0.87 0.89 1"),
-               ("Palm_Pad_Band", "0.33 0.34 0.36 1"), ("Palm_Pad_Palm", "0.33 0.34 0.36 1")]
+# 5-finger palm/back shells and grip pad from cad/five_finger/make_5f_shells.py: (part, rgba); white shells, black TPU pad
+SHELL_PARTS = [("Top_Shell", "0.95 0.95 0.96 1"), ("Palm_Shell", "0.92 0.93 0.94 1"), ("Palm_Pad_Palm", "0.07 0.07 0.08 1")]
 
 
 def build_shell_scene(side):

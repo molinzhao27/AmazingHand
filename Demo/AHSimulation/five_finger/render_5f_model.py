@@ -70,8 +70,8 @@ def label(img, text):
     return np.asarray(im)
 
 
-SHELL_RGBA = {"top_shell": [0.94, 0.94, 0.95, 1], "palm_shell": [0.86, 0.87, 0.89, 1]}
-PAD_RGBA = [0.33, 0.34, 0.36, 1]
+SHELL_RGBA = {"top_shell": [0.95, 0.95, 0.96, 1], "palm_shell": [0.92, 0.93, 0.94, 1]}
+PAD_RGBA = [0.07, 0.07, 0.08, 1]
 
 
 def make_hand(model, size, with_shells=False):

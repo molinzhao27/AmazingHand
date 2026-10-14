@@ -121,24 +121,31 @@ The result is one valid solid of 36.6 cm³ (stock: 29.1 cm³). It sits on the st
 
 ![shells](Demo/AHSimulation/five_finger/renders/shells_5f_00_OpenHand.jpg)
 
-The stock Palm_Shell and Top_Shell cannot go on the widened plate: [check_shells.py](Demo/AHSimulation/five_finger/check_shells.py) shows they cut through the pinky's servo and horn screw ([report](Demo/AHSimulation/five_finger/reports/shells_stock_on_AH_Right_5F.txt)). So [make_5f_shells.py](cad/five_finger/make_5f_shells.py) generates new ones around the 5-digit mechanism, styled after the reference image: a smooth back, a sculpted palm with a thenar bulge around the thumb, exposed knuckles, and grey grip pads.
+The stock Palm_Shell and Top_Shell cannot go on the widened plate: [check_shells.py](Demo/AHSimulation/five_finger/check_shells.py) shows they cut through the pinky's servo and horn screw ([report](Demo/AHSimulation/five_finger/reports/shells_stock_on_AH_Right_5F.txt)). So [make_5f_shells.py](cad/five_finger/make_5f_shells.py) generates new ones around the 5-digit mechanism. They are sculpted to read as a hand rather than a box, after the reference robot hands: white shells, a domed back, a palm that waists into a round wrist, and one large black ribbed TPU grip pad wrapped around the thumb opening.
+
+![before/after](Demo/AHSimulation/five_finger/renders/before_after_shells.jpg)
+
+*Before (the earlier box-like shells) and after, on the slim fingers.*
 
 - **Shape.** The shells are implicit (signed-distance) solids on a 0.5 mm voxel grid, in the same frame as the stock parts. From the sim, every digit is settled on a 19×19 grid of its two motors, and that gives two keep-out sets:
-  - **Enclose:** plate, wrist interface, servos, finger frames, servo horns, push rods. The walls stay at least 1 mm from these.
-  - **Stay clear of:** each finger's knuckle, lever and phalanges, and the thumb. The walls stay at least 1.2 mm from these.
+  - **Enclose:** plate, wrist interface, servos, finger frames, servo horns, push rods (and the wrist's hand adapter). The walls stay at least 1 mm from these.
+  - **Stay clear of:** each finger's knuckle, lever and phalanges, and the thumb. The walls stay at least 1.2 mm from these (2.2 mm from the thumb).
 
-  The envelope is shaped as follows:
-  - **Back:** flat with a slight crown, just clear of the servo backs.
-  - **Palm:** a smooth lower envelope of the mechanism, so the thumb base becomes the thenar bulge.
-  - **Outline:** the convex hull of the mechanism plus a wrist section centred on the powered wrist's forearm axis. The palm narrows evenly from the knuckles to the wrist, and the pinky side runs straight down like a hypothenar edge (see [Hand on the forearm](cad/five_finger/wrist/README.md#hand-on-the-forearm)).
-  - **Wrist end:** cut square to the forearm axis. The cut matches the stock cut at the radial end of the wrist interface and drops towards the pinky side, where the shell also covers the top of the wrist's hand adapter (the shells keep clear of the adapter). For a hand on the stock wrist interface without the powered wrist, `make_5f_shells.py --no-wrist` cuts at the stock plane (CAD y = −97.5) instead.
+  The outer form is laid out along the forearm axis (frame W of the [wrist](cad/five_finger/wrist/README.md#hand-on-the-forearm)) as a smooth union of a few shapes, each with its parameters at the top of the script:
+  - **Palm slab.** Straight, parallel sides from the knuckles down (134 mm wide), flaring in from the wrist neck. The back is a dome: its crown at CAD z = 30 mm mid-hand (8.7 mm above the servo backs), dropping towards the wrist, with a 6 mm transverse arch, a 1 mm bump behind each knuckle and a 3.5 mm roll-down to the knuckle line. The palm is a wedge: its surface is at z = −45 mm at the heel and −22 mm under the fingers, with a shallow hollow. Edge radii grow from 10–11 mm at the knuckles to 20–22 mm at the wrist.
+  - **Wrist neck.** A round column (Ø69) on the forearm axis. The palm waists into it like a hand into its wrist.
+  - **Thenar.** A mound over the thumb's two servos, tilted along them.
+  - **Hypothenar.** A soft mound low on the pinky side.
+  - **Fit.** The back, and the palm under the fingers, are lifted smoothly wherever a part needs room. A last tight blend with the enclosed parts covers anything the shapes miss (at most 0.8 mm in a few spots, so no visible bumps).
+  - **Panel lines.** Two 1.4 mm wide, 0.6 mm deep grooves: one across the back 17 mm below the knuckle line (a knuckle band), and one around the wrist 8 mm above the cut. They stop 2 mm short of the seam, so the lap joint stays whole.
+  - **Wrist end:** cut square to the forearm axis, rising towards the back so the back shell clears the wrist fork at the hard stops. For a hand on the stock wrist interface without the powered wrist, `make_5f_shells.py --no-wrist` cuts at the stock plane (CAD y = −97.5) instead.
   - **Top edges:** the back stops 3 mm under the knuckle line, leaving the knuckle hardware exposed as in the reference. The palm stops on a smooth curve just under where the fingers sweep in a fist.
 
-  The thumb's sweep carves the thumb opening. Walls are 2 mm.
+  The thumb's sweep carves the thumb opening. The finger and thumb openings have rounded edges. Walls are 2 mm.
 - **Parts and materials.** Same split as stock:
   - `R-Top_Shell_5F`, PLA, rigid.
   - `R-Palm_Shell_5F`, Filaflex 82A / TPU.
-  - `R-Palm_Pad_Band_5F` (under the knuckles) and `R-Palm_Pad_Palm_5F`, grey TPU inserts. They sit in 1 mm recesses, stand 0.8 mm proud, have a 3 mm hex grip texture and a 0.15 mm side gap. Glue them in with flexible CA, or print the palm shell with a second material.
+  - `R-Palm_Pad_Palm_5F`, one black TPU insert (63 cm² seen from the palm). It covers the palm-facing surface with an even 5 mm border to every edge and opening, so it runs under the fingers, down the pinky side and around the thumb opening. It sits in a 1 mm recess, stands 0.8 mm proud, has rounded grip ribs across the palm at a 1.8 mm pitch, and a 0.15 mm side gap. Glue it in with flexible CA, or print the palm shell with a second material.
 
   The left parts (`L-*`) are the right ones mirrored about x = −50 mm, exactly how the stock left shells relate to the right ones (checked: 0 mm³ difference).
 - **Assembly:**
@@ -148,17 +155,17 @@ The stock Palm_Shell and Top_Shell cannot go on the widened plate: [check_shells
   - The stock palm shell's flange screws and the side screws into the wrist interface are not used.
 - **Verification.** I checked the shells and pads against every digit over a 13×13 grid per digit, which is not the grid the shells were built from ([right](Demo/AHSimulation/five_finger/reports/shells_5f_on_AH_Right_5F.txt), [left](Demo/AHSimulation/five_finger/reports/shells_5f_on_AH_Left_5F.txt)).
   - No moving part touches any shell or pad in any of the 169 poses, on either hand.
-  - The smallest clearances on the right are 1.11 mm (thumb vs palm shell) and about 1.6 mm (pinky horn screw). On the left the thumb comes to about 0.5 mm, because the stock left export is not an exact mirror of the right.
+  - The smallest clearances on the right are 2.28 mm (thumb vs palm shell) and 2.71 mm (the fingers' proximal shells in a fist); the grip pad is at least 4.8 mm from every digit. On the left the thumb comes to 1.14 mm, because the stock left export is not an exact mirror of the right (the thumb opening has 2.2 mm of clearance instead of 1.2 mm to absorb that). On the slim fingers every finger keeps at least 3.4 mm, the thumb 2.32 mm.
   - For comparison, the stock shells on the stock hand touch the ring's horn screw at 36 of 81 poses and the thumb at 6.
   - The only contacts with fixed parts are by design: the bosses seat on the plate, and the flange rests on the wrist interface, 0.18 mm beside the plate's foot.
 - **Printing.**
   - Back shell: open side down; no supports needed.
   - Palm shell: rim/flange down. The palm is then a shallow dome; same settings as the stock TPU shell.
-  - Pads: texture up.
+  - Pad: ribs up.
 - **Limits.**
   - STL only. These are freeform implicit surfaces; a triangulated STEP would not be editable. The script is the editable source, with its parameters at the top.
   - Not test-printed. Print the palm shell and one pad first to check the lap-joint and recess fit for your printer and TPU.
-  - The left files can contain a few touching sliver vertices in float32 (8 in the palm pad); slicers repair these silently.
+  - All six STLs are closed volumes. If a slicer reports a few touching sliver vertices (marching-cubes leftovers in float32), it repairs them silently.
 
 ## Extensions
 
@@ -324,7 +331,7 @@ Includes a working single-finger MuJoCo prototype, a 5-digit 3-phalanx hand vari
   - 2× Ø2×10 and 2× Ø2×16 pin, 1× M2.5 washer;
   - plus the screws that fix the servos and frames to the plate, per the assembly guide.
 - **+2 SCS0009**, so **10 servos** in total, plus one more servo cable for the daisy chain.
-- **Print R-Hand_Plate_5F, R-Top_Shell_5F and R-Palm_Shell_5F** instead of the stock R-Hand_Plate, R-Top_Shell and R-Palm_Shell (`L-*` for a left hand). Print the two grip pads in grey TPU. The back shell takes 5 screws instead of 4. On the parallel layout, three of them are 2.5 × 16 thermoplastic screws into the plate's ribs, and two are stock Top_Shell screws into the wrist interface.
+- **Print R-Hand_Plate_5F, R-Top_Shell_5F and R-Palm_Shell_5F** instead of the stock R-Hand_Plate, R-Top_Shell and R-Palm_Shell (`L-*` for a left hand). Print the grip pad in black TPU. The back shell takes 5 screws instead of 4. On the parallel layout, three of them are 2.5 × 16 thermoplastic screws into the plate's ribs, and two are stock Top_Shell screws into the wrist interface.
 - **Optional extras:**
   - **Styled finger shells:** 2 grip pads per digit.
   - **Slim fingers:** new shells, spot-faced cores, M2.5×5 shell screws.
