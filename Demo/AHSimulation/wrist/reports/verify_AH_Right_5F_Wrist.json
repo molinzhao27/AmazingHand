@@ -1,10 +1,10 @@
 {
- "moving_mass_g": 559.1170399999999,
- "hand_mass_g": 495.07356000000004,
+ "moving_mass_g": 556.3220399999999,
+ "hand_mass_g": 492.27856,
  "stability": {
   "alone_OpenHand": {
    "time": 15.0,
-   "vmax": 1.144049,
+   "vmax": 1.143734,
    "rod_err": 2.3e-05,
    "rod_err_settled": 2.3e-05,
    "finger_err": 3e-06,
@@ -12,7 +12,7 @@
   },
   "corners_OpenHand": {
    "time": 12.0,
-   "vmax": 5.037859,
+   "vmax": 5.035235,
    "rod_err": 6.4e-05,
    "rod_err_settled": 3.9e-05,
    "finger_err": 3e-06,
@@ -20,7 +20,7 @@
   },
   "rom_OpenHand": {
    "time": 25.2,
-   "vmax": 1.582567,
+   "vmax": 1.582153,
    "rod_err": 6e-06,
    "rod_err_settled": 4e-06,
    "finger_err": 3e-06,
@@ -28,34 +28,34 @@
   },
   "alone_CloseHand": {
    "time": 15.0,
-   "vmax": 1.140223,
+   "vmax": 1.13991,
    "rod_err": 2.3e-05,
    "rod_err_settled": 2.3e-05,
-   "finger_err": 8e-06,
+   "finger_err": 9e-06,
    "warnings": {}
   },
   "corners_CloseHand": {
    "time": 12.0,
-   "vmax": 5.00757,
+   "vmax": 5.00491,
    "rod_err": 6.5e-05,
    "rod_err_settled": 3.9e-05,
-   "finger_err": 8e-06,
+   "finger_err": 9e-06,
    "warnings": {}
   },
   "rom_CloseHand": {
    "time": 25.2,
-   "vmax": 1.57486,
+   "vmax": 1.574451,
    "rod_err": 5e-06,
    "rod_err_settled": 4e-06,
-   "finger_err": 8e-06,
+   "finger_err": 9e-06,
    "warnings": {}
   },
   "random": {
    "time": 36.0,
-   "vmax": 90.965991,
+   "vmax": 90.966339,
    "rod_err": 7.1e-05,
    "rod_err_settled": 2.7e-05,
-   "finger_err": 0.000854,
+   "finger_err": 0.000856,
    "warnings": {}
   }
  },
@@ -72,7 +72,7 @@
  "rom": {
   "rectangle_reachable": true,
   "servo_max_deg": 54.9,
-  "open_loop_err_max_deg": 4.03,
+  "open_loop_err_max_deg": 4.01,
   "closed_loop_err_max_deg": 0.08,
   "linkage_flex": [
    -70,
@@ -84,22 +84,22 @@
   ]
  },
  "static_worst_hand": {
-  "torque": 0.68,
+  "torque": 0.676,
   "where": "('forearm horizontal, thumb up', (-60.0, -15.0))"
  },
  "static_worst_payload": {
-  "torque": 1.182,
+  "torque": 1.179,
   "where": "('forearm horizontal, thumb down', (-60.0, -15.0))"
  },
- "static_neutral_hand": 0.34,
- "static_neutral_payload": 0.622,
+ "static_neutral_hand": 0.337,
+ "static_neutral_payload": 0.619,
  "inertia_hand": [
-  0.008059642060376605,
-  0.0083409875517918
+  0.008019814195985625,
+  0.008296732906906898
  ],
  "inertia_payload": [
-  0.018356590963160765,
-  0.01863717302319398
+  0.018316761609642983,
+  0.018592918378309082
  ],
  "clearance_rom_min_mm": {
   "hand (+ shells, pads) / forearm (shells, fork, frame, servos)": null,
@@ -130,7 +130,7 @@
   "horn arm 2 / servo 1": null
  },
  "clearance_stops_min_mm": {
-  "hand (+ shells, pads) / forearm (shells, fork, frame, servos)": 3.55,
+  "hand (+ shells, pads) / forearm (shells, fork, frame, servos)": null,
   "hand (+ shells, pads) / gimbal ring": null,
   "hand (+ shells, pads) / rod 1 (links + rod)": null,
   "hand (+ shells, pads) / rod 2 (links + rod)": null,

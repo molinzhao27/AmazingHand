@@ -68,7 +68,7 @@
   <worldbody>
     <!-- Link r_wrist_interface -->
     <body name="wrist_forearm" pos="0 0 0" quat="0.995805 -0.0915016 0 0">
-      <inertial pos="0.0104116 0.023921 -0.169564" mass="0.486822" fullinertia="0.00204395 0.00198124 0.000703213 1.21401e-05 -6.73526e-05 0.000256435"/>
+      <inertial pos="0.00998949 0.0233731 -0.166459" mass="0.438807" fullinertia="0.00160815 0.00159301 0.000469415 1.06949e-05 -5.93928e-05 0.000226087"/>
       <geom type="mesh" mesh="wrist_r_forearm_front" rgba="0.92 0.92 0.93 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1022" quat="0.5 0.5 -0.5 -0.5"/>
       <geom type="mesh" mesh="wrist_r_forearm_back" rgba="0.95 0.95 0.96 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1022" quat="0.5 0.5 -0.5 -0.5"/>
       <geom type="mesh" mesh="wrist_r_wrist_fork" rgba="0.80 0.81 0.83 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1022" quat="0.5 0.5 -0.5 -0.5"/>

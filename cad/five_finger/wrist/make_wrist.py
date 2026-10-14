@@ -141,19 +141,29 @@ def cuff_offset(y):
     return wd.CUFF_PROUD * t * t * (3 - 2 * t)
 
 
-def section_pts(y, d=0.0, m=1440):
-    """Points (x, z) of the base section at height y offset outwards by d (d < 0: inwards)."""
+def section_pts(y, d=0.0, m=1440, normal=False):
+    """Points (x, z) of the base section at height y offset outwards by d (d < 0: inwards). normal: d is measured
+    normal to the lofted surface, not in the section plane (an inset grows by sqrt(1 + slope^2) where the surface
+    flares, so the wall keeps its thickness through the wrist flare)."""
     C = superellipse(*forearm_profile(y), m=m)
-    return offset_curve(C, d) if d else C
+    if not d:
+        return C
+    if not normal:
+        return offset_curve(C, d)
+    h = 0.25
+    t = np.roll(C, -1, 0) - np.roll(C, 1, 0)
+    n = np.column_stack([t[:, 1], -t[:, 0]]) / np.linalg.norm(t, axis=1)[:, None]
+    slope = np.sum((superellipse(*forearm_profile(y - h), m=m) - superellipse(*forearm_profile(y + h), m=m)) * n, 1) / (2 * h)
+    return C + (d * np.sqrt(1 + slope ** 2))[:, None] * n
 
 
 SECTION_PTS = 72           # spline points per section (equal arc length)
 
 
-def section(y, d=0.0):
+def section(y, d=0.0, normal=False):
     """Closed spline wire in the plane W y = const: the base section offset by d (outer skin: d = cuff_offset(y),
-    inner wall: d = -WALL)."""
-    C = section_pts(y, d)
+    inner wall: d = -WALL, normal=True)."""
+    C = section_pts(y, d, normal=normal)
     L = np.r_[0.0, np.cumsum(np.linalg.norm(np.diff(np.vstack([C, C[:1]]), axis=0), axis=1))]
     s = np.linspace(0.0, L[-1], SECTION_PTS, endpoint=False)
     Cc = np.vstack([C, C[:1]])
@@ -306,11 +316,13 @@ def shell_solid():
     edge = cq.Solid.makeLoft([outer_section(y) for y in np.linspace(yt - w, y2, int(round(yt - w - y2)) + 1)], False)
     body = cq.Solid.makeLoft([outer_section(y) for y in np.linspace(y2, y3, 28)], False)
     outer = fuse(above, groove, edge, body)
-    yi, t = np.linspace(y0, y3, 32), wd.WALL + 0.05      # (+0.05: the two lofts interpolate a little differently)
-    cavity = fuse(cq.Solid.makeLoft([section(y, -t) for y in yi], False),
-                  cq.Solid.extrudeLinear(cq.Face.makeFromWires(section(y0, -t)), V(0, 3, 0)),   # through both ends
-                  cq.Solid.extrudeLinear(cq.Face.makeFromWires(section(y3, -t)), V(0, -3, 0)))
-    return cut(outer, cavity), cq.Solid.makeLoft([section(y, -0.5 * wd.WALL) for y in yi], False)
+    # cavity and mid-wall solid: the same two-piece spacing (the wrist flare changes fast)
+    ya, yb, t = np.linspace(y0, y2, int(round(y0 - y2)) + 1), np.linspace(y2, y3, 28), wd.WALL + 0.05
+    loft2 = lambda d: fuse(*[cq.Solid.makeLoft([section(y, d, True) for y in yy], False) for yy in (ya, yb)])
+    cavity = fuse(loft2(-t),            # (+0.05: the cavity and skin lofts interpolate a little differently)
+                  cq.Solid.extrudeLinear(cq.Face.makeFromWires(section(y0, -t, True)), V(0, 3, 0)),   # through both ends
+                  cq.Solid.extrudeLinear(cq.Face.makeFromWires(section(y3, -t, True)), V(0, -3, 0)))
+    return cut(outer, cavity), loft2(-0.5 * wd.WALL)
 
 
 def wall_boss(y, ang, r=3.5, overlap=0.5):
@@ -347,12 +359,12 @@ _CAP_FRONT, _CAP_NRM = zip(*[wall_boss(wd.CAP_Y[0], a) for a in (-40.0, -140.0)]
 CAP_SCREWS = list(_CAP_FRONT) + [(s * 7.0, 26.0) for s in (1, -1)]       # back pair between the back stop pad and the rods
 _FL, _FL_NRM = zip(*[wall_boss(wd.FOREARM_BOTTOM, a) for a in (-40.0, -140.0, 40.0, 140.0)])
 FLANGE_SCREWS = list(_FL)
-# servo frame (unchanged): its base lies 0.2 mm above seat ribs / pads at z = FRAME_Z0 - 0.2, its side blocks face
-# pads at |x| = FRAME_SIDE_X; both pairs of countersunk screws seat on spot faces sunk into the curved skin
-FRAME_Z0, FRAME_SIDE_X = -42.3, 33.0
+# servo frame: its base lies 0.2 mm above seat ribs / pads at z = FRAME_Z0 - 0.2, its side blocks face bosses at
+# |x| = FRAME_SIDE_X (just outside the horn arms); both pairs of countersunk screws seat on spot faces in the skin
+FRAME_Z0, FRAME_SIDE_X = -42.3, 31.0
 FRAME_TABS = [(s * 15.0, wd.Y_SHAFT[2] - wd.SERVO_W / 2 - 3.3 - 4.5) for s in (1, -1)]     # palm-side screws
 FRAME_SIDE = [(wd.SIDE[i] * FRAME_SIDE_X, wd.Y_SHAFT[i], -24.5) for i in (1, 2)]          # side-wall screws
-TAB_SEAT_Z, SIDE_SEAT_X = -47.0, 39.5        # head seats of the M3x10 / M3x12 countersunk (their tips end where M3x8 did)
+TAB_SEAT_Z, SIDE_SEAT_X = -45.0, 35.0        # head seats of the four M3x8 countersunk, below the curved skin
 SPOT_R = 3.75                                # d7.5 spot face from the skin down to the head seat
 
 
@@ -383,16 +395,16 @@ def make_forearm_front(shell, mid):
     for sx in (1, -1):                               # two seat ribs under the frame base (undersides 50 deg)
         adds.append(prism_yz([(y_top, zs), (y_bot, zs), (y_bot - 24, zs - 20), (y_top, zs - 20)],
                              sx * 12.0 - 1.5, sx * 12.0 + 1.5).intersect(mid))
-    for (x, y) in FRAME_TABS:      # pads behind the palm-side screws, countersunk M3x10 into the frame's inserts
+    for (x, y) in FRAME_TABS:      # pads behind the palm-side screws, countersunk M3x8 into the frame's inserts
         adds.append(prism_yz([(y + 5, zs), (y - 5, zs), (y - 29, zs - 20), (y + 5, zs - 20)], x - 5.5, x + 5.5).intersect(mid))
-        tools += countersunk((x, y, zs), (0, 0, 1), TAB_SEAT_Z - zs, 10)
+        tools += countersunk((x, y, zs), (0, 0, 1), TAB_SEAT_Z - zs, 8)
     from scipy.spatial import ConvexHull
     keel = np.array([(6.0 * np.cos(t), 6.0 * np.sin(t)) for t in np.linspace(0, 2 * np.pi, 48, endpoint=False)] + [(-9.6, 0.0)])
     keel = keel[ConvexHull(keel).vertices]          # d12 boss section (y, z) with a 51 deg keel underneath
-    for (x, y, z) in FRAME_SIDE:   # bosses behind the side-wall screws, countersunk M3x12 into the frame's side blocks
+    for (x, y, z) in FRAME_SIDE:   # bosses behind the side-wall screws, countersunk M3x8 into the frame's side blocks
         sx = np.sign(x)
         adds.append(prism_yz([(y + a, z + b) for a, b in keel], x, x + sx * 20).intersect(mid))
-        tools += countersunk((x, y, z), (-sx, 0, 0), FRAME_SIDE_X - SIDE_SEAT_X, 12)
+        tools += countersunk((x, y, z), (-sx, 0, 0), FRAME_SIDE_X - SIDE_SEAT_X, 8)
     front = fuse(front, *adds)
     return cut(front, *tools)
 
@@ -431,7 +443,7 @@ def make_servo_frame():
     z0, ztop = FRAME_Z0, -12.0
     y_top = b1[1][1] + c + t
     y_bot = b2[1][0] - c - t
-    parts = [box(-21.5, 21.5, y_bot - 9, y_top, z0, z0 + 2.25)]                 # base (inside the front corner radii)
+    parts = [box(-20.5, 20.5, y_bot - 9, y_top, z0, z0 + 2.25)]                 # base
     parts.append(box(-25.8, 25.8, b1[1][1] + c, y_top, z0 + 2.25, ztop))         # top plate
     parts.append(box(-25.8, 25.8, b2[1][1] + c, b1[1][0] - c, z0 + 2.25, ztop))  # middle plate (shared)
     parts.append(box(-25.8, 25.8, y_bot, b2[1][0] - c, z0 + 2.25, ztop))         # bottom plate
@@ -454,7 +466,10 @@ def make_servo_frame():
         xo = sx * (xin - 0.3)
         parts.append(prism_xz([(xr, zr0), (xr, zt), (xo, zt), (xo, zt - 14.0), (xr + sx * 0.5, zr0)], y - 7, y + 7))
     frame = fuse(*parts)
-    tools = [cyl((x, y, z0 - 0.01), (0, 0, 1), 2.0, 5.0) for (x, y) in FRAME_TABS]   # M3 inserts from the front
+    # palm-side corners chamfered at 51 deg (clear of the servo bodies), so the forearm's oval section can hug them
+    corner = [(19.8, z0 - 0.7), (40.0, z0 - 0.7), (40.0, z0 - 0.7 + 1.25 * 20.2)]
+    tools = [prism_xz(corner, -140, -30), prism_xz([(-x, z) for x, z in corner], -140, -30)]
+    tools += [cyl((x, y, z0 - 0.01), (0, 0, 1), 2.0, 5.0) for (x, y) in FRAME_TABS]  # M3 inserts from the front
     tools += [cyl((sx * xin + 0.01 * sx, y, z), (-sx, 0, 0), 2.0, 5.0) for (x, y, z) in FRAME_SIDE for sx in [np.sign(x)]]
     return cut(frame, *tools)
 
@@ -478,12 +493,13 @@ def make_horn_arm():
     return cut(arm, *tools)
 
 
-FLANGE_A, FLANGE_B, FLANGE_N = 69.0, 65.0, 4.0   # elbow plate half-sizes (x, z) and exponent: M5 counterbores 3.8 mm from the edge
+STAND_SQUARE = 80.0                            # 4 x M5 stand screws on this square, 10 mm outside the shells' skin
+FLANGE_A, FLANGE_B, FLANGE_N = 58.0, 58.0, 4.0   # elbow plate half-sizes (x, z) and exponent: M5 counterbores 7.5 mm from the edge
 
 
 def make_elbow_flange():
-    """Elbow plate: a superellipse centred under the forearm's bottom section, in the same proportion (wider than
-    deep) and just large enough for the 4 x M5 stand screws on the 100 mm square, outside the shells."""
+    """Elbow plate: a superellipse centred under the forearm's bottom section, just large enough for the 4 x M5 stand
+    screws on the STAND_SQUARE, outside the shells (heads reachable from above)."""
     y0, y1 = wd.ELBOW_Y, wd.FOREARM_BOTTOM
     _, zf, zb = forearm_profile(wd.FOREARM_BOTTOM)[:3]
     zc = 0.5 * (zf + zb)
@@ -492,10 +508,11 @@ def make_elbow_flange():
     plate = cq.Solid.extrudeLinear(cq.Face.makeFromWires(w), V(0, y1 - y0, 0))
     plate = cq.Workplane().add(plate).edges("not |Y").chamfer(1.0).val()
     tools = [cyl((0, y0 - 1, zc), (0, 1, 0), 10.0, 10)]                                  # cable hole d20
+    h = STAND_SQUARE / 2
     for sx in (1, -1):
-        for sz in (1, -1):                                                              # 4 x M5 on a 100 mm square
-            tools += [cyl((sx * 50, y0 - 1, zc + sz * 50), (0, 1, 0), 2.75, 10),
-                      cyl((sx * 50, y1 - 3.5, zc + sz * 50), (0, 1, 0), 4.9, 5)]
+        for sz in (1, -1):                                                              # 4 x M5, counterbored from the top
+            tools += [cyl((sx * h, y0 - 1, zc + sz * h), (0, 1, 0), 2.75, 10),
+                      cyl((sx * h, y1 - 3.5, zc + sz * h), (0, 1, 0), 4.9, 5)]
     for (x, z) in FLANGE_SCREWS:                                                        # M3x10 up into the shells
         tools += [cyl((x, y0 - 1, z), (0, 1, 0), 1.7, 10), cyl((x, y0 - 1, z), (0, 1, 0), 3.25, 1 + 3.0)]
     # weight-saving pocket in the top face, hidden inside the shells: 3 mm floor, islands under the shells' bosses

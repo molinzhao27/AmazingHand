@@ -2,8 +2,9 @@
 """Before/after render of the forearm restyle: the hand on the forearm at the neutral pose (keyframe), with the
 forearm parts of a git revision (before) and of the working tree (after), palm side, radial side and 3/4.
 
-The "before" forearm (R-Forearm_Front / _Back, R-Wrist_Fork, Elbow_Flange) is read from `git show <rev>:...` and swapped
-into the same sim model, so the hand, the shells and the camera are identical in both rows.
+The forearm parts (R-Forearm_Front / _Back, R-Wrist_Fork, Elbow_Flange) are swapped into the same sim model: "before"
+from `git show <rev>:...`, "after" from cad/five_finger/wrist/stl in the working tree. The hand, the shells and the
+camera are identical in both rows.
 
 Usage: python render_forearm_before_after.py [--before-rev HEAD] [--model AH_Right_5F_Slim_Wrist]
                                              [--out ../five_finger/renders/before_after_forearm.jpg]
@@ -69,6 +70,7 @@ def main():
     ap.add_argument("--size", type=int, default=480)
     args = ap.parse_args()
     model = HERE.parent / "AHSimulation" / args.model / "mjcf"
+    args.out = args.out.resolve()
     rows = []
     with tempfile.TemporaryDirectory() as tmp:
         swap = {}
@@ -77,7 +79,8 @@ def main():
                                   check=True, capture_output=True).stdout
             (Path(tmp) / f"{stem}.stl").write_bytes(blob)
             swap[mesh] = Path(tmp) / f"{stem}.stl"
-        for tag, sw in (("before", swap), ("after", {})):
+        after = {mesh: REPO / "cad/five_finger/wrist/stl" / f"{stem}.stl" for mesh, stem in PARTS.items()}
+        for tag, sw in (("before", swap), ("after", after)):
             tiles = []
             for (name, _, _), img in zip(VIEWS, render(model, sw, args.size)):
                 im = Image.fromarray(img)

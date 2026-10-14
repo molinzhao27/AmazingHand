@@ -38,60 +38,60 @@
       "print": "flat"
     },
     "R-Wrist_Fork": {
-      "volume_cm3": 31.29,
-      "mass_g": 31.3,
+      "volume_cm3": 24.7,
+      "mass_g": 24.7,
       "solids": 1,
       "valid": true,
       "bbox_cad_mm": [
-        -25.53,
-        -191.99,
-        -57.5,
-        59.45,
+        -18.16,
+        -190.62,
+        -51.5,
+        52.15,
         -144.46,
-        24.5
+        23.5
       ],
       "print": "cap face down, lugs up; bearing seats are teardrops"
     },
     "R-Forearm_Front": {
-      "volume_cm3": 73.05,
-      "mass_g": 73.1,
+      "volume_cm3": 60.18,
+      "mass_g": 60.2,
       "solids": 1,
       "valid": true,
       "bbox_cad_mm": [
-        -64.51,
-        -372.97,
-        -63.51,
-        58.97,
-        -176.34,
+        -52.57,
+        -370.76,
+        -59.81,
+        52.06,
+        -177.77,
         -21.5
       ],
       "print": "standing on the elbow end"
     },
     "R-Forearm_Back": {
-      "volume_cm3": 80.55,
-      "mass_g": 80.5,
+      "volume_cm3": 71.7,
+      "mass_g": 71.7,
       "solids": 1,
       "valid": true,
       "bbox_cad_mm": [
-        -64.58,
-        -372.98,
-        -22.29,
-        59.06,
-        -176.32,
-        28.5
+        -52.98,
+        -370.83,
+        -33.32,
+        52.39,
+        -177.68,
+        24.5
       ],
       "print": "standing on the elbow end"
     },
     "R-Wrist_Servo_Frame": {
-      "volume_cm3": 30.67,
-      "mass_g": 30.7,
+      "volume_cm3": 28.32,
+      "mass_g": 28.3,
       "solids": 1,
       "valid": true,
       "bbox_cad_mm": [
-        -28.14,
-        -275.24,
+        -26.18,
+        -275.06,
         -53.8,
-        43.79,
+        41.82,
         -197.49,
         -23.5
       ],
@@ -113,17 +113,17 @@
       "print": "flat, stud face down (nut pocket up)"
     },
     "Elbow_Flange": {
-      "volume_cm3": 79.17,
-      "mass_g": 79.2,
+      "volume_cm3": 61.81,
+      "mass_g": 61.8,
       "solids": 1,
       "valid": true,
       "bbox_cad_mm": [
-        -85.36,
-        -382.38,
-        -82.5,
-        51.08,
-        -351.7,
-        47.5
+        -74.54,
+        -380.38,
+        -74.5,
+        40.26,
+        -353.7,
+        41.5
       ],
       "print": "flat, underside down"
     },
@@ -136,32 +136,32 @@
       "print": "flange face down (lugs up); the three 1.4 mm pad pockets bridge, gussets carry the lever bar"
     },
     "L-Wrist_Fork": {
-      "volume_cm3": 31.29,
-      "mass_g": 31.3,
+      "volume_cm3": 24.7,
+      "mass_g": 24.7,
       "solids": 1,
       "valid": true,
       "mirror_of": "R-Wrist_Fork",
       "print": "cap face down, lugs up; bearing seats are teardrops"
     },
     "L-Forearm_Front": {
-      "volume_cm3": 73.05,
-      "mass_g": 73.1,
+      "volume_cm3": 60.18,
+      "mass_g": 60.2,
       "solids": 1,
       "valid": true,
       "mirror_of": "R-Forearm_Front",
       "print": "standing on the elbow end"
     },
     "L-Forearm_Back": {
-      "volume_cm3": 80.55,
-      "mass_g": 80.5,
+      "volume_cm3": 71.7,
+      "mass_g": 71.7,
       "solids": 1,
       "valid": true,
       "mirror_of": "R-Forearm_Back",
       "print": "standing on the elbow end"
     },
     "L-Wrist_Servo_Frame": {
-      "volume_cm3": 30.67,
-      "mass_g": 30.7,
+      "volume_cm3": 28.32,
+      "mass_g": 28.3,
       "solids": 1,
       "valid": true,
       "mirror_of": "R-Wrist_Servo_Frame",

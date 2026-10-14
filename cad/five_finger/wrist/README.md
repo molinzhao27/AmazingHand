@@ -2,7 +2,7 @@
 
 ![overview](../../../Demo/AHSimulation/wrist/renders/wrist_overview.jpg)
 
-This adds a 2-DOF wrist (flexion/extension and radial/ulnar deviation) and a forearm base to the 5-digit hand. The hand bolts on **unchanged**: no hand part is modified. The design is in the spirit of the Shadow hand: a slim gimbal at the wrist, the motors in the forearm, and a smooth tapered forearm shell (rounded oval sections, a cuff ring at the wrist) on an elbow flange.
+This adds a 2-DOF wrist (flexion/extension and radial/ulnar deviation) and a forearm base to the 5-digit hand. The hand bolts on **unchanged**: no hand part is modified. The design is in the spirit of the Shadow hand: a slim gimbal at the wrist, the motors in the forearm, and a slim, smoothly tapered forearm shell (rounded sections that hug the parts inside, a waist and a cuff ring at the wrist) on an elbow flange.
 
 The forearm is lined up with the middle of the four fingers, the way a human forearm lines up with the middle finger (see [Hand on the forearm](#hand-on-the-forearm)).
 
@@ -45,10 +45,13 @@ Regenerate everything (from the repo root, after the 5F steps in [FIVE_FINGER.md
 .venv/bin/python Demo/AHSimulation/five_finger/build_5f_model.py          # copies the shells into AH_Right_5F
 .venv/bin/python Demo/AHSimulation/wrist/build_wrist_model.py --keyframe   # MJCF          (~15 s)
 .venv/bin/python Demo/AHSimulation/wrist/build_wrist_model.py --hand AH_Right_5F_Slim --keyframe   # slim-finger variant
+.venv/bin/python Demo/AHSimulation/wrist/build_wrist_model.py --hand AH_Right_5F_3S --keyframe     # 3-phalanx variant
 .venv/bin/python Demo/AHSimulation/wrist/verify_wrist_model.py             # checks        (~5 min)
+.venv/bin/python Demo/AHSimulation/wrist/verify_wrist_model.py --model AH_Right_5F_3S_Wrist
 .venv/bin/python Demo/AHSimulation/wrist/check_thumb_rule.py               # thumb map     (~1 min)
 .venv/bin/python Demo/AHSimulation/wrist/render_wrist_model.py             # renders       (~2 min)
-.venv/bin/python Demo/AHSimulation/wrist/render_forearm_before_after.py --before-rev <rev>   # forearm vs an older revision
+.venv/bin/python Demo/AHSimulation/wrist/render_forearm_before_after.py --before-rev <rev> --model AH_Right_5F_3S_Wrist \
+    --out Demo/AHSimulation/five_finger/renders/before_after_forearm_slim.jpg      # forearm vs an older revision
 ```
 
 ## Architecture and why
@@ -134,7 +137,7 @@ I recommend against it for this build:
 - **Cabling gets harder.** It needs either a slip ring or a ±180° cable loop for the 10 A hand supply and the bus.
 - **Little gain on a fixed stand.** Most robot arms that would carry this (e.g. SO-100, Reachy) already have a wrist roll.
 
-If needed, the elbow flange (4 × M5 on a 100 mm square, Ø20 centre hole) is the interface where a roll module would go. It is not designed here.
+If needed, the elbow flange (4 × M5 on an 80 mm square, Ø20 centre hole) is the interface where a roll module would go. It is not designed here.
 
 ## Servo choice and torque budget
 
@@ -151,10 +154,10 @@ The PLA value is **calibrated**: the same model gives the stock hand (AH_Right +
 
 Results:
 
-- **5-digit hand with shells and pad:** 496 g, CoM 108–114 mm from the wrist centre (CloseHand to OpenHand).
-- **Everything the wrist moves:** the adapter and ring (with pins, bearings, studs and screws) add 64 g, for 560 g with the CoM 104 mm from C. The rods weigh 4.8 / 6.4 g.
+- **5-digit hand with shells and pad:** 492 g, CoM 108–114 mm from the wrist centre (CloseHand to OpenHand).
+- **Everything the wrist moves:** the adapter and ring (with pins, bearings, studs and screws) add 64 g, for 556 g with the CoM 104 mm from C. The rods weigh 4.8 / 6.4 g.
 - **Payload case:** 200 g placed at the OpenHand fingertip centroid of index…pinky, 227 mm from C.
-- **Inertia about the axes:** 0.0081 / 0.0083 kg·m² (flexion / deviation), and 0.0184 / 0.0186 kg·m² with the payload.
+- **Inertia about the axes:** 0.0080 / 0.0083 kg·m² (flexion / deviation), and 0.0183 / 0.0186 kg·m² with the payload.
 
 **Static torque per servo**, over the whole operating ROM, for six ways of mounting the forearm. The sim (servo outer loop settled) matches the analytic Jacobian model to within 0.08 N·m.
 
@@ -185,7 +188,7 @@ Most of the dynamic torque is the motor's own back-EMF / gear damping at speed. 
 
 Same size, same 25T horn, same protocol and registers: a C001 drops in for hand-only use with no CAD change. The sim uses the `sts3215_345` values that Pollen identified for the Open Duck Mini (kp 17.11 N·m/rad, damping 0.56, armature 0.027, frictionloss 0.068), with the force limit set to the datasheet stall of 2.94 N·m.
 
-**Position sag.** A Feetech servo is a P controller. With the hand up and the wrist at 60°, its compliance plus the linkage gain let the wrist sag 2.3–4.0° from the command. The controller should therefore run a small outer loop on the servo angles (read `present_position`, nudge `goal_position` by 0.1 × error at 20–50 Hz). In the sim this brings every ROM pose to within 0.06° of the command. Do not run that loop faster than the servo's own ~3 Hz position loop: a gain of 0.4 at 50 Hz oscillated in the sim.
+**Position sag.** A Feetech servo is a P controller. With the hand up and the wrist at 60°, its compliance plus the linkage gain let the wrist sag 2.2–4.0° from the command. The controller should therefore run a small outer loop on the servo angles (read `present_position`, nudge `goal_position` by 0.1 × error at 20–50 Hz). In the sim this brings every ROM pose to within 0.06° of the command. Do not run that loop faster than the servo's own ~3 Hz position loop: a gain of 0.4 at 50 Hz oscillated in the sim.
 
 ## Mounting the hand: the wrist interface pattern
 
@@ -199,43 +202,62 @@ I read the bolt pattern from `R-Wrist_Interface.step` with CadQuery/OCP. Angles 
 
 ## Forearm base
 
-![forearm before / after](../../../Demo/AHSimulation/five_finger/renders/before_after_forearm.jpg)
+![forearm before / after](../../../Demo/AHSimulation/five_finger/renders/before_after_forearm_slim.jpg)
 
-- **Shape.** One smooth shell, lofted through superellipse sections: |x/a|ⁿ + |(z − zₘ)/b|ⁿ = 1 with n = 2.7–2.8, so there are no flat faces and no square corners outside. The sections are wider than deep, like a forearm. Their sizes are `wrist_design.FOREARM_KEYS`, blended along the forearm by a monotone cubic, so the taper has no flat bands:
+- **Shape.** A slim, smoothly tapered shell, lofted through superellipse sections: |x/a|ⁿ + |(z − zₘ)/b|ⁿ = 1, with n = 2.6–3.2 and separate exponents for the palm side and the back. There are no flat faces and no square corners outside. The sizes are `wrist_design.FOREARM_KEYS`, blended along the forearm by a monotone cubic:
 
-  | where (W y from C) | width × depth (mm) |
-  |---|---|
-  | wrist end, under the cap (−32) | 83 × 79 (86 × 82 over the cuff): the narrowest |
-  | top servo (−66) | 90 × 86 |
-  | lower servo (−96) | 93 × 87 |
-  | muscle belly (−168, the elbow-side third) | 100 × 92 |
-  | elbow end (−215) | 98 × 90: eases into the flange |
+  | where (W y from C) | width × depth (mm) | first restyle |
+  |---|---|---|
+  | waist under the cap (−32) | 69 × 73 (71 × 75 over the cuff) | 86 × 82 |
+  | top servo (−66) | 79 × 84 | 90 × 86 |
+  | lower servo (−96) to −124 | 79 × 84 | 93 × 87 to 95 × 89 |
+  | electronics bay (−170) | 76 × 78 | 100 × 92 |
+  | elbow end (−215) | 74 × 74 | 98 × 90 |
 
-  The old shell was a rounded box, 71 × 76.5 mm at the servos. A rounded oval has to be wider to hold the same parts: the horn-arm tips reach the back corners ((±31, 25.7) mm at θ = 0) and the servo frame fills the palm-side corners, and both keep their old clearances. At 1.5× human size (the palm is 133 mm wide), these proportions are close to a human forearm's.
-- **Wrist cuff.** From the cap down to 13 mm below it, the skin stands 1.5 mm proud. It blends back into the forearm over 3 mm (≤ 37°, so it prints standing). A 1 mm wide, 0.5 mm deep V panel line runs round the cuff just above its lower edge. Its upper flank is ≤ 45°, and the wall under it is still 3.4 mm. The fork cap has the cuff's outline and a 3 mm rounded top edge, so cap + cuff read as one ring. At the wrist end the back corners are rounder (exponent 2.3 on the back), so the back of the hand clears them at full extension.
-- **Wall.** 2.5 mm (`WALL`; ≥ 2.52 mm in the CAD), 4 mm in the cuff band. The shells are split front/back at the servos' back face (z = −10 mm from C), as before.
-- **Servo mounting.** `R-Forearm_Front` holds the printed servo frame (unchanged).
-  - The frame's base lies on two seat ribs and two screw pads at the old wall plane (z = −42.5 mm).
-  - Its side blocks face two d12 bosses at the old wall plane (|x| = 33 mm).
-  - It is held by 2 countersunk M3×10 through the palm side and 2 M3×12 through the side walls, into heat-set inserts. The heads seat in d7.5 teardrop spot faces, 1.6–2.6 mm (palm side) and 2.3–5.6 mm (sides) below the curved skin. The screw tips end where the old M3×8 did.
+  In the servo region the section hugs the parts: the horn-arm tips at the back corners ((±31, 25.7) mm at θ = 0) and the servos' horn-side palm corners ((±23.5, −40) mm). It keeps 0.25 mm more than the required clearances (1 mm for the arms, 1.25 mm for the rods, 0.25 mm for the frame). Those parts are about 62 × 68 mm, so the section is deeper than wide. Below the servos the bay tapers to the elbow. Above them the forearm waists in to the cap; the front flare is ≤ 40°, so the cavity prints standing.
+- **What the layout allows** (smallest section at the servos, n ≤ 3.2; see the [options study](#forearm-layout-options)): the parts as they were need about 80 × 84.5 mm. Shorter side screw blocks and chamfered palm-side corners on the servo frame bring that to about 78 × 84, which is what is built.
+- **Wrist cuff.** From the cap down to 8 mm below it, the skin stands 1 mm proud. It blends back into the forearm over 3 mm (≤ 27°, so it prints standing). A 1 mm wide, 0.5 mm deep V panel line runs round the cuff just above its lower edge; its upper flank is ≤ 45°. The fork cap has the cuff's outline and a 2.5 mm rounded top edge, so cap + cuff read as one ring.
+- **Wall.** 2.5 mm (`WALL`) measured normal to the skin, also through the wrist flare: the cavity sections are inset by WALL·√(1 + slope²). The CAD distance between skin and cavity is ≥ 2.53 mm, and ≥ 3.0 mm in the cuff band. The shells are split front/back at the servos' back face (z = −10 mm from C), as before.
+- **Servo mounting.** `R-Forearm_Front` holds the printed servo frame.
+  - The frame's base (|x| ≤ 20.5) lies on two seat ribs and two screw pads (z = −42.5 mm). Its palm-side corners are chamfered at 51°, clear of the servos.
+  - Its side blocks end at |x| = 30.5, just outside the horn arms, and face two d12 bosses on the side walls.
+  - It is held by 4 countersunk M3×8: 2 through the palm side and 2 through the side walls, into heat-set inserts. The heads seat in d7.5 teardrop spot faces, 1.5–2.9 mm (palm side) and 1.2–3.0 mm (sides) below the curved skin.
   - `R-Forearm_Back` is a cover. Four 50° struts from its back wall keep the servos seated in the frame.
-- **Fork.** `R-Wrist_Fork` (cap + fork) carries the flexion bearings, the rod slots (computed from the rod sweep over the full stop rectangle + 4.5 mm), the flexion-stop pads and the Ø12 cable hole. Its cap is the top of the cuff ring (86 × 82 mm). It screws to both shells with 4 × M3×10.
-- **Elbow flange.** `Elbow_Flange` is a 138 × 130 × 6 mm superellipse plate (exponent 4), centred under the forearm and in its proportion. It is just large enough for 4 × Ø5.5 counterbored holes on a **100 mm square** for M5 into a plate, table or aluminium extrusion frame; the counterbores stay 3.8 mm from the edge. It has a Ø20 cable hole, and a 3 mm deep pocket inside the shells' footprint saves 16 g. The shells screw onto it from below (4 × M3×10).
-- **Electronics bay.** Below the servos there is an 85 mm tall bay, 95 × 87 mm inside at the belly, with room for the bus adapter and power distribution. A Ø12 cable notch at the back of the elbow end leads out.
+- **Fork.** `R-Wrist_Fork` (cap + fork) carries the flexion bearings, the rod slots (computed from the rod sweep over the full stop rectangle + 4.5 mm), the flexion-stop pads and the Ø12 cable hole. Its cap is the top of the cuff ring (71 × 75 mm). The rod slots keep ≥ 4.8 mm of cap round them. It screws to both shells with 4 × M3×10.
+- **Elbow flange.** `Elbow_Flange` is a 116 × 116 × 6 mm superellipse plate (exponent 4), centred under the forearm. It carries 4 × Ø5.5 counterbored holes on an **80 mm square** for M5 into a plate, table or aluminium extrusion frame (`make_wrist.STAND_SQUARE`; 100 mm before the slimming). The screw centres are 10 mm outside the shells' skin, so the heads stay reachable from above, and the counterbores are 7.5 mm from the plate's edge. It has a Ø20 cable hole, and a 3 mm deep pocket inside the shells' footprint. The shells screw onto it from below (4 × M3×10).
+- **Electronics bay.** Below the servos there is an 85 mm tall bay, 69 × 69 mm inside at the elbow end, with room for the bus adapter and power distribution. A Ø12 cable notch at the back of the elbow end leads out.
 - **Cable channel.** The hand cable comes down the back centre, between the rods and the cap screws.
+
+### Forearm layout options
+
+What each change buys at the servos (the smallest superellipse section, n ≤ 3.2, same clearances; analytic envelope of the parts):
+
+| change | servo-region section (W × D, mm) | cost | done? |
+|---|---|---|---|
+| first restyle (sections wider than deep) | 90–93 × 86–87 | – | replaced |
+| same parts, deeper than wide | ≈ 80 × 84.5 | none | yes |
+| side screw blocks shortened to the horn arms, 51° chamfer on the frame's palm-side corners, base \|x\| ≤ 20.5 | ≈ 78 × 84 | frame reprint | yes |
+| horn-arm tip on a heat-set insert (r 4.5 → 3.5) | −1.5 mm W | 1.5 mm of plastic round the insert carries the rod load (110 N at stall) | no |
+| 4.5 mm ball stud on the horn arm (servos 1.5 mm further in) | −2 mm W, −3 mm D | non-standard ball stud (hollow Ø5.8 ball on an M3 screw) | no |
+| squarer sections (n 3.5 / 4) | −2 / −4 mm W, −1 / −2 mm D | reads as the old box again | no |
+| servos with their long axis along the forearm | – | not possible: the arm balls sweep ±55° (±67° at the stops) in the servos' own yz plane and would hit the bodies from about ±50° | – |
+| servo bodies turned 30–60° about their shafts | ≤ −5 mm D, only past 45° | the bodies hit the ball sweep and each other | no |
+| servos further apart along the forearm | – | the shaft positions are rod geometry (66 / 96 mm rods) | – |
+| M5 stand screws on an 80 mm square (was 100 mm) | flange 138 × 130 → 116 × 116, −25 g | changes the stand / roll-module interface (nothing built yet) | yes |
 
 ## Printing
 
 Results from `make_wrist.py`:
 
 - Every part is one valid, watertight solid.
-- At the 1st percentile, local wall thickness is ≥ 1.25 mm on every part, and < 1 % of the surface samples are under 1.2 mm (edges and chamfers). The forearm skin itself is ≥ 2.5 mm everywhere (the CAD distance between skin and cavity is ≥ 2.52 mm).
+- At the 1st percentile, local wall thickness is ≥ 1.25 mm on every part, and < 1 % of the surface samples are under 1.2 mm (edges and chamfers). The forearm skin itself is ≥ 2.5 mm everywhere (the CAD distance between skin and cavity is ≥ 2.53 mm).
 - Overhangs > 45°, in mm², and horizontal ceilings (short bridges):
-  - forearm front: 144 and 46. The overhangs are the roofs of the four teardrop spot faces (exactly 45°) and the tops of the countersinks;
-  - forearm back: 33 and 55;
+  - forearm front: 101 and 54. The overhangs are the roofs of the four teardrop spot faces (exactly 45°) and the tops of the countersinks;
+  - forearm back: 34 and 50;
   - fork: 69 and 11;
-  - elbow flange: 379 and 96. The overhang is the 1 mm × 45° chamfer round the bottom edge, which is the first layer;
-  - the parts the restyle did not touch are unchanged: hand adapter 603 and 821 (pad pockets ≤ 25 mm, counterbores), servo frame 242 (the ~47° undersides of its two side blocks) and 387, ring 53 and 12.
+  - servo frame: 25 and 178 (the chamfer trimmed the ~47° undersides of the side blocks, which were 242);
+  - elbow flange: 211 and 96. The overhang is the 1 mm × 45° chamfer round the bottom edge, which is the first layer;
+  - unchanged: hand adapter 603 and 821 (pad pockets ≤ 25 mm, counterbores), ring 53 and 12.
 
   The inner pads, ribs and struts of the shells have ≥ 50° undersides. The ceilings are the webs under the cap-screw bosses and the tops of the blind insert holes and counterbores. Each part's report is in [previews/cad_checks.txt](previews/cad_checks.txt).
 
@@ -245,15 +267,15 @@ Results from `make_wrist.py`:
 |---|---|---|---|
 | R-Wrist_Hand_Adapter | 52.5 | flange face down, lugs up; the three 1.4 mm pad pockets bridge, gussets carry the lever bar | PETG (load path) |
 | Wrist_Gimbal_Ring | 1.6 | flat | PETG |
-| R-Wrist_Fork | 31.3 | cap face down, fork up; teardrop bearing seats | PETG |
-| R-Forearm_Front | 73.1 | standing on the elbow end | PLA |
-| R-Forearm_Back | 80.5 | standing on the elbow end | PLA |
-| R-Wrist_Servo_Frame | 30.7 | base down | PLA |
+| R-Wrist_Fork | 24.7 | cap face down, fork up; teardrop bearing seats | PETG |
+| R-Forearm_Front | 60.2 | standing on the elbow end | PLA |
+| R-Forearm_Back | 71.7 | standing on the elbow end | PLA |
+| R-Wrist_Servo_Frame | 28.3 | base down | PLA |
 | Wrist_Horn_Arm ×2 | 2 × 2.4 | flat, stud face down | PETG |
-| Elbow_Flange | 79.2 | flat | PLA |
-| **Total** | **≈ 354 g** | | |
+| Elbow_Flange | 61.8 | flat | PLA |
+| **Total** | **≈ 306 g** | | |
 
-The restyled forearm parts (fork, both shells, flange) weigh 264 g, against 239 g for the old rounded box (+10.5 %).
+The forearm parts (fork, both shells, flange) weigh 218 g: 264 g for the first restyle, 239 g for the old rounded box.
 
 PLA works for every part. I suggest PETG for the four gimbal and linkage parts because they carry sustained loads (creep).
 
@@ -272,8 +294,7 @@ PLA works for every part. I suggest PETG for the four gimbal and linkage parts b
 | M3 heat-set insert (Ø4.0 hole) | 14 | adapter 2, shells 8, servo frame 4 |
 | 3.0×12 thermoplastic screw (or M3×12 thread-forming) | 4 | adapter → wrist interface |
 | M3×10 socket head | 8 | fork cap 4, elbow flange 4 |
-| M3×10 countersunk | 2 | servo frame, through the palm side |
-| M3×12 countersunk | 2 | servo frame, through the side walls |
+| M3×8 countersunk | 4 | servo frame (2 through the palm side, 2 through the side walls) |
 | M2.5×6 | 8 | horn arm → disc horn (holes drawn on a 14 mm circle at 45°: **check your horn**, `make_horn_arm()`) |
 | M3 nut | 2 | arm studs |
 | M5 screws + T-nuts / nuts | 4 | elbow flange → stand |
@@ -281,7 +302,7 @@ PLA works for every part. I suggest PETG for the four gimbal and linkage parts b
 | 12 V supply ≥ 6 A + buck 12→6 V ≥ 10 A (or keep the hand's 6 V supply) | 1 | see [Power](#power) |
 | Optional: 2nd USB-TTL bus adapter for the wrist | 1 | see [Control](#control-code-changes) |
 
-Added mass: printed parts ≈ 354 g, servos 110 g, hardware ≈ 35 g, for ≈ 0.50 kg of wrist + forearm. Of that, only ≈ 64 g (adapter + ring) plus the 11 g of rods move with the hand.
+Added mass: printed parts ≈ 306 g, servos 110 g, hardware ≈ 35 g, for ≈ 0.45 kg of wrist + forearm. Of that, only ≈ 64 g (adapter + ring) plus the 11 g of rods move with the hand.
 
 **Assembly order:**
 
@@ -394,7 +415,7 @@ def Move_Wrist(Flex_deg, Dev_deg):            # flexion > 0 palm-ward, deviation
 - **Counts.** 54 bodies, 46 joints, nq = 97, nv = 80, 12 actuators, 27 equalities, 1 keyframe.
   - `qpos[0:2]` = wrist, `qpos[2:87]` = the AH_Right_5F hand in its own order, `qpos[87:97]` = linkage.
   - `ctrl[0:10]` = the finger actuators, unchanged in name and order; `ctrl[10:12]` = `wrist_motor1/2` (position, class `sts3215_12v`, ctrlrange ±75°).
-- **Mass.** The hand gets a lumped inertial: the mass model (496 g with shells) minus the 110.6 g the finger bodies already carry, i.e. 385.3 g at root (−9.3, −12.0, 51.4) mm with a full inertia tensor. The wrist parts' inertials come from their STLs (PLA 1.0 g/cm³ + bought-part masses).
+- **Mass.** The hand gets a lumped inertial: the mass model (492 g with shells) minus the 110.6 g the finger bodies already carry, i.e. 381.7 g at root (−9.5, −11.8, 51.5) mm with a full inertia tensor. The wrist parts' inertials come from their STLs (PLA 1.0 g/cm³ + bought-part masses).
 - **Closures.** The two rod closures use `solimp="0.9999 0.9999 0.001"`. With the hand's default (0.99 0.999) they stretched 0.35 mm under load (1–4° of wrist error); now ≤ 0.07 mm.
 - **Keyframe.** Settled at ctrl = 0. The wrist sags 0.06° / 0.08° under gravity, and the hand's qpos matches AH_Right_5F's key to 7e-5.
 - **Scenes.** `scene.xml` moves the floor under the elbow flange (z = −0.246 m). `scene_shells.xml` includes `robot_shells.xml`, which carries the 5F palm/back shells and the grip pad on the moving palm.
@@ -434,8 +455,8 @@ Full log: [reports/verify_AH_Right_5F_Wrist.txt](../../../Demo/AHSimulation/wris
 
 | pair | min clearance on the operating ROM | at the hard stops (outside the ROM) |
 |---|---|---|
-| hand (palm/back shells, pad, all digits) vs forearm, fork, ring, rods | **> 5 mm**: the forearm shells (cuff) ≥ 11.6 mm, the fork cap 6.6 mm (palm over the cap at +60 / +15°) | **3.55 mm**: the palm shell's wrist edge over the fork cap at the +65 / +30° corner. The shells' wrist cut rises towards the palm for this (`make_5f_shells.PALM_BEVEL`), as it does towards the back. The forearm shells keep ≥ 5.4 mm |
-| thumb over a 7×7 grid of its motors vs forearm | > 5 mm. Even with the fully over-extended thumb ((m1, m2) = (−90, +90)) the hand stays ≥ 5.2 mm from the forearm at 60° of wrist flexion ([reports/thumb_vs_forearm.txt](../../../Demo/AHSimulation/wrist/reports/thumb_vs_forearm.txt)). Without the longer palm it touched there, so `wrist_design.thumb_flexion_min()` limits the thumb only if `PALM_EXT` < 20 mm | – |
+| hand (palm/back shells, pad, all digits) vs forearm, fork, ring, rods | **> 5 mm**: the fork cap 11.4 mm, the forearm shells further | **6.75 mm** (back of the hand over the cap's back corner at −65 / +30°); the forearm shells keep ≥ 9.3 mm. The slimmer cap no longer reaches under the palm's wrist edge at +65 / +30° (3.55 mm with the first restyle). Same on AH_Right_5F_3S_Wrist |
+| thumb over a 7×7 grid of its motors vs forearm | > 5 mm. Even with the fully over-extended thumb ((m1, m2) = (−90, +90)) the hand stays ≥ 9.5 mm from the forearm at 60° of wrist flexion ([reports/thumb_vs_forearm.txt](../../../Demo/AHSimulation/wrist/reports/thumb_vs_forearm.txt)). Without the longer palm it touched there, so `wrist_design.thumb_flexion_min()` limits the thumb only if `PALM_EXT` < 20 mm | – |
 | hand adapter vs fork / forearm | 1.06 mm | 0.05 mm: the flange reaching its flexion-stop pad, as designed |
 | adapter ball studs vs forearm | 3.70 mm | 1.43 mm |
 | hand adapter vs ring, ring vs fork (gimbal gaps) | 0.73 mm | 0.73 mm |
@@ -468,7 +489,7 @@ The smallest ROM clearances (0.68–0.78 mm) are therefore against conservative 
   Check these against your parts and edit the parameters in `wrist_design.py` / `make_wrist.py`.
 - **Stud loads.** At servo stall a rod can push ~110 N (2.94 N·m / 26 mm). That bends the M3 ball stud close to yield. Normal loads are ≤ 40 N. Keep the STS3215 `torque_limit` at ≤ 60–70 % (the demo starts at 50 %); the worst static need is 33 %.
 - **The sim is not a collision sim.** The wrist parts are visual geoms. Interference was checked geometrically on sampled poses (CAD booleans at neutral, surface-distance sweeps over the ROM).
-- **Servo model.** It is borrowed from Pollen's Open Duck Mini identification of the STS3215, not identified on this wrist, so the P-sag numbers (2.3–4.0°) and dynamic margins are estimates.
+- **Servo model.** It is borrowed from Pollen's Open Duck Mini identification of the STS3215, not identified on this wrist, so the P-sag numbers (2.2–4.0°) and dynamic margins are estimates.
 - **The ROM is a software contract.** `wrist_design.clamp_wrist()` (coupled ROM) must run in the controller; `thumb_flexion_min()` is only a limit if the palm is built without its 20 mm extension.
   - The hard stops (≈ ±66° flexion, ≈ ±31° deviation) catch bad single-axis commands.
   - A combined out-of-ROM command near the stop corners can still press a rod against its servo's gear end.

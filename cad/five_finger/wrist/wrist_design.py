@@ -189,18 +189,20 @@ FLANGE_PLATE_T = 6.0
 ELBOW_Y = FOREARM_BOTTOM - FLANGE_PLATE_T     # -221: flange underside (stand / table)
 # Outer forearm key sections: superellipses |x / a|^n + |(z - zm) / b|^n = 1 with b = zm - zf, n = nf on the palm side
 # and b = zb - zm, n = nb on the back, interpolated in y by a monotone cubic (make_wrist.forearm_profile).
-# (y, x half-width a, z front zf, z back zb, z of the widest line zm, nf, nb)
-FOREARM_KEYS = [(-32.0, 41.5, -44.5, 34.5, -3.0, 2.8, 2.3),    # wrist end under the cap: narrowest; rounder back corners
-                                                             # clear the hand at full extension, the rod slots still fit
-                (-50.0, 44.3, -48.0, 36.5, -3.0, 2.8, 2.8),    # servo region: holds the frame and the horn-arm tips
-                (-90.0, 46.0, -49.0, 37.4, -3.2, 2.8, 2.8),
-                (-130.0, 48.0, -50.4, 38.7, -3.5, 2.75, 2.75),
-                (-168.0, 50.0, -52.0, 40.0, -4.0, 2.7, 2.7),   # muscle belly (bay for the bus adapter)
-                (FOREARM_BOTTOM, 48.8, -51.2, 39.2, -4.0, 2.7, 2.7)]   # eases into the elbow flange
-CUFF_Y = (-45.0, -48.0)    # wrist cuff: the outer surface stands CUFF_PROUD proud from the cap down to CUFF_Y[0],
-CUFF_PROUD = 1.5           # blended out by CUFF_Y[1] (<= 37 deg, prints standing)
-CAP_FILLET = 3.0           # rounded top edge of the fork cap: the top of the cuff ring
-GROOVE_Y = -43.5           # panel line near the lower edge of the cuff: V groove GROOVE_W wide and GROOVE_D deep from
+# (y, x half-width a, z front zf, z back zb, z of the widest line zm, nf, nb). Slim: in the servo region the sections
+# hug the parts (servos + frame + horn-arm sweep, about 62 x 68 mm) and are deeper than wide; a waist under the cap.
+FOREARM_KEYS = [(-32.0, 34.5, -39.0, 34.0, 1.0, 2.6, 3.0),     # waist under the cap: the rod slots and the stop pads fit
+                (-41.0, 37.0, -44.5, 35.0, 3.5, 2.9, 3.1),     # gentle flare (the cavity prints standing)
+                (-50.0, 39.0, -48.0, 35.8, 5.5, 3.1, 3.2),     # servo region: tight round the frame, horn arms and rods
+                (-66.0, 39.5, -48.3, 36.0, 5.8, 3.1, 3.2),
+                (-96.0, 39.5, -48.3, 36.0, 5.8, 3.1, 3.2),
+                (-124.0, 39.5, -48.3, 36.0, 5.8, 3.1, 3.2),
+                (-170.0, 38.0, -45.0, 33.0, 3.0, 2.8, 2.9),    # shallower electronics bay, tapering to the elbow
+                (FOREARM_BOTTOM, 37.0, -42.0, 32.0, 2.0, 2.7, 2.8)]
+CUFF_Y = (-40.0, -43.0)    # wrist cuff: the outer surface stands CUFF_PROUD proud from the cap down to CUFF_Y[0],
+CUFF_PROUD = 1.0           # blended out by CUFF_Y[1] (<= 27 deg, prints standing)
+CAP_FILLET = 2.5           # rounded top edge of the fork cap: the top of the cuff ring
+GROOVE_Y = -38.5           # panel line near the lower edge of the cuff: V groove GROOVE_W wide and GROOVE_D deep from
                            # this height down (in the cuff band, so the wall stays >= WALL + CUFF_PROUD - GROOVE_D)
 GROOVE_W, GROOVE_D = 1.0, 0.5
 ARM_TIP_R = 4.5            # horn arm tip radius around the ball stud (M3 nut pocket inside)
