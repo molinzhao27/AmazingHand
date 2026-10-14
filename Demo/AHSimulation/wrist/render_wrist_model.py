@@ -149,7 +149,9 @@ def render_cad(size):
     for name in PARTS:
         path = CAD_DIR / "stl" / f"{name}.stl"
         t = trimesh.load(path)
-        q = quat_from_to(UP[name], (0, 0, 1))
+        # UP is in W; the STLs are in the CAD frame (W turned by HAND_YAW), and the adapter prints on its flange top (CAD y)
+        up = (0, -1, 0) if name == "R-Wrist_Hand_Adapter" else wd.R_W2CAD @ np.asarray(UP[name], float)
+        q = quat_from_to(up, (0, 0, 1))
         R = np.zeros(9)
         mujoco.mju_quat2Mat(R, q)
         v = t.vertices @ R.reshape(3, 3).T / 1000
@@ -174,13 +176,18 @@ def render_cad(size):
     cols = {"R-Wrist_Hand_Adapter": [0.35, 0.55, 0.85, 1], "Wrist_Gimbal_Ring": [0.9, 0.55, 0.2, 1], "R-Wrist_Fork": [0.6, 0.62, 0.66, 1],
             "R-Forearm_Front": [0.88, 0.88, 0.9, 1], "R-Forearm_Back": [0.95, 0.95, 0.96, 1], "R-Wrist_Servo_Frame": [0.4, 0.62, 0.42, 1],
             "Elbow_Flange": [0.3, 0.3, 0.32, 1], "Wrist_Horn_Arm": [0.9, 0.78, 0.2, 1]}
-    Rq = wd.PLATE_QUAT
+    # forearm upright (as in the sim): CAD -> root -> world
+    Rq = np.zeros(4)
+    mujoco.mju_mulQuat(Rq, wd.WORLD_QUAT, wd.PLATE_QUAT)
+    Rw = np.zeros(9)
+    mujoco.mju_quat2Mat(Rw, wd.WORLD_QUAT)
+    Rw = Rw.reshape(3, 3)
     for name in PARTS + ["ref/STS3215_motor1", "ref/STS3215_motor2", "ref/Wrist_Horn_Arm_motor2_placed"]:
         path = CAD_DIR / "stl" / f"{name}.stl"
         dz = off.get(name, 0.0)
         dl = np.array(lat.get(name, (0, 0, 0)))
         # CAD z (back) = root -x; CAD y (up) = root z
-        pos = wd.PLATE_POS + np.array([-dl[2], 0, dz]) + np.array([0, 0, 0.29])
+        pos = Rw @ (wd.PLATE_POS + np.array([-dl[2], 0, 0]) + dz * wd.dir_w_to_root([0, 1, 0])) + np.array([0, 0, 0.29])
         rgba = cols.get(name, [0.15, 0.15, 0.17, 1] if "STS" in name else [0.9, 0.78, 0.2, 1])
         placements.append((path, pos, Rq, rgba))
     m, d = cad_scene(placements, size)

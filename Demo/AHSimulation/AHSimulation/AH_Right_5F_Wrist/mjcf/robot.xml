@@ -67,8 +67,8 @@
   </default>
   <worldbody>
     <!-- Link r_wrist_interface -->
-    <body name="wrist_forearm" pos="0 0 0">
-      <inertial pos="0.0105829 -6.93847e-07 -0.149939" mass="0.461804" fullinertia="0.00182748 0.00185614 0.000491376 -1.92356e-08 -4.79473e-05 1.00404e-05"/>
+    <body name="wrist_forearm" pos="0 0 0" quat="0.995805 -0.0915016 0 0">
+      <inertial pos="0.0105839 0.0210499 -0.153715" mass="0.461681" fullinertia="0.00182601 0.00180572 0.000540191 8.71283e-06 -4.70663e-05 0.000253653"/>
       <geom type="mesh" mesh="wrist_r_forearm_front" rgba="0.92 0.92 0.93 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1022" quat="0.5 0.5 -0.5 -0.5"/>
       <geom type="mesh" mesh="wrist_r_forearm_back" rgba="0.95 0.95 0.96 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1022" quat="0.5 0.5 -0.5 -0.5"/>
       <geom type="mesh" mesh="wrist_r_wrist_fork" rgba="0.80 0.81 0.83 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1022" quat="0.5 0.5 -0.5 -0.5"/>
@@ -78,28 +78,28 @@
       <geom type="mesh" mesh="wrist_sts3215_motor2" rgba="0.13 0.13 0.15 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1022" quat="0.5 0.5 -0.5 -0.5"/>
       <geom type="mesh" mesh="wrist_f683zz_px" rgba="0.75 0.76 0.8 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1022" quat="0.5 0.5 -0.5 -0.5"/>
       <geom type="mesh" mesh="wrist_f683zz__x" rgba="0.75 0.76 0.8 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1022" quat="0.5 0.5 -0.5 -0.5"/>
-      <body name="wrist_gimbal_ring" pos="0 0 -0.025">
-        <inertial pos="4.00873e-10 -4.43054e-09 1.60527e-09" mass="0.00418828" fullinertia="1.92572e-07 1.92572e-07 3.6504e-07 -2.2746e-14 5.08561e-16 1.5388e-15"/>
-        <joint name="wrist_flexion" type="hinge" axis="0 1 0" range="-1.13446 1.13446" class="wrist_passive"/>
-        <geom type="mesh" mesh="wrist_wrist_gimbal_ring" rgba="0.80 0.81 0.83 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1272" quat="0.5 0.5 -0.5 -0.5"/>
-        <geom type="mesh" mesh="wrist_pin_d3x10_px" rgba="0.6 0.6 0.65 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1272" quat="0.5 0.5 -0.5 -0.5"/>
-        <geom type="mesh" mesh="wrist_pin_d3x10__x" rgba="0.6 0.6 0.65 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1272" quat="0.5 0.5 -0.5 -0.5"/>
-        <geom type="mesh" mesh="wrist_pin_d3x10_pz" rgba="0.6 0.6 0.65 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1272" quat="0.5 0.5 -0.5 -0.5"/>
-        <geom type="mesh" mesh="wrist_pin_d3x10__z" rgba="0.6 0.6 0.65 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1272" quat="0.5 0.5 -0.5 -0.5"/>
+      <body name="wrist_gimbal_ring" pos="0 -0.00172674 -0.0308246">
+        <inertial pos="3.90244e-10 -4.50188e-09 -5.1023e-10" mass="0.00418828" fullinertia="1.92572e-07 1.983e-07 3.59312e-07 -2.23564e-14 -3.24221e-15 -3.09034e-08"/>
+        <joint name="wrist_flexion" type="hinge" axis="0 0.983255 0.182236" range="-1.13446 1.13446" class="wrist_passive"/>
+        <geom type="mesh" mesh="wrist_wrist_gimbal_ring" rgba="0.80 0.81 0.83 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0262267 0.133025" quat="0.5 0.5 -0.5 -0.5"/>
+        <geom type="mesh" mesh="wrist_pin_d3x10_px" rgba="0.6 0.6 0.65 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0262267 0.133025" quat="0.5 0.5 -0.5 -0.5"/>
+        <geom type="mesh" mesh="wrist_pin_d3x10__x" rgba="0.6 0.6 0.65 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0262267 0.133025" quat="0.5 0.5 -0.5 -0.5"/>
+        <geom type="mesh" mesh="wrist_pin_d3x10_pz" rgba="0.6 0.6 0.65 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0262267 0.133025" quat="0.5 0.5 -0.5 -0.5"/>
+        <geom type="mesh" mesh="wrist_pin_d3x10__z" rgba="0.6 0.6 0.65 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0262267 0.133025" quat="0.5 0.5 -0.5 -0.5"/>
         <body name="wrist_hand_adapter" pos="0 0 0">
-          <inertial pos="-0.00555446 4.48994e-05 0.0145984" mass="0.0272825" fullinertia="5.92992e-06 7.54855e-06 9.06887e-06 -5.75379e-09 -1.43312e-06 -6.79202e-09"/>
+          <inertial pos="-0.00373068 -0.00126226 0.0191379" mass="0.0385631" fullinertia="9.90782e-06 1.22302e-05 1.451e-05 8.17068e-08 -2.02258e-06 -4.95142e-07"/>
           <joint name="wrist_deviation" type="hinge" axis="-1 0 0" range="-0.523599 0.523599" class="wrist_passive"/>
-          <geom type="mesh" mesh="wrist_r_wrist_hand_adapter" rgba="0.80 0.81 0.83 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1272" quat="0.5 0.5 -0.5 -0.5"/>
-          <geom type="mesh" mesh="wrist_f683zz_pz" rgba="0.75 0.76 0.8 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1272" quat="0.5 0.5 -0.5 -0.5"/>
-          <geom type="mesh" mesh="wrist_f683zz__z" rgba="0.75 0.76 0.8 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1272" quat="0.5 0.5 -0.5 -0.5"/>
-          <geom type="mesh" mesh="wrist_stud_top_1" rgba="0.75 0.76 0.8 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1272" quat="0.5 0.5 -0.5 -0.5"/>
-          <geom type="mesh" mesh="wrist_stud_top_2" rgba="0.75 0.76 0.8 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1272" quat="0.5 0.5 -0.5 -0.5"/>
-          <site name="wrist_ball1_hand" pos="-0.02125 -0.021 0" size="0.002" group="3"/>
-          <site name="wrist_ball2_hand" pos="-0.02125 0.021 0" size="0.002" group="3"/>
+          <geom type="mesh" mesh="wrist_r_wrist_hand_adapter" rgba="0.80 0.81 0.83 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0262267 0.133025" quat="0.5 0.5 -0.5 -0.5"/>
+          <geom type="mesh" mesh="wrist_f683zz_pz" rgba="0.75 0.76 0.8 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0262267 0.133025" quat="0.5 0.5 -0.5 -0.5"/>
+          <geom type="mesh" mesh="wrist_f683zz__z" rgba="0.75 0.76 0.8 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0262267 0.133025" quat="0.5 0.5 -0.5 -0.5"/>
+          <geom type="mesh" mesh="wrist_stud_top_1" rgba="0.75 0.76 0.8 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0262267 0.133025" quat="0.5 0.5 -0.5 -0.5"/>
+          <geom type="mesh" mesh="wrist_stud_top_2" rgba="0.75 0.76 0.8 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0262267 0.133025" quat="0.5 0.5 -0.5 -0.5"/>
+          <site name="wrist_ball1_hand" pos="-0.02125 -0.0206484 -0.00382695" size="0.002" group="3"/>
+          <site name="wrist_ball2_hand" pos="-0.02125 0.0206484 0.00382695" size="0.002" group="3"/>
           <site name="wrist_centre" pos="0 0 0" size="0.003" group="3"/>
-          <body name="r_wrist_interface" pos="-0 -0 0.025" quat="1 0 0 0" childclass="mjcf">
-            <!-- lumped inertial: hand mass model 471.9 g (Demo/AHSimulation/wrist/hand_mass_model.py) minus the finger bodies' own 110.6 g -->
-            <inertial pos="-0.0102687 -0.0117637 0.0557197" mass="0.361271" fullinertia="0.000776687 0.000524647 0.000557553 -4.13043e-05 -2.45461e-05 1.53977e-05"/>
+          <body name="r_wrist_interface" pos="-0 0.00172674 0.0308246" quat="1 0 0 0" childclass="mjcf">
+            <!-- lumped inertial: hand mass model 477.2 g (Demo/AHSimulation/wrist/hand_mass_model.py) minus the finger bodies' own 110.6 g -->
+            <inertial pos="-0.0103078 -0.0121031 0.0549238" mass="0.366542" fullinertia="0.000807389 0.000545329 0.000574738 -4.23722e-05 -2.50925e-05 5.88896e-06"/>
             <!-- Part scs0009 -->
             <geom type="mesh" class="visual" pos="-0.022075 0.03055 0.0698" quat="0.707107 1.17211e-16 -4.71845e-16 0.707107" mesh="scs0009" material="scs0009_material"/>
             <!-- Part finger_frame_1 -->
@@ -859,32 +859,32 @@
           </body>
         </body>
       </body>
-      <body name="wrist_horn1" pos="0.00475 -0.0235 -0.091">
-        <inertial pos="-0.0115998 -0.00367041 7.07574e-10" mass="0.00862589" fullinertia="1.22032e-07 6.56021e-07 6.08459e-07 9.02603e-08 3.33783e-14 2.08632e-15"/>
-        <joint name="wrist_motor1" type="hinge" axis="0 1 0" class="sts3215_12v"/>
-        <geom type="mesh" mesh="wrist_wrist_horn_arm" rgba="0.25 0.26 0.28 1" contype="0" conaffinity="0" group="2" pos="-0.01625 0.048 0.1932" quat="0.5 0.5 -0.5 -0.5"/>
-        <geom type="mesh" mesh="wrist_stud_arm_1" rgba="0.75 0.76 0.8 1" contype="0" conaffinity="0" group="2" pos="-0.01625 0.048 0.1932" quat="0.5 0.5 -0.5 -0.5"/>
-        <body name="wrist_rod1" pos="-0.026 0.0025 0">
-          <inertial pos="8.69062e-12 -3.91861e-10 0.033" mass="0.00482" fullinertia="2.69725e-06 2.69996e-06 2.28586e-08 -4.39211e-17 -4.84996e-14 1.76489e-15"/>
+      <body name="wrist_horn1" pos="0.00475 -0.0128057 -0.100002">
+        <inertial pos="-0.0115998 -0.00360895 -0.000668879" mass="0.00862589" fullinertia="1.22032e-07 6.54442e-07 6.10039e-07 8.87488e-08 1.64486e-08 8.52238e-09"/>
+        <joint name="wrist_motor1" type="hinge" axis="0 0.983255 0.182236" class="sts3215_12v"/>
+        <geom type="mesh" mesh="wrist_wrist_horn_arm" rgba="0.25 0.26 0.28 1" contype="0" conaffinity="0" group="2" pos="-0.01625 0.0373057 0.202202" quat="0.5 0.5 -0.5 -0.5"/>
+        <geom type="mesh" mesh="wrist_stud_arm_1" rgba="0.75 0.76 0.8 1" contype="0" conaffinity="0" group="2" pos="-0.01625 0.0373057 0.202202" quat="0.5 0.5 -0.5 -0.5"/>
+        <body name="wrist_rod1" pos="-0.026 0.00245814 0.000455589">
+          <inertial pos="3.42654e-11 -0.00601377 0.0324474" mass="0.00480955" fullinertia="2.69555e-06 2.60941e-06 1.11697e-07 1.66897e-14 -9.05496e-14 4.79392e-07"/>
           <joint name="wrist_rod1_ball" type="ball" class="wrist_rod"/>
-          <geom type="mesh" mesh="wrist_link_bot_1" rgba="0.2 0.2 0.22 1" contype="0" conaffinity="0" group="2" pos="0.00975 0.0455 0.1932" quat="0.5 0.5 -0.5 -0.5"/>
-          <geom type="mesh" mesh="wrist_link_top_1" rgba="0.2 0.2 0.22 1" contype="0" conaffinity="0" group="2" pos="0.00975 0.0455 0.1932" quat="0.5 0.5 -0.5 -0.5"/>
-          <geom type="mesh" mesh="wrist_rod_1" rgba="0.7 0.7 0.74 1" contype="0" conaffinity="0" group="2" pos="0.00975 0.0455 0.1932" quat="0.5 0.5 -0.5 -0.5"/>
-          <site name="wrist_rod1_top" pos="0 0 0.066" size="0.002" group="3"/>
+          <geom type="mesh" mesh="wrist_link_bot_1" rgba="0.2 0.2 0.22 1" contype="0" conaffinity="0" group="2" pos="0.00975 0.0348475 0.201746" quat="0.5 0.5 -0.5 -0.5"/>
+          <geom type="mesh" mesh="wrist_link_top_1" rgba="0.2 0.2 0.22 1" contype="0" conaffinity="0" group="2" pos="0.00975 0.0348475 0.201746" quat="0.5 0.5 -0.5 -0.5"/>
+          <geom type="mesh" mesh="wrist_rod_1" rgba="0.7 0.7 0.74 1" contype="0" conaffinity="0" group="2" pos="0.00975 0.0348475 0.201746" quat="0.5 0.5 -0.5 -0.5"/>
+          <site name="wrist_rod1_top" pos="0 -0.0120275 0.0648948" size="0.002" group="3"/>
         </body>
       </body>
-      <body name="wrist_horn2" pos="0.00475 0.0235 -0.121">
-        <inertial pos="-0.0115998 0.00367045 7.07629e-10" mass="0.00862589" fullinertia="1.22031e-07 6.56021e-07 6.08457e-07 -9.02581e-08 3.33811e-14 -2.08392e-15"/>
-        <joint name="wrist_motor2" type="hinge" axis="0 -1 0" class="sts3215_12v"/>
-        <geom type="mesh" mesh="wrist_wrist_horn_arm_motor2_placed" rgba="0.25 0.26 0.28 1" contype="0" conaffinity="0" group="2" pos="-0.01625 0.001 0.2232" quat="0.5 0.5 -0.5 -0.5"/>
-        <geom type="mesh" mesh="wrist_stud_arm_2" rgba="0.75 0.76 0.8 1" contype="0" conaffinity="0" group="2" pos="-0.01625 0.001 0.2232" quat="0.5 0.5 -0.5 -0.5"/>
-        <body name="wrist_rod2" pos="-0.026 -0.0025 0">
-          <inertial pos="5.77105e-12 -2.74987e-10 0.048" mass="0.00647" fullinertia="6.91173e-06 6.91444e-06 2.47131e-08 -5.12459e-17 -7.2608e-14 1.04145e-15"/>
+      <body name="wrist_horn2" pos="0.00475 0.0388744 -0.120935">
+        <inertial pos="-0.0115998 0.00360899 0.000668887" mass="0.00862589" fullinertia="1.22031e-07 6.54442e-07 6.10037e-07 -8.87467e-08 -1.64482e-08 8.5227e-09"/>
+        <joint name="wrist_motor2" type="hinge" axis="0 -0.983255 -0.182236" class="sts3215_12v"/>
+        <geom type="mesh" mesh="wrist_wrist_horn_arm_motor2_placed" rgba="0.25 0.26 0.28 1" contype="0" conaffinity="0" group="2" pos="-0.01625 -0.0143744 0.223135" quat="0.5 0.5 -0.5 -0.5"/>
+        <geom type="mesh" mesh="wrist_stud_arm_2" rgba="0.75 0.76 0.8 1" contype="0" conaffinity="0" group="2" pos="-0.01625 -0.0143744 0.223135" quat="0.5 0.5 -0.5 -0.5"/>
+        <body name="wrist_rod2" pos="-0.026 -0.00245814 -0.000455589">
+          <inertial pos="4.87412e-12 -0.0087473 0.0471962" mass="0.00643192" fullinertia="6.89432e-06 6.6688e-06 2.529e-07 2.43804e-14 -1.35063e-13 1.23142e-06"/>
           <joint name="wrist_rod2_ball" type="ball" class="wrist_rod"/>
-          <geom type="mesh" mesh="wrist_link_bot_2" rgba="0.2 0.2 0.22 1" contype="0" conaffinity="0" group="2" pos="0.00975 0.0035 0.2232" quat="0.5 0.5 -0.5 -0.5"/>
-          <geom type="mesh" mesh="wrist_link_top_2" rgba="0.2 0.2 0.22 1" contype="0" conaffinity="0" group="2" pos="0.00975 0.0035 0.2232" quat="0.5 0.5 -0.5 -0.5"/>
-          <geom type="mesh" mesh="wrist_rod_2" rgba="0.7 0.7 0.74 1" contype="0" conaffinity="0" group="2" pos="0.00975 0.0035 0.2232" quat="0.5 0.5 -0.5 -0.5"/>
-          <site name="wrist_rod2_top" pos="0 0 0.096" size="0.002" group="3"/>
+          <geom type="mesh" mesh="wrist_link_bot_2" rgba="0.2 0.2 0.22 1" contype="0" conaffinity="0" group="2" pos="0.00975 -0.0119162 0.22359" quat="0.5 0.5 -0.5 -0.5"/>
+          <geom type="mesh" mesh="wrist_link_top_2" rgba="0.2 0.2 0.22 1" contype="0" conaffinity="0" group="2" pos="0.00975 -0.0119162 0.22359" quat="0.5 0.5 -0.5 -0.5"/>
+          <geom type="mesh" mesh="wrist_rod_2" rgba="0.7 0.7 0.74 1" contype="0" conaffinity="0" group="2" pos="0.00975 -0.0119162 0.22359" quat="0.5 0.5 -0.5 -0.5"/>
+          <site name="wrist_rod2_top" pos="0 -0.0174946 0.0943925" size="0.002" group="3"/>
         </body>
       </body>
     </body>

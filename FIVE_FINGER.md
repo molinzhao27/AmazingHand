@@ -124,7 +124,8 @@ The stock Palm_Shell and Top_Shell cannot go on the widened plate: [check_shells
   The envelope is shaped as follows:
   - **Back:** flat with a slight crown, just clear of the servo backs.
   - **Palm:** a smooth lower envelope of the mechanism, so the thumb base becomes the thenar bulge.
-  - **Outline:** follows the mechanism.
+  - **Outline:** the convex hull of the mechanism plus a wrist section centred on the powered wrist's forearm axis. The palm narrows evenly from the knuckles to the wrist, and the pinky side runs straight down like a hypothenar edge (see [Hand on the forearm](cad/five_finger/wrist/README.md#hand-on-the-forearm)).
+  - **Wrist end:** cut square to the forearm axis. The cut matches the stock cut at the radial end of the wrist interface and drops towards the pinky side, where the shell also covers the top of the wrist's hand adapter (the shells keep clear of the adapter). For a hand on the stock wrist interface without the powered wrist, `make_5f_shells.py --no-wrist` cuts at the stock plane (CAD y = −97.5) instead.
   - **Top edges:** the back stops 3 mm under the knuckle line, leaving the knuckle hardware exposed as in the reference. The palm stops on a smooth curve just under where the fingers sweep in a fist.
 
   The thumb's sweep carves the thumb opening. Walls are 2 mm.
@@ -141,7 +142,7 @@ The stock Palm_Shell and Top_Shell cannot go on the widened plate: [check_shells
   - The stock palm shell's flange screws and the side screws into the wrist interface are not used.
 - **Verification.** I checked the shells and pads against every digit over a 13×13 grid per digit, which is not the grid the shells were built from ([right](Demo/AHSimulation/five_finger/reports/shells_5f_on_AH_Right_5F.txt), [left](Demo/AHSimulation/five_finger/reports/shells_5f_on_AH_Left_5F.txt)).
   - No moving part touches any shell or pad in any of the 169 poses, on either hand.
-  - The smallest clearances on the right are 1.11 mm (thumb vs palm shell) and 1.61 mm (pinky horn screw). On the left the thumb comes to 0.49 mm, because the stock left export is not an exact mirror of the right.
+  - The smallest clearances on the right are 1.11 mm (thumb vs palm shell) and about 1.6 mm (pinky horn screw). On the left the thumb comes to about 0.5 mm, because the stock left export is not an exact mirror of the right.
   - For comparison, the stock shells on the stock hand touch the ring's horn screw at 36 of 81 poses and the thumb at 6.
   - The only contacts with fixed parts are by design: the bosses seat on the plate, and the flange rests on the wrist interface, 0.18 mm beside the plate's foot.
 - **Printing.**
@@ -219,9 +220,10 @@ Details are in [cad/five_finger/slim_fingers/README.md](cad/five_finger/slim_fin
 
 Details are in [cad/five_finger/wrist/README.md](cad/five_finger/wrist/README.md). In short:
 
-- **Wrist:** a 2-DOF ring gimbal 25 mm below the stock wrist interface. The hand bolts on unchanged through an adapter.
+- **Wrist:** a 2-DOF ring gimbal under the stock wrist interface. The hand bolts on unchanged through a wedge-shaped adapter.
+- **Hand on the forearm:** the forearm runs through the middle of the four fingers, between the middle and ring knuckles. It points along their mean direction, 10.5° from the stock index axis. The fingers therefore fan symmetrically about the forearm, and the knuckle line arcs down to the pinky as on a human hand. With the forearm on the stock interface axis instead, the hand would lean about 11° to the pinky side, and the pinky would look stuck on.
 - **Drive:** two Feetech STS3215 (12 V) servos in a tapered forearm push rods, the same parallel drive as the fingers. Flexion is ±60°; deviation is ±25°, tapering to ±15° at full flexion.
-- **Torque:** the worst static load is 17% of stall for the hand alone and 33% with 200 g at the fingertips.
+- **Torque:** the worst static load is 18% of stall for the hand alone and 35% with 200 g at the fingertips.
 - **Electrical:** servo IDs 21/22 (left 31/32), on their own 12 V branch.
 - **Software contract:** the coupled range and a thumb interlock must be enforced in software (`clamp_wrist()`, `thumb_flexion_min()`).
 

@@ -134,9 +134,9 @@ def check_structure(w):
         f"{mw_ * 1000:.1f} g, each push rod {m.body_mass[mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_BODY, 'wrist_rod1')] * 1000:.1f} / "
         f"{m.body_mass[mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_BODY, 'wrist_rod2')] * 1000:.1f} g")
     mujoco.mj_forward(m, w.d)
-    com = w.d.subtree_com[ring]
-    log(f"  CoM of everything the wrist carries: {np.round((com - wd.C_ROOT) * 1000, 1)} mm from the wrist centre (root axes), "
-        f"{np.linalg.norm(com - wd.C_ROOT) * 1000:.1f} mm")
+    com = wd.cad_to_w((w.d.xmat[hand].reshape(3, 3).T @ (w.d.subtree_com[ring] - w.d.xpos[hand]) - wd.PLATE_POS) @ wd.R_CAD2ROOT * 1000)
+    log(f"  CoM of everything the wrist carries: {np.round(com, 1)} mm from the wrist centre (W axes: x ulnar, y along the "
+        f"forearm, z back), {np.linalg.norm(com):.1f} mm")
     OUT["moving_mass_g"] = float(mw_ * 1000)
     OUT["hand_mass_g"] = float(mh * 1000)
 
@@ -426,10 +426,10 @@ def set_wrist_pose(w, phi, psi):
         c = np.dot(u0, u1)
         q_w = np.array([1 + c, *v])
         q_w /= np.linalg.norm(q_w)
-        # W -> root: conjugate by R_CAD2ROOT
+        # W -> root: conjugate by R_W2ROOT
         R = np.zeros(9)
         mujoco.mju_quat2Mat(R, q_w)
-        Rr = wd.R_CAD2ROOT @ R.reshape(3, 3) @ wd.R_CAD2ROOT.T
+        Rr = wd.R_W2ROOT @ R.reshape(3, 3) @ wd.R_W2ROOT.T
         ax = wd.dir_w_to_root([-wd.SIDE[i], 0, 0])
         Rh = np.zeros(9)
         qh = np.array([np.cos(th[k] / 2), *(np.sin(th[k] / 2) * ax)])

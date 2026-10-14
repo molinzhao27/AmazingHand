@@ -1,10 +1,10 @@
 {
- "moving_mass_g": 503.35133999999994,
- "hand_mass_g": 471.8805600000001,
+ "moving_mass_g": 519.90294,
+ "hand_mass_g": 477.15156,
  "stability": {
   "alone_OpenHand": {
    "time": 15.0,
-   "vmax": 1.130333,
+   "vmax": 1.13061,
    "rod_err": 2.3e-05,
    "rod_err_settled": 2.3e-05,
    "finger_err": 3e-06,
@@ -12,15 +12,15 @@
   },
   "corners_OpenHand": {
    "time": 12.0,
-   "vmax": 4.882143,
-   "rod_err": 6.2e-05,
+   "vmax": 4.931351,
+   "rod_err": 6.3e-05,
    "rod_err_settled": 3.9e-05,
    "finger_err": 3e-06,
    "warnings": {}
   },
   "rom_OpenHand": {
    "time": 25.2,
-   "vmax": 1.554664,
+   "vmax": 1.56118,
    "rod_err": 4e-06,
    "rod_err_settled": 3e-06,
    "finger_err": 3e-06,
@@ -28,7 +28,7 @@
   },
   "alone_CloseHand": {
    "time": 15.0,
-   "vmax": 1.12645,
+   "vmax": 1.126928,
    "rod_err": 2.3e-05,
    "rod_err_settled": 2.3e-05,
    "finger_err": 9e-06,
@@ -36,15 +36,15 @@
   },
   "corners_CloseHand": {
    "time": 12.0,
-   "vmax": 4.852887,
-   "rod_err": 6.2e-05,
+   "vmax": 4.901033,
+   "rod_err": 6.3e-05,
    "rod_err_settled": 3.9e-05,
    "finger_err": 9e-06,
    "warnings": {}
   },
   "rom_CloseHand": {
    "time": 25.2,
-   "vmax": 1.547642,
+   "vmax": 1.553827,
    "rod_err": 4e-06,
    "rod_err_settled": 3e-06,
    "finger_err": 9e-06,
@@ -52,10 +52,10 @@
   },
   "random": {
    "time": 36.0,
-   "vmax": 90.960842,
-   "rod_err": 6.8e-05,
-   "rod_err_settled": 2.4e-05,
-   "finger_err": 0.000865,
+   "vmax": 90.962858,
+   "rod_err": 6.7e-05,
+   "rod_err_settled": 2.7e-05,
+   "finger_err": 0.00085,
    "warnings": {}
   }
  },
@@ -72,8 +72,8 @@
  "rom": {
   "rectangle_reachable": true,
   "servo_max_deg": 54.9,
-  "open_loop_err_max_deg": 2.68,
-  "closed_loop_err_max_deg": 0.06,
+  "open_loop_err_max_deg": 2.97,
+  "closed_loop_err_max_deg": 0.07,
   "linkage_flex": [
    -70,
    70
@@ -84,22 +84,22 @@
   ]
  },
  "static_worst_hand": {
-  "torque": 0.486,
-  "where": "('forearm horizontal, thumb down', (-60.0, 15.0))"
+  "torque": 0.54,
+  "where": "('forearm horizontal, thumb up', (-60.0, -15.0))"
  },
  "static_worst_payload": {
-  "torque": 0.977,
-  "where": "('forearm horizontal, thumb down', (-60.0, 15.0))"
+  "torque": 1.017,
+  "where": "('forearm horizontal, thumb down', (-60.0, -15.0))"
  },
- "static_neutral_hand": 0.247,
- "static_neutral_payload": 0.495,
+ "static_neutral_hand": 0.269,
+ "static_neutral_payload": 0.528,
  "inertia_hand": [
-  0.005374283888471819,
-  0.0057779405383456064
+  0.005973133521943893,
+  0.006309619150374585
  ],
  "inertia_payload": [
-  0.013179501029552315,
-  0.013899608538345605
+  0.014535949119976906,
+  0.014871667716812108
  ],
  "clearance_rom_min_mm": {
   "hand (+ shells, pads) / forearm (shells, fork, frame, servos)": null,
@@ -130,7 +130,7 @@
   "horn arm 2 / servo 1": null
  },
  "clearance_stops_min_mm": {
-  "hand (+ shells, pads) / forearm (shells, fork, frame, servos)": 1.98,
+  "hand (+ shells, pads) / forearm (shells, fork, frame, servos)": 3.73,
   "hand (+ shells, pads) / gimbal ring": null,
   "hand (+ shells, pads) / rod 1 (links + rod)": null,
   "hand (+ shells, pads) / rod 2 (links + rod)": null,
@@ -139,13 +139,13 @@
   "hand adapter / gimbal ring": 0.74,
   "gimbal ring / fork": 0.73,
   "rod 1 (links + rod) / forearm w/o servos": 0.08,
-  "rod 2 (links + rod) / forearm w/o servos": 0.12,
-  "rod 1 (links + rod) / servo 1": 0.05,
-  "rod 2 (links + rod) / servo 2": 0.03,
+  "rod 2 (links + rod) / forearm w/o servos": 0.11,
+  "rod 1 (links + rod) / servo 1": 0.02,
+  "rod 2 (links + rod) / servo 2": 0.06,
   "rod 1 (links + rod) / servo 2": null,
   "rod 2 (links + rod) / servo 1": null,
   "rod 1 (links + rod) / hand adapter": 0.21,
-  "rod 2 (links + rod) / hand adapter": 0.13,
+  "rod 2 (links + rod) / hand adapter": 0.12,
   "rod 1 (links + rod) / gimbal ring": null,
   "rod 2 (links + rod) / gimbal ring": null,
   "rod 1 (links + rod) / rod 2 (links + rod)": null,
@@ -165,21 +165,10 @@
    ],
    [
     60,
-    0.0
-   ],
-   0.72
-  ],
-  [
-   [
-    -90.0,
-    90.0
-   ],
-   [
-    60,
     15.0
    ],
-   0.02
+   0.03
   ]
  ],
- "thumb_min_mm": 0.02
+ "thumb_min_mm": 0.03
 }

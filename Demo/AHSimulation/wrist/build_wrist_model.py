@@ -4,7 +4,8 @@
 Derived from AH_Right_5F (copied and transformed, the source is never edited):
 
   world
-   `- wrist_forearm            fixed: forearm shells, fork, servo frame, elbow flange, 2 x STS3215
+   `- wrist_forearm            fixed (turned by wrist_design.WORLD_QUAT so the forearm stands upright): forearm
+       |                       shells, fork, servo frame, elbow flange, 2 x STS3215
        |- wrist_gimbal_ring    hinge wrist_flexion   (W -x = root +y; > 0 palm-ward)
        |   `- wrist_hand_adapter   hinge wrist_deviation (W +z = root -x; > 0 radial / towards the thumb)
        |       `- r_wrist_interface    the whole AH_Right_5F hand subtree, unchanged
@@ -15,7 +16,9 @@ Derived from AH_Right_5F (copied and transformed, the source is never edited):
 
 All geometry and kinematic parameters come from cad/five_finger/wrist/wrist_design.py and the meshes
 from cad/five_finger/wrist/stl (make_wrist.py). The hand root sits at the world origin at the neutral
-wrist pose, so the scene's finger targets keep their stock positions.
+wrist pose; the forearm axis runs along the hand's mean finger direction (wrist_design.HAND_YAW) through the
+centroid of the four knuckles, and the world is turned so that it is vertical (the hand leans by HAND_YAW).
+Body positions inside wrist_forearm are in the hand-root frame.
 
 Layout: qpos[0] wrist_flexion, qpos[1] wrist_deviation, qpos[2:87] the AH_Right_5F hand (same order),
 qpos[87:97] the linkage (horn1, rod1 ball, horn2, rod2 ball). ctrl[0:10] are the finger actuators
@@ -40,7 +43,7 @@ sys.path.insert(0, str(HERE.parent / "five_finger"))
 sys.path.insert(0, str(REPO / "cad" / "five_finger" / "wrist"))
 sys.path.insert(0, str(HERE))
 import wrist_design as wd  # noqa: E402
-from build_5f_model import SHELL_PARTS, fmt, indent, parse, write_keyframe  # noqa: E402
+from build_5f_model import SHELL_PARTS, child_by_name, fmt, get_pose, indent, parse, write_keyframe  # noqa: E402
 
 SIM_DIR = HERE.parent / "AHSimulation"
 SRC = SIM_DIR / "AH_Right_5F" / "mjcf"
@@ -198,7 +201,7 @@ def build_robot(with_shells):
     assets = {}
     asset_el = mj.find("asset")
     c_root = wd.C_ROOT
-    forearm = ET.SubElement(wb, "body", name="wrist_forearm", pos="0 0 0")
+    forearm = ET.SubElement(wb, "body", name="wrist_forearm", pos="0 0 0", quat=fmt(wd.WORLD_QUAT))
     m, c, I = add_mesh_geoms(forearm, FIXED_MESHES, np.zeros(3), assets)
     inertial_el(forearm, m + 2 * wd.SERVO_MASS, c, I)     # (fixed: only for completeness)
 
@@ -272,8 +275,24 @@ def build_robot(with_shells):
     return hi
 
 
+def root_to_world(p):
+    R = np.zeros(9)
+    mujoco.mju_quat2Mat(R, wd.WORLD_QUAT)
+    return R.reshape(3, 3) @ np.asarray(p, float)
+
+
+def check_knuckle_centre():
+    """The forearm axis is laid out through wrist_design.KNUCKLE_CENTRE: check it against the hand model."""
+    root = parse(SRC / "robot.xml").getroot().find("worldbody/body")
+    piv = np.array([(get_pose(child_by_name(root, "site", f"closing_1 ({n})_2"))[0] - wd.PLATE_POS) @ wd.R_CAD2ROOT * 1000
+                    for n in (1, 2, 3, 5)])
+    c = piv.mean(0)[:2]
+    assert np.allclose(c, wd.KNUCKLE_CENTRE, atol=0.05), f"knuckle centroid {c} != wrist_design.KNUCKLE_CENTRE {wd.KNUCKLE_CENTRE}"
+    return c
+
+
 def build_scenes():
-    elbow_z = wd.w_to_root([0, wd.ELBOW_Y, 0])[2]
+    elbow_z = root_to_world(wd.w_to_root([0, wd.ELBOW_Y, 0]))[2]
     text = (SRC / "scene.xml").read_text()
     a = '<geom name="floor" size="0 0 0.05" pos="0 0 0" type="plane" material="groundplane" />'
     assert a in text
@@ -326,6 +345,9 @@ def main():
         shutil.copy2(stl, DST / "assets" / stl.name)
     for f in ("joints_properties.xml", "additional.xml"):
         shutil.copy2(SRC / f, DST / f)
+    c = check_knuckle_centre()
+    print(f"forearm axis: {np.degrees(wd.HAND_YAW):.1f} deg from CAD y, through the knuckle centroid ({c[0]:.2f}, {c[1]:.2f}) mm; "
+          f"wrist centre CAD {np.round(wd.C_CAD, 2)} mm")
     hi = build_robot(False)
     build_robot(True)
     build_scenes()

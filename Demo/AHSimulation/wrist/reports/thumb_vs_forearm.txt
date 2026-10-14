@@ -1,12 +1,12 @@
 Min clearance (mm) hand (with 5F shells) vs forearm parts, over the operating-ROM deviation range,
 for palm-ward wrist flexion 30 / 40 / 50 / 60 deg (other fingers OpenHand; samples every 1 mm):
-  thumb abduction  +0, flexion -90 (m1 -90, m2 +90):  30 deg:  13.2   40 deg:   4.2   50 deg:   0.1   60 deg:   0.0
-  thumb abduction  +0, flexion -80 (m1 -80, m2 +80):  30 deg:  14.5   40 deg:   6.0   50 deg:   0.6   60 deg:   0.0
-  thumb abduction  +0, flexion -70 (m1 -70, m2 +70):  30 deg:  14.5   40 deg:  14.5   50 deg:   8.5   60 deg:   3.3
-  thumb abduction -30, flexion -60 (m1 -90, m2 +30):  30 deg:  14.5   40 deg:  14.5   50 deg:  13.3   60 deg:   7.9
-  thumb abduction  +0, flexion -60 (m1 -60, m2 +60):  30 deg:  14.5   40 deg:  14.5   50 deg:  13.3   60 deg:   7.9
-  thumb abduction +30, flexion -60 (m1 -30, m2 +90):  30 deg:  14.5   40 deg:  14.5   50 deg:  13.3   60 deg:   7.9
-  thumb abduction -30, flexion -50 (m1 -80, m2 +20):  30 deg:  14.5   40 deg:  14.5   50 deg:  13.3   60 deg:   7.9
-  thumb abduction  +0, flexion -50 (m1 -50, m2 +50):  30 deg:  14.5   40 deg:  14.5   50 deg:  13.3   60 deg:   7.9
-  thumb abduction +30, flexion -50 (m1 -20, m2 +80):  30 deg:  14.5   40 deg:  14.5   50 deg:  13.3   60 deg:   7.9
+  thumb abduction  +0, flexion -90 (m1 -90, m2 +90):  30 deg:  12.0   40 deg:   3.0   50 deg:   0.1   60 deg:   0.0
+  thumb abduction  +0, flexion -80 (m1 -80, m2 +80):  30 deg:  13.8   40 deg:   4.8   50 deg:   0.5   60 deg:   0.0
+  thumb abduction  +0, flexion -70 (m1 -70, m2 +70):  30 deg:  19.7   40 deg:  13.8   50 deg:   8.3   60 deg:   4.8
+  thumb abduction -30, flexion -60 (m1 -90, m2 +30):  30 deg:  19.7   40 deg:  19.3   50 deg:  14.0   60 deg:   9.0
+  thumb abduction  +0, flexion -60 (m1 -60, m2 +60):  30 deg:  19.7   40 deg:  19.3   50 deg:  14.0   60 deg:   9.0
+  thumb abduction +30, flexion -60 (m1 -30, m2 +90):  30 deg:  19.7   40 deg:  19.3   50 deg:  14.0   60 deg:   9.0
+  thumb abduction -30, flexion -50 (m1 -80, m2 +20):  30 deg:  19.7   40 deg:  19.3   50 deg:  14.0   60 deg:   9.0
+  thumb abduction  +0, flexion -50 (m1 -50, m2 +50):  30 deg:  19.7   40 deg:  19.3   50 deg:  14.0   60 deg:   9.0
+  thumb abduction +30, flexion -50 (m1 -20, m2 +80):  30 deg:  19.7   40 deg:  19.3   50 deg:  14.0   60 deg:   9.0
 Rule (wrist_design.thumb_flexion_min): thumb flexion >= -70 deg whenever wrist flexion > 40 deg (OpenHand uses -35).

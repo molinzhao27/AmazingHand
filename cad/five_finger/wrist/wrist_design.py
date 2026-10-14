@@ -10,8 +10,20 @@ Frames
 CAD : the stock AmazingHand part-studio frame (mm): x from index towards pinky, y up along the
       fingers, z towards the back of the hand. All STEP/STL files are written in this frame,
       at the neutral wrist pose.
-W   : CAD axes, origin at the wrist centre C (intersection of the two gimbal axes).
+W   : origin at the wrist centre C (intersection of the two gimbal axes), axes = the CAD axes turned by
+      HAND_YAW about CAD z (the palm normal): W y is the forearm axis, pointing to the fingers.
+      x_cad = C_CAD + R_W2CAD @ x_w.
 root: the MJCF frame of the hand root body `r_wrist_interface` (m): X_root = POS + R @ x_cad / 1000.
+
+Hand on the forearm
+-------------------
+The stock AmazingHand fans its fingers towards the pinky side (index along CAD y, each next finger
+7.5 deg further out), so with a fourth finger the hand leans ~11 deg to the ulnar side. The forearm
+axis therefore runs along the mean finger direction (HAND_YAW from CAD y) and through the centroid
+of the four knuckles, like the middle-finger axis of a human hand: the fingers fan symmetrically
+about the forearm and the knuckle line arcs down from the middle finger to the pinky. The hand
+adapter absorbs the angle: its flange top sits on the stock wrist interface (CAD axes), its
+underside and the gimbal below it are in W.
 
 Mechanism (see README.md)
 -------------------------
@@ -40,8 +52,39 @@ R_CAD2ROOT = np.array([[0.0, 0.0, -1.0], [-1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])  # 
 
 INTERFACE_AXIS = np.array([24.5, -11.5])        # (x, z) CAD of the R-Wrist_Interface ring spigot axis
 INTERFACE_BOTTOM = -102.2                       # CAD y of the wrist interface's lowest face
-H_FLANGE = 25.0                                 # wrist centre is this far below the interface bottom
-C_CAD = np.array([INTERFACE_AXIS[0], INTERFACE_BOTTOM - H_FLANGE, INTERFACE_AXIS[1]])  # (24.5, -127.2, -11.5)
+INTERFACE_PADS_Y = -101.0                       # CAD y of the recessed faces the adapter flange mates with
+H_FLANGE = 25.0                                 # W y of the flange's nominal top (the gimbal is laid out from it)
+FLANGE_T = 6.5             # flange thickness at the rim's thinnest point; its underside is at W y = H_FLANGE - FLANGE_T = 18.5
+FLANGE_R = 28.0            # 3.5 mm larger than the interface spigot (d49): room for the screw counterbores, and the
+                           # flange (centred on the spigot) still covers the gimbal lugs, which sit 5 mm off its axis
+FLANGE_MIN = FLANGE_T + 1.2                     # thinnest flange section (rim, CAD y), = the stock (yaw 0) flange
+
+HAND_YAW = np.radians(10.5)                     # forearm axis from CAD y towards the pinky (the fingers point at
+                                                # 0.3 / 6.3 / 13.8 / 21.3 deg, mean 10.4)
+KNUCKLE_CENTRE = np.array([48.32, -13.82])      # CAD (x, y): centroid of the index..pinky knuckle pivots (closing_1 (n)_2)
+
+
+def rot_z(a):
+    c, s = np.cos(a), np.sin(a)
+    return np.array([[c, -s, 0], [s, c, 0], [0, 0, 1]])
+
+
+R_W2CAD = rot_z(-HAND_YAW)                      # W y = (sin yaw, cos yaw, 0) in CAD
+R_W2ROOT = R_CAD2ROOT @ R_W2CAD
+
+
+def _wrist_centre():
+    """C on the forearm axis (through KNUCKLE_CENTRE along W y), as high as the adapter allows. The flange is a
+    cylinder of radius FLANGE_R about the interface's spigot axis (CAD y), from the pad plane CAD y =
+    INTERFACE_PADS_Y down to the W plane y = H_FLANGE - FLANGE_T (as at zero yaw, so the gimbal below keeps its
+    clearances); it must be at least FLANGE_MIN thick where that plane is highest, on the radial rim."""
+    s_, c_ = np.sin(HAND_YAW), np.cos(HAND_YAW)
+    x_rim = INTERFACE_AXIS[0] - FLANGE_R
+    t = c_ * (KNUCKLE_CENTRE[1] - INTERFACE_PADS_Y + FLANGE_MIN) + (H_FLANGE - FLANGE_T) - (x_rim - KNUCKLE_CENTRE[0]) * s_
+    return np.array([KNUCKLE_CENTRE[0] - t * s_, KNUCKLE_CENTRE[1] - t * c_, INTERFACE_AXIS[1]])
+
+
+C_CAD = _wrist_centre()                         # (26.23, -133.02, -11.5); 121 mm below the knuckle centroid
 
 
 def cad_to_root(p_cad):
@@ -50,7 +93,11 @@ def cad_to_root(p_cad):
 
 
 def w_to_cad(p_w):
-    return np.asarray(p_w, float) + C_CAD
+    return np.asarray(p_w, float) @ R_W2CAD.T + C_CAD
+
+
+def cad_to_w(p_cad):
+    return (np.asarray(p_cad, float) - C_CAD) @ R_W2CAD
 
 
 def w_to_root(p_w):
@@ -58,10 +105,14 @@ def w_to_root(p_w):
 
 
 def dir_w_to_root(v):
-    return np.asarray(v, float) @ R_CAD2ROOT.T
+    return np.asarray(v, float) @ R_W2ROOT.T
 
 
-C_ROOT = cad_to_root(C_CAD)                     # (0, 0, -0.025)
+C_ROOT = cad_to_root(C_CAD)
+# The sim stands the forearm upright: the world is the root frame turned so that W y is world z (the hand root
+# stays at the world origin). In the root frame W y is (0, -sin yaw, cos yaw), so this is a turn of -yaw about x.
+WORLD_QUAT = np.array([np.cos(-HAND_YAW / 2), np.sin(-HAND_YAW / 2), 0.0, 0.0])
+INTERFACE_TOP_W = cad_to_w([INTERFACE_AXIS[0], INTERFACE_PADS_Y, INTERFACE_AXIS[1]])   # flange top centre (on the spigot axis)
 
 # ----------------------------------------------------------------------------- gimbal (W frame, mm)
 # Compact gimbal: every part on the flexion axis stays inside |x| < 16 mm, because at the palm-ward
@@ -77,8 +128,6 @@ LUG_IN, LUG_OUT = 10.5, 15.5   # radial position of the inner / outer faces of a
 LUG_R = 5.5                # lug boss radius around a pin
 
 # ----------------------------------------------------------------------------- hand adapter (W)
-FLANGE_T = 6.5             # flange thickness; its underside is at y = H_FLANGE - FLANGE_T = 18.5
-FLANGE_R = 27.0            # 2.5 mm larger than the interface spigot (d49), room for the screw counterbores
 BAR_X = 14.5               # lever bar half-length (|x| <= BAR_X), clear of the fork lugs at |x| >= 17.5
 BAR_Y = 5.0                # bar half-height (y)
 BAR_Z = (17.5, 25.0)       # bar z range (behind the gimbal; the back lug block fills z = LUG_IN..25 at |x| <= LUG_R)
@@ -183,11 +232,6 @@ def rot_x(a):
     return np.array([[1, 0, 0], [0, c, -s], [0, s, c]])
 
 
-def rot_z(a):
-    c, s = np.cos(a), np.sin(a)
-    return np.array([[c, -s, 0], [s, c, 0], [0, 0, 1]])
-
-
 def hand_rot(phi, psi):
     """Hand orientation in W: flexion about -x (proximal, fork->ring), then deviation about +z (ring->hand)."""
     return rot_x(-phi) @ rot_z(psi)
@@ -263,7 +307,10 @@ def misalignment(phi, psi):
 
 if __name__ == "__main__":
     np.set_printoptions(precision=3, suppress=True)
-    print("C (CAD mm)", C_CAD, " C (root m)", C_ROOT)
+    print("C (CAD mm)", C_CAD, " C (root m)", C_ROOT, " hand yaw %.1f deg" % np.degrees(HAND_YAW))
+    print("forearm axis at the knuckle centroid's height: CAD x %.2f (centroid %.2f)"
+          % (C_CAD[0] + (KNUCKLE_CENTRE[1] - C_CAD[1]) * np.tan(HAND_YAW), KNUCKLE_CENTRE[0]))
+    print("flange top centre (W)", INTERFACE_TOP_W)
     print("e (flexion lever) %.2f mm, d (deviation lever) %.2f mm, horn radius %.1f mm" % (E_LEVER, D_LEVER, R_HORN))
     print("rod lengths", ROD_L, " servo top face |x| %.2f, shaft z %.2f" % (X_TOP_FACE, Z_SHAFT))
     for i in (1, 2):

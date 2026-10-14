@@ -1,23 +1,24 @@
 {
   "frame": "CAD part-studio frame of the AmazingHand (mm), neutral wrist pose",
   "wrist_centre_cad_mm": [
-    24.5,
-    -127.2,
+    26.22673610250872,
+    -133.02458479567915,
     -11.5
   ],
+  "hand_yaw_deg": 10.5,
   "parts": {
     "R-Wrist_Hand_Adapter": {
-      "volume_cm3": 19.89,
-      "mass_g": 19.9,
+      "volume_cm3": 31.18,
+      "mass_g": 31.2,
       "solids": 1,
       "valid": true,
       "bbox_cad_mm": [
-        -2.5,
-        -132.7,
-        -38.5,
-        51.5,
+        -3.5,
+        -140.58,
+        -39.5,
+        52.5,
         -101.0,
-        15.5
+        16.5
       ],
       "print": "flange face down (lugs up); the three 1.4 mm pad pockets bridge, gussets carry the lever bar"
     },
@@ -27,26 +28,26 @@
       "solids": 1,
       "valid": true,
       "bbox_cad_mm": [
-        14.5,
-        -131.2,
+        15.76,
+        -138.69,
         -21.5,
-        34.5,
-        -123.2,
+        36.7,
+        -127.36,
         -1.5
       ],
       "print": "flat"
     },
     "R-Wrist_Fork": {
-      "volume_cm3": 24.92,
-      "mass_g": 24.9,
+      "volume_cm3": 24.79,
+      "mass_g": 24.8,
       "solids": 1,
       "valid": true,
       "bbox_cad_mm": [
-        -11.0,
-        -159.2,
+        -14.51,
+        -170.96,
         -46.5,
-        60.0,
-        -121.7,
+        55.88,
+        -124.79,
         20.0
       ],
       "print": "cap face down, lugs up; bearing seats are teardrops"
@@ -57,11 +58,11 @@
       "solids": 1,
       "valid": true,
       "bbox_cad_mm": [
-        -16.5,
-        -342.2,
+        -53.27,
+        -351.9,
         -63.5,
-        65.5,
-        -159.2,
+        55.3,
+        -158.02,
         -21.5
       ],
       "print": "standing on the elbow end"
@@ -72,11 +73,11 @@
       "solids": 1,
       "valid": true,
       "bbox_cad_mm": [
-        -16.5,
-        -342.2,
+        -53.27,
+        -351.9,
         -21.5,
-        65.5,
-        -159.2,
+        55.3,
+        -158.02,
         25.5
       ],
       "print": "standing on the elbow end"
@@ -87,11 +88,11 @@
       "solids": 1,
       "valid": true,
       "bbox_cad_mm": [
-        -8.0,
-        -247.85,
+        -24.5,
+        -255.57,
         -53.8,
-        57.0,
-        -177.55,
+        47.43,
+        -177.83,
         -23.5
       ],
       "print": "base down (the face that lies on the forearm's front wall)"
@@ -102,11 +103,11 @@
       "solids": 1,
       "valid": true,
       "bbox_cad_mm": [
-        51.5,
-        -205.7,
+        38.47,
+        -215.86,
         -28.75,
-        55.5,
-        -180.7,
+        46.96,
+        -190.55,
         14.25
       ],
       "print": "flat, stud face down (nut pocket up)"
@@ -117,26 +118,26 @@
       "solids": 1,
       "valid": true,
       "bbox_cad_mm": [
-        -35.5,
-        -348.2,
+        -72.86,
+        -361.08,
         -79.0,
-        84.5,
-        -342.2,
+        45.86,
+        -333.67,
         41.0
       ],
       "print": "flat, underside down"
     },
     "L-Wrist_Hand_Adapter": {
-      "volume_cm3": 19.89,
-      "mass_g": 19.9,
+      "volume_cm3": 31.18,
+      "mass_g": 31.2,
       "solids": 1,
       "valid": true,
       "mirror_of": "R-Wrist_Hand_Adapter",
       "print": "flange face down (lugs up); the three 1.4 mm pad pockets bridge, gussets carry the lever bar"
     },
     "L-Wrist_Fork": {
-      "volume_cm3": 24.92,
-      "mass_g": 24.9,
+      "volume_cm3": 24.79,
+      "mass_g": 24.8,
       "solids": 1,
       "valid": true,
       "mirror_of": "R-Wrist_Fork",

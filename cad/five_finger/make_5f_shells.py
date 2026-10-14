@@ -10,12 +10,16 @@ frame (mm; x from the index towards the pinky, y up the fingers, z towards the b
              bushings, plus the servo horns and push rods over all poses;
      K_free  parts the shell must stay clear of: every finger's knuckle (gimbal), lever and both
              phalanges over all poses (this is what opens the finger and thumb openings).
-2. Envelope E: a smooth, hand-like solid. Its outline and its back/palm surfaces follow the
-   enclosed mechanism (heavily smoothed, so it reads as a dome on the back and a palm in front),
-   with a thenar bulge around the thumb base, a hypothenar bulge on the pinky side and soft
-   knuckle bumps on the back. E always contains K_enc grown by clearance + wall thickness.
+2. Envelope E: a smooth, hand-like solid. Its outline is the convex hull of the enclosed
+   mechanism plus a wrist section centred on the forearm axis, so the palm narrows evenly from the
+   knuckles to the wrist (the pinky side runs straight down like a hypothenar edge). Its back/palm
+   surfaces follow the enclosed mechanism (heavily smoothed, so it reads as a dome on the back and
+   a palm in front). E always contains K_enc grown by clearance + wall thickness.
 3. Shell = E hollowed to WALL mm, minus K_free grown by FREE_CLEARANCE (closed so the webs between
-   neighbouring finger openings disappear), cut at the wrist plane.
+   neighbouring finger openings disappear), cut at the wrist plane: square to the forearm axis of
+   the powered wrist (cad/five_finger/wrist, which turns the hand by HAND_YAW so the forearm runs
+   through the middle of the four fingers), and clear of the wrist's hand adapter. --no-wrist cuts
+   at the stock plane (CAD y = -97.5) for a hand on the stock wrist interface alone.
 4. Split at the plate's back face into a rigid back shell (PLA) and a flexible palm shell
    (TPU), joined by a lap joint. The palm shell's flange is clamped between the plate and the
    back shell; the back shell is screwed through it with the stock screws into the plate and the
@@ -26,7 +30,7 @@ Outputs (STL, mm, same frame as the stock parts) in cad/five_finger/stl/: R-Top_
 R-Palm_Shell_5F, R-Palm_Pad_Band_5F, R-Palm_Pad_Palm_5F and their mirrored L-* versions for the left
 hand (the stock left shells are exactly the right ones mirrored about x = -50 mm).
 
-Usage: python make_5f_shells.py [--vox 0.5] [--grid 19] [--cache keepout.npz]
+Usage: python make_5f_shells.py [--vox 0.5] [--grid 19] [--cache keepout.npz] [--no-wrist]
        python make_5f_shells.py --model AH_Right_5F_3S --out cad/five_finger/stl_3s   (other finger variants)
 """
 
@@ -42,16 +46,19 @@ import numpy as np
 import trimesh
 from scipy import ndimage as ndi
 from skimage import measure
+from skimage.morphology import convex_hull_image
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent.parent
 sys.path.insert(0, str(REPO / "Demo" / "AHSimulation" / "five_finger"))
+sys.path.insert(0, str(HERE / "wrist"))
 import verify_5f_model as V  # noqa: E402
+import wrist_design as wd  # noqa: E402
 from build_5f_model import child_by_name, get_pose, parse  # noqa: E402
 
 OUT_STL = HERE / "stl"
 MODEL = "AH_Right_5F"  # hand model (folder under Demo/AHSimulation/AHSimulation) the shells are fitted to
-LO = np.array([-40.0, -104.0, -62.0])  # voxel grid bounds (plate frame, mm)
+LO = np.array([-40.0, -118.0, -62.0])  # voxel grid bounds (plate frame, mm)
 HI = np.array([128.0, 22.0, 42.0])
 # plate pose in the MuJoCo root frame: part-studio frame (mm) <-> MJCF (m)
 PLATE_POS = np.array([-0.0115, 0.0245, 0.1022])
@@ -68,7 +75,16 @@ Z_BACK, CROWN, R_EDGE = 25.0, 1.5, 8.0
 CAP_BELOW_KNUCKLE = 3.0  # back shell top edge this far below the knuckle (pivot) line
 Z_PALM_TOP = 0.0  # below this z the top edge follows the palm cap (under the finger sweeps)
 PALM_MARGIN = 2.0  # extra depth of the palm surface below the enclosed parts
-WRIST_Y = -97.5  # bottom cut, same as the stock shells
+WRIST_Y = -97.5  # stock bottom cut (CAD y), used with --no-wrist
+# With the powered wrist the bottom cut is the plane W y = WRIST_W, square to the forearm axis: it passes
+# through the stock cut at the radial end of the wrist interface (CAD x = -9) and drops towards the ulnar side.
+WRIST = True
+WRIST_W = float(wd.cad_to_w([-9.0, WRIST_Y, 0.0])[1])
+WRIST_SECTION = 30.0  # mm of wrist section (centred on the forearm axis) above the cut
+# the cut rises towards the back of the hand (like the back of a wrist), so the back shell's bottom edge
+# clears the fork at the extension + deviation hard stops: by BEVEL mm per mm of z above BEVEL_Z
+BEVEL_Z, BEVEL = Z_SPLIT, 0.4
+ADAPTER_STL = HERE / "wrist" / "stl" / "R-Wrist_Hand_Adapter.stl"
 # back-shell screws (stock Top_Shell positions + the widened plate's pinky-side hole): (x, y, boss bottom z)
 SCREWS = [(16.1, -11.7, Z_SPLIT), (47.5, -20.1, Z_SPLIT), (77.8, -32.9, Z_SPLIT),
           (4.0, -91.0, Z_SPLIT + FLANGE_T), (46.0, -91.0, Z_SPLIT + FLANGE_T)]
@@ -166,12 +182,43 @@ def keepout(n_grid, vox):
     return K_enc, K_free, K_thumb
 
 
+def mesh_voxels(mesh, vox, shape):
+    """Solid voxels of a closed mesh (CAD mm) on the shell grid: one ray along +z per (x, y) column,
+    filled between successive entry/exit hits, plus the surface voxels."""
+    lo, hi = np.maximum(mesh.bounds[0], LO), np.minimum(mesh.bounds[1], HI)
+    i0, i1 = np.floor((lo - LO) / vox).astype(int), np.ceil((hi - LO) / vox).astype(int)
+    X, Y = [LO[k] + (np.arange(i0[k], i1[k]) + 0.5) * vox for k in (0, 1)]
+    XX, YY = np.meshgrid(X, Y, indexing="ij")
+    orig = np.stack([XX.ravel(), YY.ravel(), np.full(XX.size, LO[2] - 1.0)], -1)
+    locs, ray, _ = mesh.ray.intersects_location(orig, np.tile([0.0, 0.0, 1.0], (len(orig), 1)), multiple_hits=True)
+    grid = np.zeros(shape, bool)
+    for r in np.unique(ray):
+        z = np.sort(locs[ray == r, 2])
+        z = z[np.concatenate([[True], np.diff(z) > 1e-6])]  # hits on shared edges count once
+        a, b = np.unravel_index(r, XX.shape)
+        for z0, z1 in zip(z[0::2], z[1::2]):
+            k0, k1 = int(np.floor((z0 - LO[2]) / vox)), int(np.ceil((z1 - LO[2]) / vox))
+            grid[i0[0] + a, i0[1] + b, max(k0, 0):min(k1, shape[2])] = True
+    return ndi.binary_dilation(grid)
+
+
 # ------------------------------------------------------------------ 2.-3. fields
 class Grid:
     def __init__(self, shape, vox):
         self.vox = vox
         self.X, self.Y, self.Z = [LO[i] + (np.arange(shape[i]) + 0.5) * vox for i in range(3)]
         self.XX, self.YY = np.meshgrid(self.X, self.Y, indexing="ij")
+        w = wd.cad_to_w(np.stack([self.XX, self.YY, np.zeros_like(self.XX)], -1))
+        self.WX, self.WY = w[..., 0], w[..., 1]  # across / along the forearm axis (powered wrist)
+
+    def below_cut(self):
+        """Signed 2D field, positive below the wrist cut (before the back bevel)."""
+        return WRIST_W - self.WY if WRIST else WRIST_Y - self.YY
+
+    def below_cut3(self):
+        """Signed 3D field, positive below the wrist cut, with the back bevel."""
+        bevel = np.maximum(self.Z - BEVEL_Z, 0.0) * BEVEL if WRIST else 0.0 * self.Z
+        return self.below_cut()[:, :, None] + bevel[None, None, :]
 
     def sdf(self, mask):
         return (ndi.distance_transform_edt(~mask) - ndi.distance_transform_edt(mask)) * self.vox
@@ -215,9 +262,17 @@ def envelope(G, K_enc):
     enclosed parts K (everything below the knuckle cap)."""
     ycap = knuckle_cap(G)
     K = K_enc & ~(G.YY >= ycap[:, None])[:, :, None]
-    K[:, G.Y < WRIST_Y - 2.5, :] = False
+    K[G.below_cut() > 2.5] = False
     # outline: the enclosed parts' footprint, closed, grown and smoothed
     foot = ndi.binary_fill_holes(ndi.binary_closing(K.any(2), iterations=int(10 / G.vox)))
+    if WRIST:
+        # a wrist section centred on the forearm axis, as wide as the widest enclosed part near the wrist,
+        # and the convex hull of it all: the palm narrows evenly from the knuckles to the wrist
+        band = foot & (G.WY < WRIST_W + WRIST_SECTION)
+        half = np.abs(G.WX[band]).max()
+        foot |= (np.abs(G.WX) <= half) & (G.below_cut() <= 3.0) & (G.WY <= WRIST_W + WRIST_SECTION)
+        foot = convex_hull_image(foot)
+        log(f"wrist section: {2 * half:.1f} mm wide (+ walls) about the forearm axis, cut at W y = {WRIST_W:.1f} mm")
     d2 = ndi.gaussian_filter(G.sdf(foot), 4 / G.vox) - (CLR + WALL + 3.0)
     # palm surface: smooth lower envelope kept PALM_MARGIN below every enclosed part, so the
     # parts never push bumps through it
@@ -277,7 +332,7 @@ def part_fields(G, s_E, s_O, s_top, K_enc_noplate):
     wall = np.maximum(s_E, -(s_in + WALL))
     wall = smax(wall, s_top, 0.8)  # open top: the wall just ends at the cap curves
     wall = np.maximum(wall, -s_O)
-    wall = np.maximum(wall, WRIST_Y - YY)
+    wall = np.maximum(wall, G.below_cut3())
     half = -WALL / 2
     # back: everything above the lap, plus the outer half of the wall in the lap zone
     back_sel = np.minimum((Z_SPLIT + LAP_H) - Z, np.maximum(Z_SPLIT - Z, (half + LAP_GAP / 2) - s_E))
@@ -287,7 +342,7 @@ def part_fields(G, s_E, s_O, s_top, K_enc_noplate):
     palm_sel = np.minimum(Z - Z_SPLIT, np.maximum(Z - top, s_E - (half - LAP_GAP / 2)))
     palm = np.maximum(wall, palm_sel)
     # palm floor flange on the wrist interface's back face, clamped by the two bottom screws
-    flange = vmax(s_E - (half - LAP_GAP / 2), Z_SPLIT - Z, Z - top, YY - FLANGE_Y, WRIST_Y - YY, -s_O,
+    flange = vmax(s_E - (half - LAP_GAP / 2), Z_SPLIT - Z, Z - top, YY - FLANGE_Y, G.below_cut3(), -s_O,
                   0.3 - G.dist(K_enc_noplate))
     palm = np.minimum(palm, flange)
     # screw bosses on the back shell, from the plate / flange up into the back wall
@@ -418,15 +473,16 @@ def save(man, path):
 
 
 def main():
-    global MODEL, OUT_STL
+    global MODEL, OUT_STL, WRIST
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--vox", type=float, default=0.5, help="voxel size, mm")
     ap.add_argument("--grid", type=int, default=19, help="poses per motor for the swept volumes")
     ap.add_argument("--cache", type=Path, help="npz cache for the keep-out volumes")
     ap.add_argument("--model", default=MODEL, help="5-digit hand model to fit the shells to (e.g. AH_Right_5F_3S)")
     ap.add_argument("--out", type=Path, default=OUT_STL, help="output folder for the STLs")
+    ap.add_argument("--no-wrist", action="store_true", help="stock wrist cut, no powered wrist (no adapter, no wrist section)")
     args = ap.parse_args()
-    MODEL, OUT_STL = args.model, args.out
+    MODEL, OUT_STL, WRIST = args.model, args.out, not args.no_wrist
     t0 = time.time()
     if args.cache and args.cache.exists():
         z = np.load(args.cache)
@@ -436,6 +492,8 @@ def main():
         K_plate = keepout_palm(args.vox, K_enc.shape)
         if args.cache:
             np.savez_compressed(args.cache, K_enc=K_enc, K_free=K_free, K_thumb=K_thumb, K_plate=K_plate)
+    if WRIST:  # the wrist's hand adapter is rigid with the hand: enclose it / keep clear of it
+        K_enc = K_enc | mesh_voxels(trimesh.load(ADAPTER_STL), args.vox, K_enc.shape)
     log(f"keep-out volumes {K_enc.shape} ({time.time() - t0:.0f} s)")
     G = Grid(K_enc.shape, args.vox)
     s_E, ycap, _ = envelope(G, K_enc)

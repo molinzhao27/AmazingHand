@@ -187,16 +187,24 @@ def make_ring():
     return ring
 
 
+def interface_to_w(shape):
+    """Interface frame (CAD axes, origin on the spigot axis in the plane of the interface's recessed pads,
+    CAD y = INTERFACE_PADS_Y) -> W."""
+    return shape.rotate(V(0, 0, 0), V(0, 0, 1), np.degrees(wd.HAND_YAW)).translate(V(*wd.INTERFACE_TOP_W))
+
+
 def make_hand_adapter():
-    yb = wd.H_FLANGE - wd.FLANGE_T                     # 18.5: flange underside
-    yt = wd.H_FLANGE + 1.2                             # 26.2: mates the interface's recessed pads (CAD y -101)
-    flange = cyl((0, yb, 0), (0, 1, 0), wd.FLANGE_R, yt - yb)
+    yb = wd.H_FLANGE - wd.FLANGE_T                     # 18.5: flange underside (W)
+    # Flange: a d56 cylinder on the interface's spigot axis, from the pad plane down to the W plane y = yb (the
+    # gimbal side, as at zero yaw); a wedge, FLANGE_MIN thick at the radial rim and thicker towards the ulnar side.
+    flange = interface_to_w(cyl((0, -40, 0), (0, 1, 0), wd.FLANGE_R, 40)).cut(box(-60, 60, yb - 40, yb, -60, 60))
     # pockets for the interface's three protruding pads (CAD y -102.2 .. -101; sectors 31-89, 151-209, 271-329 deg)
-    pockets = [sector(16.5, 30, c - 30.2, c + 30.2, yt - 1.45, yt + 1) for c in (60, 180, 300)]
-    holes = [cyl((0, yb - 1, 0), (0, 1, 0), 11.0, 12)]            # cable bore d22
-    for ang in (20, -20, 140, -140):                               # 4 x 3.0x12 PT / M3x12 screw, head from below
+    pockets = [interface_to_w(sector(16.5, 30, c - 30.2, c + 30.2, -1.45, 1)) for c in (60, 180, 300)]
+    holes = [interface_to_w(cyl((0, -30, 0), (0, 1, 0), 11.0, 32))]   # cable bore d22, along the spigot axis
+    for ang in (20, -20, 140, -140):  # 4 x 3.0x12 PT / M3x12 screw along the spigot axis, head from below
         x, z = 21 * np.cos(np.radians(ang)), 21 * np.sin(np.radians(ang))
-        holes += [cyl((x, yb - 1, z), (0, 1, 0), 1.7, 12), cyl((x, yb - 1, z), (0, 1, 0), 3.25, 1 + 3.0)]
+        # the head seats 4.7 mm below the pad plane (as at zero yaw); the counterbore runs out through the underside
+        holes += [interface_to_w(cyl((x, -30, z), (0, 1, 0), 1.7, 33)), interface_to_w(cyl((x, -30, z), (0, 1, 0), 3.25, 30 - 4.7))]
     body = cut(flange, *pockets, *holes)
     lugs = []
     for s in (+1, -1):          # front (-z) / back (+z) lugs: deviation axis = W z; the back one is a block out to the bar
@@ -505,6 +513,14 @@ def bought_parts_neutral():
 PRINT_UP = {"R-Wrist_Hand_Adapter": (0, -1, 0), "Wrist_Gimbal_Ring": (0, 1, 0), "R-Wrist_Fork": (0, 1, 0),
             "R-Forearm_Front": (0, 1, 0), "R-Forearm_Back": (0, 1, 0), "R-Wrist_Servo_Frame": (0, 0, 1),
             "Wrist_Horn_Arm": (1, 0, 0), "Elbow_Flange": (0, 1, 0)}
+
+
+def print_up_cad(name):
+    """Print 'up' in the CAD frame of the exported STL (PRINT_UP is in W; the adapter prints on its flange top,
+    which is the CAD plane of the wrist interface)."""
+    return np.array([0.0, -1.0, 0.0]) if name == "R-Wrist_Hand_Adapter" else wd.R_W2CAD @ np.asarray(PRINT_UP[name], float)
+
+
 PRINT_NOTE = {
     "R-Wrist_Hand_Adapter": "flange face down (lugs up); the three 1.4 mm pad pockets bridge, gussets carry the lever bar",
     "Wrist_Gimbal_Ring": "flat",
@@ -551,7 +567,7 @@ def check_parts(parts, bought):
     for name, shp in parts.items():
         m = trimesh.load(STL_DIR / f"{name}.stl")
         th = wall_thickness(m)
-        steep, flat, tot = overhang_report(m, PRINT_UP[name])
+        steep, flat, tot = overhang_report(m, print_up_cad(name))
         row = (f"{name:22s} watertight={m.is_watertight} faces={len(m.faces):6d} vol={m.volume / 1000:6.1f} cm3  "
                f"thickness p1={np.percentile(th, 1):4.2f} p5={np.percentile(th, 5):4.2f} median={np.median(th):4.2f} mm, "
                f"samples < 1.2 mm: {100 * np.mean(th < 1.2):4.1f} %  | print {PRINT_NOTE[name]}: overhang > 45 deg "
@@ -586,8 +602,12 @@ def check_parts(parts, bought):
 
 
 # ============================================================================ main
+def w_to_cad(shape):
+    return shape.rotate(V(0, 0, 0), V(0, 0, 1), -np.degrees(wd.HAND_YAW)).translate(V(*wd.C_CAD))
+
+
 def export(shape, name, folder_step=STEP_DIR, folder_stl=STL_DIR):
-    s = shape.translate(V(*wd.C_CAD))       # W -> CAD frame
+    s = w_to_cad(shape)
     if folder_step is not None:
         cq.exporters.export(s, str(folder_step / f"{name}.step"))
     cq.exporters.export(s, str(folder_stl / f"{name}.stl"), tolerance=STL_TOL, angularTolerance=STL_ANG)
@@ -619,7 +639,7 @@ def main():
         n_sol = len(shp.Solids())
         export(shp, name)
         vol = shp.Volume()
-        bb = shp.translate(V(*wd.C_CAD)).BoundingBox()
+        bb = w_to_cad(shp).BoundingBox()
         table[name] = dict(volume_cm3=round(vol / 1000, 2), mass_g=round(vol / 1000 * PLA_DENSITY, 1), solids=n_sol,
                            valid=bool(shp.isValid()), bbox_cad_mm=[round(v, 2) for v in (bb.xmin, bb.ymin, bb.zmin, bb.xmax, bb.ymax, bb.zmax)],
                            print=PRINT_NOTE[name])
@@ -628,7 +648,7 @@ def main():
     # stock R-* parts onto the L-* parts (ring, horn arm and elbow flange are their own mirror images)
     for name in ("R-Wrist_Hand_Adapter", "R-Wrist_Fork", "R-Forearm_Front", "R-Forearm_Back", "R-Wrist_Servo_Frame"):
         lname = "L-" + name[2:]
-        m = parts[name].translate(V(*wd.C_CAD)).mirror("YZ", (-50.0, 0, 0))
+        m = w_to_cad(parts[name]).mirror("YZ", (-50.0, 0, 0))
         cq.exporters.export(m, str(STEP_DIR / f"{lname}.step"))
         cq.exporters.export(m, str(STL_DIR / f"{lname}.stl"), tolerance=STL_TOL, angularTolerance=STL_ANG)
         table[lname] = dict(volume_cm3=table[name]["volume_cm3"], mass_g=table[name]["mass_g"], solids=len(m.Solids()),
@@ -640,7 +660,7 @@ def main():
     for name, shp in bought.items():
         export(shp, name, None, REF_DIR)
     meta = dict(frame="CAD part-studio frame of the AmazingHand (mm), neutral wrist pose",
-                wrist_centre_cad_mm=wd.C_CAD.tolist(), parts=table,
+                wrist_centre_cad_mm=wd.C_CAD.tolist(), hand_yaw_deg=float(np.degrees(wd.HAND_YAW)), parts=table,
                 rod_lengths_mm={f"motor{i}": wd.ROD_L[i] for i in (1, 2)},
                 note="Wrist_Horn_Arm: print 2 (one per servo); stl/ref: bought-part envelopes and the placed second arm")
     (HERE / "wrist_parts.json").write_text(json.dumps(meta, indent=2) + "\n")
