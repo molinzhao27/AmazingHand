@@ -231,6 +231,26 @@ View it:
 .venv/bin/python -m mujoco.viewer --mjcf=Demo/AHSimulation/AHSimulation/AH_Right_5F_Wrist/mjcf/scene_shells.xml
 ```
 
+### Poses: peace sign and middle finger
+
+![poses](Demo/AHSimulation/five_finger/renders/poses_AH_Right_5F_Slim_Wrist.jpg)
+
+[hand_poses.py](Demo/AHSimulation/five_finger/hand_poses.py) defines poses by intent (each finger straight or curled, plus a spread) and works out the servo commands for a given model. It then settles each pose and checks the clearance between every pair of digits. "Straight" is found per model (f = −32° for slim fingers), so the same pose definitions work for the stock, slim and 3-phalanx variants.
+
+| Pose | Index | Middle | Ring | Pinky | Thumb | Closest digits |
+|---|---|---|---|---|---|---|
+| PeaceSign | (−2, 62) | (−62, 2) | (90, −90) | (90, −90) | (90, −90) tucked | none within 3 mm |
+| MiddleFinger | (90, −90) | (−32, 32) | (90, −90) | (90, −90) | (90, 45) over the index | thumb/index 0.66 mm |
+
+The commands are right-hand (m1, m2) in degrees, for `AH_Right_5F_Slim`. For the left hand, mirror to (−m2, −m1).
+
+- **Compared with the stock demo:** these are close to the stock `Victory` and `Fuck` demos. The V is spread wider (±30° instead of about ±25°), the pinky is curled, and the middle finger has the thumb folded over the curled index.
+- **Thumb limit:** the thumb cannot hold down the curled ring and pinky in the peace sign. It opposes only towards the index, and its tip stays at least 56 mm from the curled ring. So it tucks into the palm instead, as in the stock `Victory`.
+
+```bash
+.venv/bin/python Demo/AHSimulation/five_finger/hand_poses.py --model AH_Right_5F_Slim --render-model AH_Right_5F_Slim_Wrist
+```
+
 ### Three phalanges per finger (study)
 
 [cad/five_finger/three_segment/README.md](cad/five_finger/three_segment/README.md) answers "what would it take":
