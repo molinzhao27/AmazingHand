@@ -26,9 +26,12 @@ import trimesh
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import wrist_design as wd  # noqa: E402
+sys.path.insert(0, str(HERE.parent))
+import layout as LAYOUT  # noqa: E402  (where the thumb module is mounted: THUMB_MOUNT)
 
 V = cq.Vector
 STEP_DIR, STL_DIR, REF_DIR, PREV_DIR = HERE / "step", HERE / "stl", HERE / "stl" / "ref", HERE / "previews"
+STOCK_INTERFACE = HERE.parent.parent / "step" / "Amazing Hand Parts - R-Wrist_Interface.step"   # replaced by the adapter
 PLA_DENSITY = 1.00            # g/cm3, wrist parts printed with 3-4 walls and ~25 % infill
 STL_TOL, STL_ANG = 0.04, 0.15
 
@@ -191,8 +194,17 @@ def rot_z180(s, y0):
 Y_PAIR = 0.5 * (wd.Y_SHAFT[1] + wd.Y_SHAFT[2])    # servo 2 = servo 1 rotated 180 deg about (0, Y_PAIR) || z
 FLEX_STOP_DEG, DEV_STOP_DEG = 66.0, 31.0
 _f = np.radians(FLEX_STOP_DEG)
-# lowest point of the adapter flange's bottom edge (y = H_FLANGE - FLANGE_T, r = FLANGE_R) after flexing by the stop angle
-FLEX_STOP_Y = (wd.H_FLANGE - wd.FLANGE_T) * np.cos(_f) - wd.FLANGE_R * np.sin(_f)
+# lowest point of the adapter neck's bottom edge (y = H_FLANGE - FLANGE_T, |z| = ADAPTER_R) after flexing by the stop
+# angle, and its z there (the fork's flexion-stop pads catch it)
+FLEX_STOP_Y = (wd.H_FLANGE - wd.FLANGE_T) * np.cos(_f) - wd.ADAPTER_R * np.sin(_f)
+FLEX_STOP_Z = (wd.H_FLANGE - wd.FLANGE_T) * np.sin(_f) + wd.ADAPTER_R * np.cos(_f)
+# the pads start 0.5 mm inside that landing point (z) and are 6 mm deep; their inner top edge is FLEX_STOP_R from the
+# flexion axis. Everything else under the neck that can swing over the back pad (|x| < ~12 with deviation: the back
+# block, the gussets, the middle of the bar) stays within GUSSET_R < FLEX_STOP_R of C, so in extension, deviated or
+# not, nothing but the neck's rim reaches the back pad.
+FLEX_STOP_Z0, FLEX_STOP_Z1 = FLEX_STOP_Z - 0.5, FLEX_STOP_Z + 5.5
+FLEX_STOP_R = float(np.hypot(FLEX_STOP_Y, FLEX_STOP_Z0))                   # 27.5
+GUSSET_R = 26.5
 _d = np.radians(DEV_STOP_DEG)
 # height reached by the fork boss's top outer corner (x = LUG_OUT, y = LUG_R) when the hand deviates by the stop angle
 DEV_STOP_Y = wd.LUG_OUT * np.sin(_d) + wd.LUG_R * np.cos(_d)
@@ -228,45 +240,102 @@ def make_ring():
     return ring
 
 
-def interface_to_w(shape):
-    """Interface frame (CAD axes, origin on the spigot axis in the plane of the interface's recessed pads,
-    CAD y = INTERFACE_PADS_Y) -> W."""
-    return shape.rotate(V(0, 0, 0), V(0, 0, 1), np.degrees(wd.HAND_YAW)).translate(V(*wd.INTERFACE_TOP_W))
+def to_w(shape):
+    """CAD frame -> W (the inverse of w_to_cad)."""
+    return shape.translate(V(*(-wd.C_CAD))).rotate(V(0, 0, 0), V(0, 0, 1), np.degrees(wd.HAND_YAW))
+
+
+MOUNT_TOP_W = wd.cad_to_w([wd.INTERFACE_AXIS[0], wd.MOUNT_Y, wd.INTERFACE_AXIS[1]])
+
+
+def mount_to_w(shape):
+    """Mount frame (CAD axes, origin on the interface axis in the plane CAD y = MOUNT_Y) -> W."""
+    return shape.rotate(V(0, 0, 0), V(0, 0, 1), np.degrees(wd.HAND_YAW)).translate(V(*MOUNT_TOP_W))
+
+
+# The stock thumb is screwed into the interface plate (its seat: three screws, the servo pockets and the window, the
+# bushing recess). A re-mounted thumb (cad/five_finger/layout.py THUMB_MOUNT != "stock") sits on the palm plate instead
+# (make_5f_plate.py's thumb unit), so its seat goes: the pockets, window and seat holes are filled solid (THUMB_FILL, a
+# polygon in CAD (x, z), outside the bore and clear of the index-side leg screw and its counterbore), and the plate is
+# trimmed below to THUMB_FREE_Z, the depth of the d42 neck under it (z = -11.5 - 21 = -32.5): the four leg screws, the
+# back-shell screws and the plate over the whole neck stay, and the heel is no deeper than the neck.
+THUMB_FILL = [(-7.0, -42.0), (-7.0, -14.5), (-3.3, -11.0), (-3.3, 6.0), (30.0, 6.0), (30.0, -42.0)]
+THUMB_FREE_Z = -33.0
+
+
+def remove_thumb_seat(plate, my):
+    """The interface plate (CAD) without the stock thumb seat (see THUMB_FILL)."""
+    import shapely
+    from shapely.geometry import Point, Polygon
+
+    ax = wd.INTERFACE_AXIS
+    # the plate's outline (its largest section, just under the top face, where the plate has no edge notches)
+    wp = cq.Workplane(cq.Plane(origin=(0, -86.0, 0), xDir=(1, 0, 0), normal=(0, 1, 0)))
+    face = max(wp.add(plate).section().faces().vals(), key=lambda f: f.Area())
+    pts = [(q.x, q.z) for e in face.outerWire().Edges() for q in e.positions(list(np.linspace(0.0, 1.0, 24)))]
+    outline = Polygon(pts).convex_hull
+    fills = []
+    for (y0, y1), r in (((my, -88.0), 17.0), ((-88.0, -85.0), 14.5)):   # the stepped bore stays open
+        poly = Polygon(THUMB_FILL).intersection(outline).difference(Point(*ax).buffer(r + 0.01, 128))
+        for g in getattr(poly, "geoms", [poly]):
+            fills.append(prism_xz(list(g.exterior.coords)[:-1], y0, y1))
+    plate = fuse(plate, *fills).intersect(box(-60, 120, my - 1, -80, THUMB_FREE_Z, 60))
+    return plate
 
 
 def make_hand_adapter():
-    yb = wd.H_FLANGE - wd.FLANGE_T                     # 18.5: flange underside (W)
-    # Body: a d56 cylinder on the interface's spigot axis, from the pad plane down to the W plane y = yb (the
-    # gimbal side, as at zero yaw): a wedge, FLANGE_MIN + PALM_EXT tall at the radial rim, taller towards the ulnar
-    # side. It is hollow: a 6 mm top flange (screw seats, pad pockets), a 4 mm wall, and a 45 deg conical roof
-    # down to the cable bore (prints flange-down without support), >= 4 mm above the gimbal-side face.
-    h = 40.0 + wd.PALM_EXT
-    flange = interface_to_w(cyl((0, -h, 0), (0, 1, 0), wd.FLANGE_R, h)).cut(box(-80, 80, yb - h, yb, -80, 80))
-    top_t, wall, bot_t, r_in, r_bore = 6.0, 4.0, 4.0, wd.FLANGE_R - 4.0, 11.0
+    """Hand adapter: the hand's wrist mount and the gimbal's hand side in one part, in place of the stock wrist
+    interface + a d56 flange. Above MOUNT_Y it is the stock interface's plate, unchanged where the hand uses it (the
+    four palm-plate leg screws, the shell screws; the stock thumb's seat, its screws and servo pockets only with the
+    stock thumb mount - a re-mounted thumb sits on the palm plate, see remove_thumb_seat); below it a
+    d42 neck on the interface axis down to the W plane y = yb. The neck is hollow: a 4 mm wall (its bore continues the
+    interface's 34 mm bore) and a 45 deg conical roof down to the d18 cable bore >= 4 mm above the gimbal-side face,
+    so the part prints plate-down without support. The deviation lugs and the lever bar hang under it."""
+    yb = wd.H_FLANGE - wd.FLANGE_T                     # 18.5: neck underside (W)
+    R, wall, bot_t, r_bore = wd.ADAPTER_R, 4.0, 4.0, 9.0
+    r_in = R - wall                                    # 17: = the stock interface's bore
+    below = lambda y: box(-80, 80, y - 100, y, -80, 80)   # W half-space y < y
+    # the stock interface's plate; the plug closes its underside recesses and the robot-mount holes inside the neck
+    ax, my = wd.INTERFACE_AXIS, wd.MOUNT_Y
+    plate = cq.importers.importStep(str(STOCK_INTERFACE)).val().intersect(box(-60, 120, my, -80, -80, 60))
+    if LAYOUT.THUMB_MOUNT != "stock":   # the thumb sits on the palm plate: its old seat here goes
+        plate = remove_thumb_seat(plate, my)
+    plugs = [cyl((ax[0], my - 0.1, ax[1]), (0, 1, 0), R, 1.0)]                       # up to the thumb pocket's floor
+    # the old spigot's 6 robot-mount pilot holes (r1.2, d42) and 4 robot-plate pilot holes, filled to their drill
+    # points; the one that opens into the thumb servo pocket only up to the pocket floor
+    for x, z in ((8.41, 2.0), (20.85, -32.18), (44.23, -18.68), (44.23, -4.32), (20.85, 9.18)):
+        plugs.append(cyl((x, my - 0.1, z), (0, 1, 0), 1.25, 4.1))
+    plugs.append(cyl((8.41, my - 0.1, -25.0), (0, 1, 0), 1.25, 1.0))
+    for x, z in ((-5.5, 4.08), (-4.51, -26.15), (48.79, -25.93), (54.5, 4.08)):
+        plugs += [cyl((x, my - 0.1, z), (0, 1, 0), 1.45, 1.1), cyl((x, my - 0.1, z), (0, 1, 0), 1.0, 8.1)]
+    plugs.append(cyl((11.85, my - 0.1, 1.3), (0, 1, 0), 1.05, 7.2))                # blind hole from the old spigot
+    shell_holes = [(4.0, -91.0), (46.0, -91.0)]   # back-shell screws (pilot r1.0 from the back face): re-drilled flat-
+    plugs += [cyl((x, y, 6.5), (0, 0, 1), 1.5, 9.1) for x, y in shell_holes]       # bottomed (the stock drill-point tips
+    redrill = [fuse(cyl((x, y, 7.5), (0, 0, 1), 1.0, 8.1), cyl((x, y, 14.7), (0, 0, 1), 1.4, 0.9)) for x, y in shell_holes]
+    body = to_w(cut(fuse(plate, *plugs), *redrill))                               # do not mesh watertight)
+    neck = mount_to_w(cyl((0, -80, 0), (0, 1, 0), R, 80.0)).cut(below(yb))
     sg, cg = np.sin(wd.HAND_YAW), np.cos(wd.HAND_YAW)
-    plane_y = lambda r: (yb - wd.INTERFACE_TOP_W[1] + sg * r) / cg      # highest point of the W plane y = yb within radius r (I frame)
+    plane_y = lambda r: (yb - MOUNT_TOP_W[1] + sg * r) / cg      # highest point of the W plane y = yb within radius r (mount frame)
     y1 = max(plane_y(r_in) + bot_t, plane_y(r_bore) + bot_t + (r_in - r_bore))
-    if y1 < -top_t - 2.0:
-        roof = cq.Solid.makeCone(r_bore, r_in, r_in - r_bore, pnt=V(0, y1 - (r_in - r_bore), 0), dir=V(0, 1, 0))
-        cavity = fuse(cyl((0, y1 - 0.01, 0), (0, 1, 0), r_in, -top_t - y1 + 0.01), roof)
-        flange = flange.cut(interface_to_w(cavity))
-    # pockets for the interface's three protruding pads (CAD y -102.2 .. -101; sectors 31-89, 151-209, 271-329 deg)
-    pockets = [interface_to_w(sector(16.5, 30, c - 30.2, c + 30.2, -1.45, 1)) for c in (60, 180, 300)]
-    holes = [interface_to_w(cyl((0, -h, 0), (0, 1, 0), 11.0, h + 2))]   # cable bore d22, along the spigot axis
-    for ang in (20, -20, 140, -140):  # 4 x 3.0x12 PT / M3x12 screw along the spigot axis, head from below
-        x, z = 21 * np.cos(np.radians(ang)), 21 * np.sin(np.radians(ang))
-        # the head seats 4.7 mm below the pad plane (as at zero yaw); the counterbore runs out through the cavity and
-        # the underside, so a driver reaches it from below
-        holes += [interface_to_w(cyl((x, -h, z), (0, 1, 0), 1.7, h + 3)), interface_to_w(cyl((x, -h, z), (0, 1, 0), 3.25, h - 4.7))]
-    body = cut(flange, *pockets, *holes)
-    lugs = []
-    for s in (+1, -1):          # front (-z) / back (+z) lugs: deviation axis = W z; the back one is a block out to the bar
-        z0, z1 = sorted([s * wd.LUG_IN, s * (wd.LUG_OUT if s < 0 else wd.BAR_Z[1])])
-        lugs += [box(-wd.LUG_R, wd.LUG_R, 0, yb + 0.2, z0, z1), cyl((0, 0, z0), (0, 0, 1), wd.LUG_R, z1 - z0)]
+    roof = cq.Solid.makeCone(r_bore, r_in, r_in - r_bore, pnt=V(0, y1 - (r_in - r_bore), 0), dir=V(0, 1, 0))
+    cavity = mount_to_w(fuse(cyl((0, y1 - 0.01, 0), (0, 1, 0), r_in, -y1 + 2.0), roof))
+    bore = mount_to_w(cyl((0, -80, 0), (0, 1, 0), r_bore, 82.0))
+    body = cut(fuse(body, neck), cavity, bore)
+    # under the neck: the front lug and the back lug block (out to the lever bar; above the bar it steps in at 50 deg
+    # to stay inside the neck's footprint, which the print builds on)
+    x_ax = MOUNT_TOP_W[0] - sg / cg * (yb - MOUNT_TOP_W[1])     # interface axis at the neck underside (W x)
+    zr = np.sqrt(R ** 2 - (abs(x_ax) + wd.LUG_R) ** 2) - 1.0
+    lugs = [box(-wd.LUG_R, wd.LUG_R, 0, yb + 0.2, -wd.LUG_OUT, -wd.LUG_IN), cyl((0, 0, -wd.LUG_OUT), (0, 0, 1), wd.LUG_R, wd.LUG_OUT - wd.LUG_IN)]
+    z1 = wd.BAR_Z[1]
+    lugs += [prism_yz([(0, wd.LUG_IN), (0, z1), (wd.BAR_Y, z1), (wd.BAR_Y + 1.2 * (z1 - zr), zr), (yb + 0.2, zr),
+                       (yb + 0.2, wd.LUG_IN)], -wd.LUG_R, wd.LUG_R),
+             cyl((0, 0, wd.LUG_IN), (0, 0, 1), wd.LUG_R, z1 - wd.LUG_IN)]
     bar = box(-wd.BAR_X, wd.BAR_X, -wd.BAR_Y, wd.BAR_Y, wd.BAR_Z[0], wd.BAR_Z[1])
+    # the gussets' tips are trimmed to GUSSET_R from C: in extension only the neck's rim (~28 mm from C) may reach the
+    # fork's back stop pad, which starts FLEX_STOP_R from the flexion axis
     gussets = [prism_xy([(s * wd.LUG_R, wd.BAR_Y), (s * wd.BAR_X, wd.BAR_Y), (s * wd.LUG_R, wd.BAR_Y + wd.BAR_X - wd.LUG_R)],
-                        wd.BAR_Z[0], wd.BAR_Z[1]) for s in (1, -1)]
-    # deviation hard stops: pads under the flange that land on the fork's bearing bosses at ~31 deg
+                        wd.BAR_Z[0], wd.BAR_Z[1]).intersect(sphere((0, 0, 0), GUSSET_R)) for s in (1, -1)]
+    # deviation hard stops: pads under the neck that land on the fork's bearing bosses at ~31 deg
     pads = [box(*sorted([s * wd.LUG_IN, s * 16.0]), DEV_STOP_Y, yb + 0.2, -4.0, 4.0) for s in (1, -1)]
     body = fuse(body, *lugs, bar, *gussets, *pads)
     tools = [bearing_seat(AXES["+z"], (0, -1, 0), through=wd.BAR_Z[1] - wd.LUG_OUT + 1),   # pin access through the block
@@ -286,9 +355,10 @@ def make_fork(slots):
         lugs += [prism_yz([(y1 - 0.5, -24.0), (y1 - 0.5, -12.0), (-6.0, 2.0), (0.0, 2.0), (0.0, -wd.LUG_R)], x0, x1),
                  cyl((x0, 0, 0), (1, 0, 0), wd.LUG_R, x1 - x0)]
     bridge = box(-wd.LUG_OUT, wd.LUG_OUT, y1 - 0.5, -18.0, -24.0, -17.0)        # ties the two stems together
-    # flexion hard stops: the adapter flange's edge lands on these pads at ~66 deg (palm-ward and extension)
+    # flexion hard stops: the rim of the adapter's neck lands on these pads at ~66 deg (palm-ward and extension)
     # (the back pad stays narrow: the back cap screws sit at x = +-7)
-    stops = [box(-w_, w_, y1 - 0.5, FLEX_STOP_Y, *sorted([s * 25.0, s * 31.0])) for s, w_ in ((1, 3.5), (-1, 9.0))]
+    stops = [box(-w_, w_, y1 - 0.5, FLEX_STOP_Y, *sorted([s * FLEX_STOP_Z0, s * FLEX_STOP_Z1]))
+             for s, w_ in ((1, 3.5), (-1, 9.0))]
     body = fuse(body, *lugs, bridge, *stops)
     tools = [bearing_seat(AXES["+x"], (0, 1, 0)), bearing_seat(AXES["-x"], (0, 1, 0)),
              cyl((0, y0 - 5, 0), (0, 1, 0), 6.0, 12)]                 # cable hole d12 under the ring bore
@@ -616,13 +686,13 @@ PRINT_UP = {"R-Wrist_Hand_Adapter": (0, -1, 0), "Wrist_Gimbal_Ring": (0, 1, 0), 
 
 
 def print_up_cad(name):
-    """Print 'up' in the CAD frame of the exported STL (PRINT_UP is in W; the adapter prints on its flange top,
-    which is the CAD plane of the wrist interface)."""
+    """Print 'up' in the CAD frame of the exported STL (PRINT_UP is in W; the adapter prints on its interface plate's
+    top face, which is a CAD plane)."""
     return np.array([0.0, -1.0, 0.0]) if name == "R-Wrist_Hand_Adapter" else wd.R_W2CAD @ np.asarray(PRINT_UP[name], float)
 
 
 PRINT_NOTE = {
-    "R-Wrist_Hand_Adapter": "flange face down (lugs up); the three 1.4 mm pad pockets bridge, gussets carry the lever bar",
+    "R-Wrist_Hand_Adapter": "interface plate down (its face on the palm plate), neck and lugs up; gussets carry the lever bar",
     "Wrist_Gimbal_Ring": "flat",
     "R-Wrist_Fork": "cap face down, lugs up; bearing seats are teardrops",
     "R-Forearm_Front": "standing on the elbow end",
@@ -753,6 +823,15 @@ def main():
         cq.exporters.export(m, str(STL_DIR / f"{lname}.stl"), tolerance=STL_TOL, angularTolerance=STL_ANG)
         table[lname] = dict(volume_cm3=table[name]["volume_cm3"], mass_g=table[name]["mass_g"], solids=len(m.Solids()),
                             valid=bool(m.isValid()), mirror_of=name, print=PRINT_NOTE[name])
+    # the adapter split for the sim: its interface plate (CAD y >= MOUNT_Y) is the hand models' root mesh in place of
+    # the stock wrist interface (Demo/AHSimulation/five_finger/build_5f_model.py), the neck rides on the wrist joint
+    ad = w_to_cad(parts["R-Wrist_Hand_Adapter"])
+    for piece, sel in (("palm", box(-200, 200, wd.MOUNT_Y, 0, -200, 200)), ("neck", box(-200, 200, -400, wd.MOUNT_Y, -200, 200))):
+        sh = ad.intersect(sel)
+        cq.exporters.export(sh, str(REF_DIR / f"R-Wrist_Hand_Adapter_{piece}.stl"), tolerance=STL_TOL, angularTolerance=STL_ANG)
+        if piece == "palm":
+            cq.exporters.export(sh.mirror("YZ", (-50.0, 0, 0)), str(REF_DIR / "L-Wrist_Hand_Adapter_palm.stl"),
+                                tolerance=STL_TOL, angularTolerance=STL_ANG)
     # instance of the arm on servo 2 (same part, rotated) for the checks / sim
     arm2 = rot_z180(parts["Wrist_Horn_Arm"], Y_PAIR)
     export(arm2, "Wrist_Horn_Arm_motor2_placed", None, REF_DIR)

@@ -2,7 +2,7 @@
 
 ![overview](../../../Demo/AHSimulation/wrist/renders/wrist_overview.jpg)
 
-This adds a 2-DOF wrist (flexion/extension and radial/ulnar deviation) and a forearm base to the 5-digit hand. The hand bolts on **unchanged**: no hand part is modified. The design is in the spirit of the Shadow hand: a slim gimbal at the wrist, the motors in the forearm, and a slim, smoothly tapered forearm shell (rounded sections that hug the parts inside, a waist and a cuff ring at the wrist) on an elbow flange.
+This adds a 2-DOF wrist (flexion/extension and radial/ulnar deviation) and a forearm base to the 5-digit hand. The hand keeps its palm plate (the thumb now mounts on it, see FIVE_FINGER.md "Thumb mount"); only the stock wrist interface is replaced, by the hand adapter, which takes over the interface's plate and continues as a Ø42 neck into the gimbal (see [Mounting the hand](#mounting-the-hand-the-adapter-replaces-the-wrist-interface)). The design is in the spirit of the Shadow hand: a slim gimbal at the wrist, the motors in the forearm, and a slim, smoothly tapered forearm shell (rounded sections that hug the parts inside, a waist and a cuff ring at the wrist) on an elbow flange.
 
 The forearm is lined up with the middle of the four fingers, the way a human forearm lines up with the middle finger (see [Hand on the forearm](#hand-on-the-forearm)).
 
@@ -22,7 +22,7 @@ Everything was designed in CadQuery, assembled in MuJoCo and checked there. **No
 | Design parameters + linkage kinematics (IK/FK, Jacobian), shared by CAD, sim and control | [wrist_design.py](wrist_design.py) |
 | CadQuery source: STEP + STL of every printed part, bought-part envelopes, printability / interference checks | [make_wrist.py](make_wrist.py), [step/](step/), [stl/](stl/), [stl/ref/](stl/ref/), [wrist_parts.json](wrist_parts.json), [previews/](previews/) |
 | MuJoCo model (generated, do not edit) | [AH_Right_5F_Wrist/mjcf/](../../../Demo/AHSimulation/AHSimulation/AH_Right_5F_Wrist/mjcf/) |
-| Generator, mass model, checks, renders | [build_wrist_model.py](../../../Demo/AHSimulation/wrist/build_wrist_model.py), [hand_mass_model.py](../../../Demo/AHSimulation/wrist/hand_mass_model.py), [verify_wrist_model.py](../../../Demo/AHSimulation/wrist/verify_wrist_model.py), [check_thumb_rule.py](../../../Demo/AHSimulation/wrist/check_thumb_rule.py), [render_wrist_model.py](../../../Demo/AHSimulation/wrist/render_wrist_model.py), [render_forearm_before_after.py](../../../Demo/AHSimulation/wrist/render_forearm_before_after.py), [wrist_sim.py](../../../Demo/AHSimulation/wrist/wrist_sim.py) |
+| Generator, mass model, checks, renders | [build_wrist_model.py](../../../Demo/AHSimulation/wrist/build_wrist_model.py), [hand_mass_model.py](../../../Demo/AHSimulation/wrist/hand_mass_model.py), [verify_wrist_model.py](../../../Demo/AHSimulation/wrist/verify_wrist_model.py), [check_thumb_rule.py](../../../Demo/AHSimulation/wrist/check_thumb_rule.py), [render_wrist_model.py](../../../Demo/AHSimulation/wrist/render_wrist_model.py), [render_forearm_before_after.py](../../../Demo/AHSimulation/wrist/render_forearm_before_after.py), [render_heel_before_after.py](../../../Demo/AHSimulation/wrist/render_heel_before_after.py), [wrist_sim.py](../../../Demo/AHSimulation/wrist/wrist_sim.py) |
 | Reports and renders | [reports/](../../../Demo/AHSimulation/wrist/reports/), [renders/](../../../Demo/AHSimulation/wrist/renders/) |
 | Control code: AHControl patch + TOML, Python demo | [control/](../../../Demo/AHSimulation/wrist/control/) |
 
@@ -42,7 +42,10 @@ Regenerate everything (from the repo root, after the 5F steps in [FIVE_FINGER.md
 ```bash
 .venv/bin/python cad/five_finger/wrist/make_wrist.py                     # CAD + checks  (~30 s)
 .venv/bin/python cad/five_finger/make_5f_shells.py                       # palm shells   (~2 min; they fit the adapter and the wrist cut)
-.venv/bin/python Demo/AHSimulation/five_finger/build_5f_model.py          # copies the shells into AH_Right_5F
+.venv/bin/python Demo/AHSimulation/five_finger/build_5f_model.py          # copies the shells and the adapter's interface plate into AH_Right_5F
+.venv/bin/python Demo/AHSimulation/five_finger/build_5f_model.py --side left   # ... and into AH_Left_5F
+.venv/bin/python Demo/AHSimulation/slim_fingers/build_slim_model.py       # AH_Right_5F_Slim (uses AH_Right_5F's palm meshes)
+.venv/bin/python Demo/AHSimulation/ultimate_finger/build_models.py --no-finger   # AH_Right_5F_3S (copies them again)
 .venv/bin/python Demo/AHSimulation/wrist/build_wrist_model.py --keyframe   # MJCF          (~15 s)
 .venv/bin/python Demo/AHSimulation/wrist/build_wrist_model.py --hand AH_Right_5F_Slim --keyframe   # slim-finger variant
 .venv/bin/python Demo/AHSimulation/wrist/build_wrist_model.py --hand AH_Right_5F_3S --keyframe     # 3-phalanx variant
@@ -52,12 +55,13 @@ Regenerate everything (from the repo root, after the 5F steps in [FIVE_FINGER.md
 .venv/bin/python Demo/AHSimulation/wrist/render_wrist_model.py             # renders       (~2 min)
 .venv/bin/python Demo/AHSimulation/wrist/render_forearm_before_after.py --before-rev <rev> --model AH_Right_5F_3S_Wrist \
     --out Demo/AHSimulation/five_finger/renders/before_after_forearm_slim.jpg      # forearm vs an older revision
+.venv/bin/python Demo/AHSimulation/wrist/render_heel_before_after.py   # heel: stock interface + d56 adapter (ff5a133) vs the d42 neck
 ```
 
 ## Architecture and why
 
 ```
- hand (unchanged) ── R-Wrist_Interface (stock) ══ 4 screws ══ R-Wrist_Hand_Adapter
+ hand: palm plate legs ══ 4 screws ══ R-Wrist_Hand_Adapter (the stock interface's plate without the thumb seat + a d42 neck)
                                                                  │  deviation axis (z), F683ZZ + d3 pins
                                                           Wrist_Gimbal_Ring (d11 cable bore)
                                                                  │  flexion axis (x), F683ZZ + d3 pins
@@ -75,9 +79,9 @@ So the wrist frame W is turned instead:
 - **Position.** The axis passes through the centroid of the four knuckle pivots, CAD (48.32, −13.82) mm (`KNUCKLE_CENTRE`; `build_wrist_model.py` checks it against the hand model). That is between the middle and ring knuckles, like the human middle-finger axis.
 - **Knuckle arc.** Measured along the forearm, the index and middle knuckles are level and the ring is 4.9 mm lower. The pinky is 14.2 mm lower, which is the human pattern.
 
-**The hand adapter takes up the angle.** The adapter's flange top still sits on the stock interface (CAD axes), and its underside and everything below it are in W. So the adapter body is a wedge: 7.7 + 20 mm tall at the radial rim and about 38 mm at the ulnar rim.
+**The hand adapter takes up the angle.** The adapter's interface plate sits on the palm plate's legs (CAD axes), and its neck's underside and everything below it are in W. So the neck is a wedge: its Ø42 cylinder runs along the interface axis (CAD y) from the plate down to the W plane 18.5 mm above C, about 35 mm long at the radial side and 43 mm at the ulnar side.
 
-**Longer palm.** The wrist sits `PALM_EXT` = 20 mm further from the hand than the adapter needs, and the palm shells reach down to it. The thumb therefore sits higher above the wrist, as on a human hand: palm length (knuckle centroid to the shell's wrist edge) is 113 mm for an 87 mm finger, a ratio of 0.77, as in a human hand. The adapter is hollow to keep it light: a 6 mm top flange, a 4 mm wall, and a 45° conical roof down to the cable bore, so it still prints flange-down without supports. As a side effect, the thumb no longer reaches the forearm at any wrist angle, so the thumb interlock is gone (see [Verification](#verification)). The gimbal, rods, servos and forearm are unchanged, only turned. Every part is generated in W and placed with `x_cad = C + R_W2CAD · x_w`. The sim stands the forearm upright (`WORLD_QUAT`), so there the hand leans 10.5° instead.
+**Longer palm.** The wrist sits `PALM_EXT` = 20 mm further from the hand than the adapter needs, and the palm shells reach down to it. The thumb therefore sits higher above the wrist, as on a human hand: palm length (knuckle centroid to the shell's wrist edge) is 113 mm for an 87 mm finger, a ratio of 0.77, as in a human hand. The adapter's neck is hollow to keep it light: a 4 mm wall and a 45° conical roof down to the cable bore, so it prints plate-down without supports. As a side effect, the thumb no longer reaches the forearm at any wrist angle, so the thumb interlock is gone (see [Verification](#verification)). The gimbal, rods, servos and forearm are unchanged, only turned. Every part is generated in W and placed with `x_cad = C + R_W2CAD · x_w`. The sim stands the forearm upright (`WORLD_QUAT`), so there the hand leans 10.5° instead.
 
 ### Gimbal
 
@@ -85,7 +89,7 @@ The gimbal is a ring Cardan joint. Its two axes cross at the wrist centre C, CAD
 
 - **Flexion axis (proximal).** The axis is along W x. The fork on the forearm carries it. Flexion is the large motion (±60°), and putting its fork at the sides lets the hand swing without meeting a fork arm.
 - **Deviation axis (distal).** The axis is along W z (= CAD z). The hand adapter's front and back lugs carry it.
-- **Cable path.** The ring has an 11 mm bore. The hand's bus cable runs through the interface's 34 mm bore, the adapter's Ø22 bore (on the interface axis, which meets the gimbal 5.4 mm off its centre, inside the bore), the ring and the fork cap, then down the back of the forearm. It crosses the wrist on both axes, so it barely changes length.
+- **Cable path.** The ring has an 11 mm bore. The hand's bus cable runs through the adapter: the interface plate's 34 mm bore, the neck and its Ø18 bore (on the interface axis, which passes 2 mm from the gimbal centre), then the ring and the fork cap, then down the back of the forearm. It crosses the wrist on both axes, so it barely changes length.
 - **Bearings.** Each of the four pins is a 3 mm dowel pressed into the ring. It turns in an F683ZZ flanged bearing in the outer lug.
 
 The gimbal is deliberately compact: everything on the flexion axis stays inside |x| < 16 mm. At the palm-ward + deviation corners, a push rod (at |x| ≈ 19–21 mm) comes close to the flexion axis: 2.5 mm on the full ±60 × ±25° rectangle and 5.4 mm on the operating ROM. At the stop corners it crosses the axis. My first, larger gimbal (Ø34 ring, F684 bearings, lugs at |x| 17.5–24.5) was hit there by the rods at 11 of 143 ROM poses. `verify_wrist_model.py` reports this rod-to-axis distance and the clearance to the compact fork lugs: 3.6 mm on the ROM, 1.7 mm at the stops. See [Verification](#verification).
@@ -103,7 +107,7 @@ Every ball stud points along x. All the arm's out-of-plane rod tilt is therefore
 **Parallel, not serial.** I chose a parallel two-servo drive over a serial gimbal with one servo on each axis because:
 
 1. **Both servos share every load.** Per N·m at the joint, each servo needs 0.61 N·m (flexion) or 0.62 N·m (deviation) at the neutral pose. That rises to at most 1.02 (flexion) or 1.18 (deviation) at the corners of the operating ROM. In a serial gimbal one servo always carries the whole axis, and the distal servo also rides on the proximal one.
-2. **Looks and inertia.** The 55 g servos sit in the forearm. Only the ≈ 64 g adapter + ring and the 11 g of rods move with the hand, and the wrist stays a slim Ø56 neck, as on the Shadow hand.
+2. **Looks and inertia.** The 55 g servos sit in the forearm. Only the adapter's neck + ring (≈ 43 g) and the 11 g of rods move with the hand besides the hand itself, and the wrist stays a slim Ø42 neck, as on the Shadow hand.
 3. **Same principle as the AmazingHand finger.** The finger is also a two-servo parallel drive with ball-jointed rods, and the motor sign convention is the finger's: motor1 = ulnar (pinky-side) servo, motor2 = radial (index-side) servo; palm-ward flexion is (+, −) like CloseHand, and radial deviation is (+, +) like abducting toward the index.
 4. **Cost.** The control is coupled, so it needs the IK in [wrist_design.py](wrist_design.py) (closed form, about 20 lines). The leverage also drops at the combined corners.
 
@@ -125,7 +129,7 @@ The operating ROM is coupled, like a human wrist. `wrist_design.clamp_wrist()` e
 | flexion / extension | −60 … +60° |
 | radial / ulnar deviation | ±25° up to ±40° of flexion, tapering linearly to ±15° at ±60° |
 | servo angles needed | ≤ 54.9° (ctrlrange ±75°) |
-| hard stops | flexion ≈ ±66°: the adapter flange lands on two pads on the fork cap. Deviation ≈ ±31°: two pads under the adapter flange land on the fork's bearing bosses. The sim joint limits are ±65 / ±30°. |
+| hard stops | flexion ≈ ±66°: the rim of the adapter's neck lands on two pads on the fork cap. Deviation ≈ ±31°: two pads under the neck land on the fork's bearing bosses. The sim joint limits are ±65 / ±30°. |
 
 The linkage alone could do the full ±60 × ±25° rectangle. Towards its last corners, though, a push rod dips onto its own servo's gear-end envelope: at |flexion| ≥ 50° with |deviation| = 25°, and within 0.1 mm at (±60°, ±20°). Hence the taper, which keeps ≥ 1.4 mm.
 
@@ -154,8 +158,8 @@ The PLA value is **calibrated**: the same model gives the stock hand (AH_Right +
 
 Results:
 
-- **5-digit hand with shells and pad:** 492 g, CoM 108–114 mm from the wrist centre (CloseHand to OpenHand).
-- **Everything the wrist moves:** the adapter and ring (with pins, bearings, studs and screws) add 64 g, for 556 g with the CoM 104 mm from C. The rods weigh 4.8 / 6.4 g.
+- **5-digit hand with shells and pad:** 498 g (with the adapter's interface plate, 25.5 g, and the thumb's unit on the palm plate), CoM 109–118 mm from the wrist centre (CloseHand to OpenHand).
+- **Everything the wrist moves:** the adapter's neck and the ring (with pins, bearings, studs and screws) add 43 g, for 541 g with the CoM 108 mm from C (64 g and 556 g with the Ø56 adapter and the stock thumb mount). The rods weigh 4.8 / 6.4 g.
 - **Payload case:** 200 g placed at the OpenHand fingertip centroid of index…pinky, 227 mm from C.
 - **Inertia about the axes:** 0.0080 / 0.0083 kg·m² (flexion / deviation), and 0.0183 / 0.0186 kg·m² with the payload.
 
@@ -163,42 +167,49 @@ Results:
 
 | load | worst pose / mounting | worst per-servo torque | neutral wrist, worst mounting |
 |---|---|---|---|
-| hand only | (−60°, −15°), forearm horizontal, thumb up/down | **0.68 N·m** | 0.34 N·m |
-| hand + 200 g at the fingertips | (−60°, −15°), forearm horizontal, thumb up/down | **1.18 N·m** | 0.62 N·m |
+| hand only | (−60°, −15°), forearm horizontal, thumb up/down | **0.69 N·m** | 0.34 N·m |
+| hand + 200 g at the fingertips | (−60°, −15°), forearm horizontal, thumb up/down | **1.20 N·m** | 0.62 N·m |
 
 **The same worst case as a share of each candidate servo:**
 
 | servo | stall | hand only | + 200 g |
 |---|---|---|---|
-| STS3215 C001 (7.4 V version) on the hand's 6 V rail | 1.62 N·m | 42 % | 73 % |
-| STS3215 C001 at 7.4 V | 1.91 N·m | 36 % | 62 % |
-| **STS3215 C018 (12 V version)**, chosen | **2.94 N·m** | **23 %** | **40 %** |
+| STS3215 C001 (7.4 V version) on the hand's 6 V rail | 1.62 N·m | 43 % | 74 % |
+| STS3215 C001 at 7.4 V | 1.91 N·m | 36 % | 63 % |
+| **STS3215 C018 (12 V version)**, chosen | **2.94 N·m** | **24 %** | **41 %** |
 | STS3250 at 12 V | 4.9 N·m | 14 % | 24 % |
 
 **Dynamic** (sim, minimum-jerk moves, C018 servo model, forearm horizontal palm-down / vertical hand-up):
 
-- **±60° flexion sweep in 2.0 s:** ≤ 1.47 N·m peak (50 % of stall).
-- **Same sweep in 1.2 s:** ≤ 2.10 N·m (71 %).
-- **Same sweep in 0.8 s:** reaches the torque limit for 294 ms with the payload; tracking error 17.0°.
-- **±25° deviation sweep in 0.6 s:** ≤ 2.26 N·m (77 %).
+- **±60° flexion sweep in 2.0 s:** ≤ 1.51 N·m peak (51 % of stall).
+- **Same sweep in 1.2 s:** ≤ 2.14 N·m (73 %).
+- **Same sweep in 0.8 s:** reaches the torque limit for 302 ms with the payload; tracking error 17.1°.
+- **±25° deviation sweep in 0.6 s:** ≤ 2.27 N·m (77 %).
 
 Most of the dynamic torque is the motor's own back-EMF / gear damping at speed. Inertia × acceleration is small: 0.37 N·m at 20 rad/s² even with the payload. So the realistic speed limit is about one full flexion sweep per ~1.2 s.
 
-**Decision: 2 × Feetech STS3215 C018 (12 V, 30 kg·cm, 1:345, magnetic encoder, 55 g).** With the 200 g payload, in the worst pose and mounting, it runs at ≈ 40 % of stall, i.e. 1.2× its rated torque: fine in passing, but for holding a payload at full extension for minutes the STS3250 (same size) is the safer choice. That leaves a 3× margin to stall for dynamics. The 7.4 V C001 on the hand's 6 V rail would carry the hand alone everywhere (≤ 42 %), but not the payload at the extremes (≈ 73 % of stall continuously).
+**Decision: 2 × Feetech STS3215 C018 (12 V, 30 kg·cm, 1:345, magnetic encoder, 55 g).** With the 200 g payload, in the worst pose and mounting, it runs at ≈ 41 % of stall, i.e. 1.2× its rated torque: fine in passing, but for holding a payload at full extension for minutes the STS3250 (same size) is the safer choice. That leaves a 3× margin to stall for dynamics. The 7.4 V C001 on the hand's 6 V rail would carry the hand alone everywhere (≤ 43 %), but not the payload at the extremes (≈ 74 % of stall continuously).
 
 Same size, same 25T horn, same protocol and registers: a C001 drops in for hand-only use with no CAD change. The sim uses the `sts3215_345` values that Pollen identified for the Open Duck Mini (kp 17.11 N·m/rad, damping 0.56, armature 0.027, frictionloss 0.068), with the force limit set to the datasheet stall of 2.94 N·m.
 
 **Position sag.** A Feetech servo is a P controller. With the hand up and the wrist at 60°, its compliance plus the linkage gain let the wrist sag 2.2–4.0° from the command. The controller should therefore run a small outer loop on the servo angles (read `present_position`, nudge `goal_position` by 0.1 × error at 20–50 Hz). In the sim this brings every ROM pose to within 0.06° of the command. Do not run that loop faster than the servo's own ~3 Hz position loop: a gain of 0.4 at 50 Hz oscillated in the sim.
 
-## Mounting the hand: the wrist interface pattern
+## Mounting the hand: the adapter replaces the wrist interface
 
-I read the bolt pattern from `R-Wrist_Interface.step` with CadQuery/OCP. Angles are measured as atan2(z, x) about the interface axis at CAD (x, z) = (24.5, −11.5): 0° = pinky side, 90° = back.
+The stock `R-Wrist_Interface` (a 67 × 56 mm plate under the palm plate, a Ø49 / Ø34 ring spigot below it with a 6 × Ø2.4 robot-mount pattern on a 42 mm circle) set the size of the heel: a Ø56 adapter flange had to bolt to its spigot. `R-Wrist_Hand_Adapter` now replaces it and is one printed part:
 
-- **Spigot.** A Ø49 / Ø34 ring spigot from y = −95 to −102.2 mm. Its end face has three protruding pads (sectors 31–89°, 151–209°, 271–329°, at y = −102.2) and three pads recessed by 1.2 mm between them (at y = −101).
-- **Screw holes.** 6 × Ø2.4 blind holes, 9 mm deep, on a 42 mm circle, in pairs at 0° ± 20°, 120° ± 20° and 240° ± 20°, in the recessed pads. Ø2.4 is the pilot for a 3 mm thermoplastic (PT / thread-forming) screw.
-- **Locating holes.** 3 × Ø2.5 × 4 at 0°, 120° and 240°, on the same circle.
+- **Interface plate** (CAD y −85 … −95): the stock interface's plate, cut from `R-Wrist_Interface.step` at its underside (`MOUNT_Y`) and unchanged where the hand uses it:
+  - the four palm-plate leg screws (the stock 2.5 × 6 thermoplastic screws, from below into the legs at x = −6 / 55, z = −7.5 / 10.5);
+  - the two back-shell screw holes (re-drilled flat-bottomed).
 
-`R-Wrist_Hand_Adapter`'s flange (Ø56, centred on the interface axis) mates the recessed pads. It has 1.4 mm pockets for the protruding pads, which key it rotationally. It takes **4 screws (3.0×12 PT or M3×12 thread-forming) at ±20° and ±140°**, heads from below in counterbores, along the interface axis. The heads seat 4.7 mm below the pads, as at zero yaw. Because the flange is a wedge, the counterbores are 3 mm deep on the radial side and up to 13 mm on the ulnar side. A screwdriver reaches all four from below before the gimbal goes on (checked: nothing on the adapter is in the way). The ±100° pair lies under the adapter's front and back lugs and is left empty. The Ø22 centre bore passes the hand's bus cable.
+  The stock thumb's seat (its finger frames' seat and screws, the thumb servo pockets and window, the bushing recess) is gone: the thumb is re-mounted on the palm plate ([FIVE_FINGER.md, Thumb mount](../../../FIVE_FINGER.md#thumb-mount-a-thinner-thenar)), so `remove_thumb_seat()` fills the pockets and holes solid (outside the bore) and trims the plate below to CAD z = −33, the depth of the Ø42 neck: the plate no longer reaches down to z = −40.3 at the heel. With `layout.THUMB_MOUNT = "stock"` the plate keeps the seat, and the hand keeps exactly the stock interface's clearances (finger frames seated, thumb servos 0.08 mm, thumb pivot washer 0.40 mm over a 7 × 7 grid of the thumb's motors).
+
+  The unused robot-mount and robot-plate pilot holes are filled.
+- **Neck** (`ADAPTER_R` = 21 mm, Ø42): a hollow cylinder on the interface axis from the plate down to the gimbal, with the deviation lugs, the lever bar and the deviation-stop pads under it. Above the bar the back lug block steps in at 50°, so everything prints on the neck's footprint. The gussets over the bar are trimmed to 26.5 mm from C, and the fork's flexion-stop pads start 27.5 mm from the flexion axis, so in extension only the neck's rim reaches the back pad, deviated or not.
+
+The neck is 7 mm inside the old Ø56 flange all round. Below the interface plate (W y < 51) the parts the palm shell encloses at the heel now span u = W x −28.3 … +19.9 and CAD z −32.5 … +9.5 (Ø42), against −34.8 … +27.0 and −39.5 … +16.5 before (Ø56). Above W y ≈ 51 the interface plate (without the thumb seat) spans u down to −42.9 and CAD z −33.4 … +15.6 (with the stock thumb seat: −40.1 … +15.6); the thumb's servo pack is no longer there (it sits on the palm plate's radial edge).
+
+There is no bolted joint between the hand and the wrist any more. The hand plus 200 g hangs on the palm plate's four leg screws, as it did on the stock interface. Assembly: screw the adapter to the palm plate's legs (four screws from below, beside the neck), then fit the gimbal. The sim keeps the split: the interface plate is the hand models' root mesh (`stl/ref/R-Wrist_Hand_Adapter_palm.stl`, copied into AH_Right_5F / AH_Left_5F by `build_5f_model.py`), and the neck (`stl/ref/R-Wrist_Hand_Adapter_neck.stl`) rides on the deviation joint.
 
 ## Forearm base
 
@@ -257,7 +268,8 @@ Results from `make_wrist.py`:
   - fork: 69 and 11;
   - servo frame: 25 and 178 (the chamfer trimmed the ~47° undersides of the side blocks, which were 242);
   - elbow flange: 211 and 96. The overhang is the 1 mm × 45° chamfer round the bottom edge, which is the first layer;
-  - unchanged: hand adapter 603 and 821 (pad pockets ≤ 25 mm, counterbores), ring 53 and 12.
+  - hand adapter: 375 and 19 (386 with the stock thumb seat, whose servo pocket floors were the ceilings; 603 and 821 for the Ø56 one). The overhang is the lever block's underside behind the gimbal (≈ 160 mm², carried by the gussets) and the cone roof of the neck's cavity (≈ 170 mm², exactly 45°);
+  - ring: 53 and 12.
 
   The inner pads, ribs and struts of the shells have ≥ 50° undersides. The ceilings are the webs under the cap-screw bosses and the tops of the blind insert holes and counterbores. Each part's report is in [previews/cad_checks.txt](previews/cad_checks.txt).
 
@@ -265,9 +277,9 @@ Results from `make_wrist.py`:
 
 | Part | g (1.0 g/cm³) | Print | Material |
 |---|---|---|---|
-| R-Wrist_Hand_Adapter | 52.5 | flange face down, lugs up; the three 1.4 mm pad pockets bridge, gussets carry the lever bar | PETG (load path) |
+| R-Wrist_Hand_Adapter | 51.8 | interface plate down (its face on the palm plate), neck and lugs up; gussets carry the lever bar | PETG (load path) |
 | Wrist_Gimbal_Ring | 1.6 | flat | PETG |
-| R-Wrist_Fork | 24.7 | cap face down, fork up; teardrop bearing seats | PETG |
+| R-Wrist_Fork | 25.7 | cap face down, fork up; teardrop bearing seats | PETG |
 | R-Forearm_Front | 60.2 | standing on the elbow end | PLA |
 | R-Forearm_Back | 71.7 | standing on the elbow end | PLA |
 | R-Wrist_Servo_Frame | 28.3 | base down | PLA |
@@ -275,7 +287,7 @@ Results from `make_wrist.py`:
 | Elbow_Flange | 61.8 | flat | PLA |
 | **Total** | **≈ 306 g** | | |
 
-The forearm parts (fork, both shells, flange) weigh 218 g: 264 g for the first restyle, 239 g for the old rounded box.
+The forearm parts (fork, both shells, flange) weigh 219 g: 264 g for the first restyle, 239 g for the old rounded box. The adapter includes the interface plate (20.5 g) and replaces the stock wrist interface (26.4 g), so the printed parts add ≈ 280 g to the hand.
 
 PLA works for every part. I suggest PETG for the four gimbal and linkage parts because they carry sustained loads (creep).
 
@@ -292,7 +304,7 @@ PLA works for every part. I suggest PETG for the four gimbal and linkage parts b
 | M3 ball link for Ø5.8 balls, **swivel ≥ ±30°** | 4 | the top links see up to 26.7° |
 | M3 threaded rod, stainless | 2 | adjust to 66.0 and 96.0 mm between ball centres; 4 × M3 jam nuts |
 | M3 heat-set insert (Ø4.0 hole) | 14 | adapter 2, shells 8, servo frame 4 |
-| 3.0×12 thermoplastic screw (or M3×12 thread-forming) | 4 | adapter → wrist interface |
+| stock R-Wrist_Interface | −1 | replaced by the adapter. The hand's own 4 plate-leg screws go into the adapter (the thumb frame now screws to the palm plate) |
 | M3×10 socket head | 8 | fork cap 4, elbow flange 4 |
 | M3×8 countersunk | 4 | servo frame (2 through the palm side, 2 through the side walls) |
 | M2.5×6 | 8 | horn arm → disc horn (holes drawn on a 14 mm circle at 45°: **check your horn**, `make_horn_arm()`) |
@@ -302,12 +314,12 @@ PLA works for every part. I suggest PETG for the four gimbal and linkage parts b
 | 12 V supply ≥ 6 A + buck 12→6 V ≥ 10 A (or keep the hand's 6 V supply) | 1 | see [Power](#power) |
 | Optional: 2nd USB-TTL bus adapter for the wrist | 1 | see [Control](#control-code-changes) |
 
-Added mass: printed parts ≈ 306 g, servos 110 g, hardware ≈ 35 g, for ≈ 0.45 kg of wrist + forearm. Of that, only ≈ 64 g (adapter + ring) plus the 11 g of rods move with the hand.
+Added mass: printed parts ≈ 280 g net (306 g, less the 26 g stock interface the adapter replaces), servos 110 g, hardware ≈ 35 g, for ≈ 0.43 kg of wrist + forearm. Of that, only ≈ 43 g (the adapter's neck + ring) plus the 11 g of rods move with the hand.
 
 **Assembly order:**
 
 1. **Wrist bearings.** Press the bearings into the fork and adapter lugs, flanges inwards.
-2. **Hand adapter.** Screw the adapter to the hand's wrist interface.
+2. **Hand adapter.** Take the stock wrist interface off the palm plate and screw the adapter on in its place: the four plate-leg screws, from below. The screw axes are ≥ 7.7 mm from the neck, so a driver with a ≥ 70 mm shaft reaches past it.
 3. **Gimbal.** Put the ring between the fork lugs and press two pins in from outside through the Ø4 holes. Then put the adapter over the ring and press the other two pins in. The back one goes through the access hole in the lever block.
 4. **Servos.** Centre each servo (goal 0 rad = raw 2048) and fit its horn arm pointing backwards (+z), square to the rod. Slide the servos into the frame from the back.
 5. **Frame and shells.** Screw the frame in and fit the rods. Then close the back cover, cap screws first, then the flange.
@@ -354,7 +366,7 @@ A single 12 V ≥ 6 A supply can feed the wrist directly and the hand through a 
 
 **Register layouts differ.** SCS0009 is big-endian, 1024 steps over 300°, 511 = 0 rad. STS3215 is little-endian, 4096 steps per turn, 2048 = 0 rad. So one controller cannot address both families. An STS ID in the SCS0009 sync write would get byte-swapped goals.
 
-**Torque limit.** Set the wrist servos' `torque_limit` to 60–70 % for normal use. The ROM never needs more than 40 %, and the limit keeps the M3 ball studs well below yield if something blocks the wrist.
+**Torque limit.** Set the wrist servos' `torque_limit` to 60–70 % for normal use. The ROM never needs more than 41 %, and the limit keeps the M3 ball studs well below yield if something blocks the wrist.
 
 **Directions and zero.** Positive servo angle = increasing position = clockwise seen from the horn (datasheet). The sim and `wrist_design` use this convention. Before the first run:
 
@@ -415,7 +427,7 @@ def Move_Wrist(Flex_deg, Dev_deg):            # flexion > 0 palm-ward, deviation
 - **Counts.** 54 bodies, 46 joints, nq = 97, nv = 80, 12 actuators, 27 equalities, 1 keyframe.
   - `qpos[0:2]` = wrist, `qpos[2:87]` = the AH_Right_5F hand in its own order, `qpos[87:97]` = linkage.
   - `ctrl[0:10]` = the finger actuators, unchanged in name and order; `ctrl[10:12]` = `wrist_motor1/2` (position, class `sts3215_12v`, ctrlrange ±75°).
-- **Mass.** The hand gets a lumped inertial: the mass model (492 g with shells) minus the 110.6 g the finger bodies already carry, i.e. 381.7 g at root (−9.5, −11.8, 51.5) mm with a full inertia tensor. The wrist parts' inertials come from their STLs (PLA 1.0 g/cm³ + bought-part masses).
+- **Mass.** The hand gets a lumped inertial: the mass model (498 g with shells and the adapter's interface plate) minus the 110.6 g the finger bodies already carry, i.e. 387.2 g at root (−12.3, −6.2, 52.8) mm with a full inertia tensor. The adapter body carries the neck (31.3 cm³) plus its bearings and studs, 38.7 g. The wrist parts' inertials come from their STLs (PLA 1.0 g/cm³ + bought-part masses).
 - **Closures.** The two rod closures use `solimp="0.9999 0.9999 0.001"`. With the hand's default (0.99 0.999) they stretched 0.35 mm under load (1–4° of wrist error); now ≤ 0.07 mm.
 - **Keyframe.** Settled at ctrl = 0. The wrist sags 0.06° / 0.08° under gravity, and the hand's qpos matches AH_Right_5F's key to 7e-5.
 - **Scenes.** `scene.xml` moves the floor under the elbow flange (z = −0.246 m). `scene_shells.xml` includes `robot_shells.xml`, which carries the 5F palm/back shells and the grip pad on the moving palm.
@@ -433,8 +445,8 @@ Full log: [reports/verify_AH_Right_5F_Wrist.txt](../../../Demo/AHSimulation/wris
 |---|---|---|---|
 | each wrist servo alone 0 → +75° → −75° → 0 | 1.1 | 0.023 | ≤ 0.009 |
 | both servos around their ±75° box (drives the wrist onto its stops) | 5.0 | 0.065 | ≤ 0.009 |
-| IK around the coupled-ROM boundary with the outer loop | 1.6 | 0.004 | ≤ 0.009 |
-| 60 abrupt random steps of all 12 actuators | 91 (fingers) | 0.067 | 0.850 (same as AH_Right_5F / stock) |
+| IK around the coupled-ROM boundary with the outer loop | 1.6 | 0.006 | ≤ 0.009 |
+| 60 abrupt random steps of all 12 actuators | 91 (fingers) | 0.071 | 0.86 (same as AH_Right_5F / stock) |
 
 **ROM.**
 
@@ -456,8 +468,8 @@ Full log: [reports/verify_AH_Right_5F_Wrist.txt](../../../Demo/AHSimulation/wris
 | pair | min clearance on the operating ROM | at the hard stops (outside the ROM) |
 |---|---|---|
 | hand (palm/back shells, pad, all digits) vs forearm, fork, ring, rods | **> 5 mm**: the fork cap 11.4 mm, the forearm shells further | **6.75 mm** (back of the hand over the cap's back corner at −65 / +30°); the forearm shells keep ≥ 9.3 mm. The slimmer cap no longer reaches under the palm's wrist edge at +65 / +30° (3.55 mm with the first restyle). Same on AH_Right_5F_3S_Wrist |
-| thumb over a 7×7 grid of its motors vs forearm | > 5 mm. Even with the fully over-extended thumb ((m1, m2) = (−90, +90)) the hand stays ≥ 9.5 mm from the forearm at 60° of wrist flexion ([reports/thumb_vs_forearm.txt](../../../Demo/AHSimulation/wrist/reports/thumb_vs_forearm.txt)). Without the longer palm it touched there, so `wrist_design.thumb_flexion_min()` limits the thumb only if `PALM_EXT` < 20 mm | – |
-| hand adapter vs fork / forearm | 1.06 mm | 0.05 mm: the flange reaching its flexion-stop pad, as designed |
+| thumb over a 7×7 grid of its motors vs forearm | > 5 mm. Even with the fully over-extended thumb ((m1, m2) = (−90, +90), outside the slim mount's envelope) the hand stays ≥ 15.2 mm from the forearm at 60° of wrist flexion (9.5 mm with the stock thumb mount) ([reports/thumb_vs_forearm.txt](../../../Demo/AHSimulation/wrist/reports/thumb_vs_forearm.txt)). Without the longer palm it touched there, so `wrist_design.thumb_flexion_min()` limits the thumb only if `PALM_EXT` < 20 mm | – |
+| hand adapter vs fork / forearm | 1.06 mm (the lever bar's end over the fork cap at (−60°, −15°)) | 0.09 mm: the bar's end on the cap at the (−65°, +30°) corner; the neck's rim lands on its flexion-stop pads at ≈ 66° |
 | adapter ball studs vs forearm | 3.70 mm | 1.43 mm |
 | hand adapter vs ring, ring vs fork (gimbal gaps) | 0.73 mm | 0.73 mm |
 | push rods vs fork, shells, frame | 1.25 mm | 0.08–0.11 mm at the (±65, ±30°) corners |
@@ -478,7 +490,7 @@ The smallest ROM clearances (0.68–0.78 mm) are therefore against conservative 
 
 - **Not built.** Nothing has been printed or assembled. Print the adapter, ring and fork first to check:
   - the press fits (F683ZZ in Ø7.0, Ø3 pins in Ø2.9);
-  - the 1.4 mm interface pockets;
+  - the adapter's interface plate on the palm plate legs (stock geometry without the thumb seat, but now in PETG and one part with the neck);
   - the teardrop seats on your printer.
 - **Assumed bought-part details:**
   - the STS3215 connector location: the frame leaves a window on the bottom face near the rear end;
@@ -499,7 +511,8 @@ The smallest ROM clearances (0.68–0.78 mm) are therefore against conservative 
   - `wrist_hw_demo.py` has not run on hardware.
   - The rotation sign (clockwise from the horn = positive) comes from the datasheet. Run `--check-direction` before anything else.
 - **Mixed power.** Wiring the 12 V wrist branch onto the hand's 6 V bus is the main risk to the hand. Use a splitter with V+ cut, or a separate adapter.
-- **Strength by rough hand calculation only (no FEA).** The fork stems and lugs see ≈ 10–15 MPa bending if both servos stall against a stop. The Ø3 pins and F683ZZ bearings carry ≈ 110 N with a wide margin. PETG is suggested for the four load-path parts (creep).
+- **Strength by rough hand calculation only (no FEA).** The fork stems and lugs see ≈ 10–15 MPa bending if both servos stall against a stop. The Ø3 pins and F683ZZ bearings carry ≈ 110 N with a wide margin. The adapter's neck (Ø42, 4 mm wall) sees ≈ 1–2 MPa with a stalled rod (≈ 5 N·m over a 4150 mm³ section). The hand hangs on the palm plate's four leg screws, as on the stock interface. PETG is suggested for the four load-path parts (creep).
+- **Thumb re-mount.** Done: the thumb module sits on the palm plate ([FIVE_FINGER.md](../../../FIVE_FINGER.md#thumb-mount-a-thinner-thenar)), and `make_hand_adapter()` fills its old seat in the interface plate (`remove_thumb_seat()`). Its servo pack is now 25 mm shallower but reaches 35 mm further out on the radial side; the palm shells follow it.
 - **Left hand.** The L-* CAD parts are mirror images and were not checked separately. There is no left-hand MJCF. Its wrist servo directions are mirrored, so check them with `--check-direction`.
 - **Rod length.** A 1 mm error in a rod's ball-to-ball length tilts the neutral wrist by ~2.7°. Calibrate the zero offsets with the hand held straight.
 - **Cable.** The hand's 3-wire bus cable bends through the gimbal and is not strain-relieved in the design. Use flexible silicone wire, and crimp the connector after threading the Ø11 ring bore.

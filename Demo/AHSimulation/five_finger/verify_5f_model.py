@@ -26,7 +26,7 @@ from scipy.spatial import cKDTree
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-from build_5f_model import F2_PARTS, F3_PARTS, F5_PARTS, parse, part_geoms  # noqa: E402
+from build_5f_model import F2_PARTS, F3_PARTS, F5_PARTS, LAYOUT, parse, part_geoms  # noqa: E402
 
 SIM_DIR = HERE.parent / "AHSimulation"
 
@@ -50,19 +50,28 @@ ROOT_BODY = 1  # r_wrist_interface: palm plate, servos, finger frames
 
 # PythonExample/AmazingHand_Demo.py poses (right hand, degrees, (motor1, motor2)) with a pinky added.
 # Abduction ~ (motor1 + motor2) / 2 (> 0 towards the index side), flexion ~ (motor1 - motor2) / 2.
+# The thumb commands are for the slim thumb mount (layout.THUMB_MOUNT, FIVE_FINGER.md "Thumb mount"), all inside its
+# envelope (layout.thumb_command_ok, which keeps it out of the closed palm shell): open / spread (extended along the
+# radial side, out of the palm plane), along the palm's edge (ClenchHand), resting on the side of the curled index
+# (CloseHand, Fuck) or on the curled middle (Index_Pointing), tip on the index fingertip (Perfect: OK sign; Pinched:
+# pinch, index at f = 35 deg), swung across the front of the palm towards the curled ring and pinky (Victory: the palm
+# shell leaves no room to fold it into the palm). Perfect is set for the right hand (0.31 mm pad gap); the stock left export is not an exact mirror,
+# so on AH_Left_5F the same command stops 3.2 mm short (the thumb would run into the left index with less). The stock mount's thumb commands were OpenHand (-35, 35), CloseHand (90, -90), SpreadHand
+# (-90, -4), ClenchHand (-4, 90), Index_Pointing and Victory (90, -90), Perfect (65, 12), Pinched and Fuck (0, -75)
+# (Pinched with the index curled).
 DEMO_POSES_5F = {
-    "OpenHand": dict(index=(-35, 35), middle=(-35, 35), ring=(-35, 35), pinky=(-35, 35), thumb=(-35, 35)),
-    "CloseHand": dict(index=(90, -90), middle=(90, -90), ring=(90, -90), pinky=(90, -90), thumb=(90, -90)),
-    "SpreadHand": dict(index=(4, 90), middle=(-32, 32), ring=(-68, 18), pinky=(-90, -4), thumb=(-90, -4)),
+    "OpenHand": dict(index=(-35, 35), middle=(-35, 35), ring=(-35, 35), pinky=(-35, 35), thumb=(-52.5, 45)),
+    "CloseHand": dict(index=(90, -90), middle=(90, -90), ring=(90, -90), pinky=(90, -90), thumb=(-16, 66.5)),
+    "SpreadHand": dict(index=(4, 90), middle=(-32, 32), ring=(-68, 18), pinky=(-90, -4), thumb=(-36, 71)),
     # ClenchHand converges the fingers onto each other. The stock commands (index (-60, 0), middle (-35, 35),
     # ring/pinky (0, 70)) close the stock fan; on the parallel layout (cad/five_finger/layout.py) the fingers start
     # parallel and 3.3 mm closer, so about half the convergence brings the fingertips together (1.5-2.3 mm apart).
-    "ClenchHand": dict(index=(-35, 25), middle=(-30, 40), ring=(-20, 50), pinky=(-27, 43), thumb=(-4, 90)),
-    "Index_Pointing": dict(index=(-40, 40), middle=(90, -90), ring=(90, -90), pinky=(90, -90), thumb=(90, -90)),
-    "Perfect": dict(index=(50, -50), middle=(0, 0), ring=(-20, 20), pinky=(-20, 20), thumb=(65, 12)),
-    "Victory": dict(index=(-15, 65), middle=(-65, 15), ring=(90, -90), pinky=(90, -90), thumb=(90, -90)),
-    "Pinched": dict(index=(90, -90), middle=(90, -90), ring=(90, -90), pinky=(90, -90), thumb=(0, -75)),
-    "Fuck": dict(index=(90, -90), middle=(-35, 35), ring=(90, -90), pinky=(90, -90), thumb=(0, -75)),
+    "ClenchHand": dict(index=(-35, 25), middle=(-30, 40), ring=(-20, 50), pinky=(-27, 43), thumb=(-50, 37)),
+    "Index_Pointing": dict(index=(-40, 40), middle=(90, -90), ring=(90, -90), pinky=(90, -90), thumb=(-7.5, 30)),
+    "Perfect": dict(index=(50, -50), middle=(0, 0), ring=(-20, 20), pinky=(-20, 20), thumb=(-13, 69.5)),
+    "Victory": dict(index=(-15, 65), middle=(-65, 15), ring=(90, -90), pinky=(90, -90), thumb=(64.5, 57.5)),
+    "Pinched": dict(index=(35, -35), middle=(90, -90), ring=(90, -90), pinky=(90, -90), thumb=(-3, 57.5)),
+    "Fuck": dict(index=(90, -90), middle=(-35, 35), ring=(90, -90), pinky=(90, -90), thumb=(-16, 66.5)),
 }
 
 
@@ -527,6 +536,12 @@ def check_interference(h, n_grid, coarse, fine):
             table, who = clearance_table(h, poses, digit_geoms(h, a), digit_geoms(h, b), coarse, fine, touch)
             tables[(a, b)] = table
             report_pair(h, f"{a} (A) vs {b} (B)", keys, table, who, touch)
+            if a == "thumb" and LAYOUT.THUMB_ENVELOPE.get(LAYOUT.THUMB_MOUNT) is not None:
+                inside = np.array([LAYOUT.thumb_command_ok(*np.degrees(k), side=h.side) for k in keys])
+                t_in = table[inside]
+                log(f"    thumb inside its command envelope (layout.thumb_command_ok, {int(inside.sum())} of {len(keys)}): "
+                    + (f"min clearance {np.min(t_in) * 1e3:.2f} mm" if np.isfinite(np.min(t_in)) else "> 5 mm apart")
+                    + f", pose pairs touching {int((t_in < touch).sum())}/{t_in.size}")
             log(f"    [{time.time() - t0:.0f} s]")
     if ("ring", "pinky") in tables:
         # closing = how far the two fingers abduct towards each other (motor-angle units, deg)
@@ -568,6 +583,12 @@ def check_interference(h, n_grid, coarse, fine):
             + (f"min clearance {res[i][0] * 1e3:5.2f} mm at {fmt_pose(keys[i])} [{geom_label(h, who[0])} / {geom_label(h, who[1])}]"
                if who else "> 5 mm")
             + f"; grid poses touching: {n_touch}/{len(res)}")
+        if dig == "thumb" and LAYOUT.THUMB_ENVELOPE.get(LAYOUT.THUMB_MOUNT) is not None:
+            inside = [LAYOUT.thumb_command_ok(*np.degrees(k), side=h.side) for k in keys]
+            res_in = [r for r, ok in zip(res, inside) if ok]
+            j = int(np.argmin([r[0] for r in res_in]))
+            log(f"         inside the thumb's command envelope (layout.thumb_command_ok, {len(res_in)} of the {len(res)} grid "
+                f"poses): touching {sum(r[0] < touch for r in res_in)}, min clearance {res_in[j][0] * 1e3:.2f} mm")
     return tables, poses
 
 

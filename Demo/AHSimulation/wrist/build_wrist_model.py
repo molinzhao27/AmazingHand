@@ -43,7 +43,7 @@ sys.path.insert(0, str(HERE.parent / "five_finger"))
 sys.path.insert(0, str(REPO / "cad" / "five_finger" / "wrist"))
 sys.path.insert(0, str(HERE))
 import wrist_design as wd  # noqa: E402
-from build_5f_model import SHELL_PARTS, child_by_name, fmt, get_pose, indent, parse, write_keyframe  # noqa: E402
+from build_5f_model import SHELL_PARTS, child_by_name, fmt, get_pose, home_ctrl, indent, parse, write_keyframe  # noqa: E402
 
 SIM_DIR = HERE.parent / "AHSimulation"
 SRC = SIM_DIR / "AH_Right_5F" / "mjcf"
@@ -57,7 +57,8 @@ FIXED_MESHES = [("R-Forearm_Front", "0.92 0.92 0.93 1"), ("R-Forearm_Back", "0.9
                 ("ref/STS3215_motor2", "0.13 0.13 0.15 1"), ("ref/F683ZZ_+x", "0.75 0.76 0.8 1"),
                 ("ref/F683ZZ_-x", "0.75 0.76 0.8 1")]
 RING_MESHES = [("Wrist_Gimbal_Ring", "0.80 0.81 0.83 1")] + [(f"ref/pin_d3x10_{a}", "0.6 0.6 0.65 1") for a in ("+x", "-x", "+z", "-z")]
-ADAPTER_MESHES = [("R-Wrist_Hand_Adapter", "0.80 0.81 0.83 1"), ("ref/F683ZZ_+z", "0.75 0.76 0.8 1"),
+# the hand adapter's neck (its interface plate is the hand root's r_wrist_interface mesh, see build_5f_model.py)
+ADAPTER_MESHES = [("ref/R-Wrist_Hand_Adapter_neck", "0.80 0.81 0.83 1"), ("ref/F683ZZ_+z", "0.75 0.76 0.8 1"),
                   ("ref/F683ZZ_-z", "0.75 0.76 0.8 1"), ("ref/stud_top_1", "0.75 0.76 0.8 1"), ("ref/stud_top_2", "0.75 0.76 0.8 1")]
 HORN_MESHES = {1: [("Wrist_Horn_Arm", "0.25 0.26 0.28 1"), ("ref/stud_arm_1", "0.75 0.76 0.8 1")],
                2: [("ref/Wrist_Horn_Arm_motor2_placed", "0.25 0.26 0.28 1"), ("ref/stud_arm_2", "0.75 0.76 0.8 1")]}
@@ -315,21 +316,21 @@ def settle_keyframe():
     for i in (1, 2):
         j = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_JOINT, f"wrist_rod{i}_ball")
         d.qpos[m.jnt_qposadr[j]:m.jnt_qposadr[j] + 4] = [1, 0, 0, 0]
-    d.ctrl[:] = 0
+    d.ctrl[:] = home_ctrl(m)   # 0, except the thumb: layout.clamp_thumb(0, 0), inside its command envelope
     for _ in range(5000):
         mujoco.mj_step(m, d)
     assert np.all(np.isfinite(d.qpos))
     jf = m.jnt_qposadr[mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_JOINT, "wrist_flexion")]
     jd = m.jnt_qposadr[mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_JOINT, "wrist_deviation")]
-    print(f"settled keyframe (ctrl = 0, 10 s): max |qvel| {np.abs(d.qvel).max():.2e}, wrist sag under gravity: "
+    print(f"settled keyframe (home ctrl: 0, thumb at layout.clamp_thumb(0, 0); 10 s): max |qvel| {np.abs(d.qvel).max():.2e}, wrist sag under gravity: "
           f"flexion {np.degrees(d.qpos[jf]):+.3f} deg, deviation {np.degrees(d.qpos[jd]):+.3f} deg; "
           f"hand qpos vs AH_Right_5F key max |dq| {np.abs(d.qpos[a0:a0 + src.nq] - src.key_qpos[0]).max():.2e}")
-    write_keyframe(DST, d.qpos)
+    write_keyframe(DST, d.qpos, d.ctrl)
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--keyframe", action="store_true", help="regenerate keyframes.xml by settling at ctrl = 0")
+    ap.add_argument("--keyframe", action="store_true", help="regenerate keyframes.xml by settling at the home ctrl (0; the thumb at layout.clamp_thumb(0, 0))")
     ap.add_argument("--hand", default="AH_Right_5F",
                     help="hand model to put on the wrist, e.g. AH_Right_5F_Slim (writes <hand>_Wrist)")
     args = ap.parse_args()

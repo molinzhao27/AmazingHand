@@ -149,7 +149,7 @@ def render_cad(size):
     for name in PARTS:
         path = CAD_DIR / "stl" / f"{name}.stl"
         t = trimesh.load(path)
-        # UP is in W; the STLs are in the CAD frame (W turned by HAND_YAW), and the adapter prints on its flange top (CAD y)
+        # UP is in W; the STLs are in the CAD frame (W turned by HAND_YAW), and the adapter prints on its interface plate's top face (CAD y)
         up = (0, -1, 0) if name == "R-Wrist_Hand_Adapter" else wd.R_W2CAD @ np.asarray(UP[name], float)
         q = quat_from_to(up, (0, 0, 1))
         R = np.zeros(9)

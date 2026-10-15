@@ -40,7 +40,8 @@ import verify_hand as VH  # noqa: E402
 
 V = VH.V
 SP = 0.5e-3   # search sampling; the final check uses 0.3 mm samples and exact mesh booleans
-T1, T2 = (0.0, 75.0), (-82.5, 22.5)   # coarse thumb window (deg): every opposed thumb pose found on the full grid lies inside
+T1, T2 = (-67.5, 90.0), (22.5, 90.0)   # coarse thumb window (deg): the slim mount's command envelope (cad/five_finger/
+#                                        layout.py) lies inside; commands outside the envelope are skipped
 TOUCH = 0.4e-3   # sampled distance that counts as touching (the exact check rejects interpenetration)
 
 
@@ -70,7 +71,7 @@ def search(h, base, thumb_target, digit_target, pads=None, centre=None, span=Non
     found = []
     for i, t1 in enumerate(v1):
         for t2 in (v2 if i % 2 == 0 else v2[::-1]):
-            if max(abs(t1), abs(t2)) > 90:
+            if max(abs(t1), abs(t2)) > 90 or not V.LAYOUT.thumb_command_ok(t1, t2):
                 continue
             h.d.ctrl[h.ctrl["thumb"]] = np.radians([t1, t2])
             for _ in range(140):

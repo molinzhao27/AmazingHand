@@ -10,10 +10,12 @@ works for the stock-width, slim and 3-phalanx fingers:
     forearm axis) and the pose's spread is added to it - the fingertips are ~34 mm apart instead of
     42-45 mm, and a V is symmetric about the forearm;
   * "curled" is full flexion, f = +90 deg (zero abduction);
-  * the thumb is either tucked (fully flexed into the palm, like the stock Victory demo) or folded
-    onto target fingertips: the grid command bringing its tip closest to them without touching
-    any digit. (The AmazingHand thumb only opposes towards the index: it cannot reach the curled
-    ring/pinky, so a peace sign uses the tucked thumb.)
+  * the thumb is tucked (swung across the front of the palm towards the curled ring/pinky as far as
+    its envelope allows: with the slim thumb mount of cad/five_finger/layout.py and the closed palm
+    shell it cannot fold into the palm; TUCK per finger type), rests on the side of the curled index
+    (fist, middle finger; FIST_THUMB per finger type), or is folded onto target fingertips: the grid
+    command bringing its tip closest to them without touching any digit. All thumb commands are
+    inside the thumb's envelope (layout.thumb_command_ok).
 Each pose is then settled and every pair of digits is checked for clearance (surface samples; for
 touching pairs the penetration depth is estimated with signed distances). Fingers are checked on the
 hand-only model; the wrist (if a wrist model is given for rendering) does not change finger-finger
@@ -34,22 +36,30 @@ from PIL import Image, ImageDraw
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parent.parent.parent / "cad" / "five_finger" / "wrist"))
-from verify_5f_model import SIM_DIR, Group, Hand, group_distance  # noqa: E402
+from verify_5f_model import LAYOUT, SIM_DIR, Group, Hand, group_distance  # noqa: E402
 
 DIGIT_ID = {"index": 1, "middle": 2, "ring": 3, "thumb": 4, "pinky": 5}
 FINGERS = ["index", "middle", "ring", "pinky"]
 SPREAD = 30.0  # deg of motor abduction a = (m1 + m2)/2 for a spread finger (stock Victory uses ~25)
 TOUCH = 0.225e-3
 
-TUCK = (90.0, -90.0)  # thumb fully flexed into the palm
+# thumb commands for the slim thumb mount (layout.THUMB_MOUNT; the stock mount used (90, -90) and (-35, 35))
+# thumb swung across the palm towards the curled ring/pinky (peace sign): the envelope's closest approach to the curled
+# ring/pinky fingertips, >= 0.5 mm from every digit (found per finger type; other models use the stock-width value)
+TUCK = {"AH_Right_5F": (64.5, 57.5), "AH_Right_5F_Slim": (64.5, 57.5), "AH_Right_5F_3S": (48.0, 41.0)}
+OPEN_THUMB = (-52.5, 45.0)  # thumb extended along the radial side, spread out of the palm plane
+# thumb resting on the side of the curled index (fist, middle finger), per finger type: found with the fingers curled
+# (0.2-0.8 mm from the curled index/middle, no exact overlap; FIVE_FINGER.md "Thumb mount"). Other models: the
+# grid search towards the index fingertip.
+FIST_THUMB = {"AH_Right_5F": (-16.0, 66.5), "AH_Right_5F_Slim": (-13.0, 63.0), "AH_Right_5F_3S": (-19.5, 45.0)}
 # name: (digits -> ("straight" | "curled", spread in deg of motor abduction a, added to the parallel base),
-#        thumb: "tuck" | target fingertip(s) | None, wrist (flexion, deviation) deg for renders)
+#        thumb: "tuck" | "fist" | target fingertip(s) | None, wrist (flexion, deviation) deg for renders)
 POSES = {
     "PeaceSign": ({"index": ("straight", +SPREAD), "middle": ("straight", -SPREAD),
                    "ring": ("curled", 0.0), "pinky": ("curled", 0.0)}, "tuck", (-10.0, 5.0)),
     "MiddleFinger": ({"index": ("curled", 0.0), "middle": ("straight", 0.0),
-                      "ring": ("curled", 0.0), "pinky": ("curled", 0.0)}, ["index"], (0.0, 0.0)),
-    "Fist": ({d: ("curled", 0.0) for d in FINGERS}, ["index", "middle"], (0.0, 0.0)),
+                      "ring": ("curled", 0.0), "pinky": ("curled", 0.0)}, "fist", (0.0, 0.0)),
+    "Fist": ({d: ("curled", 0.0) for d in FINGERS}, "fist", (0.0, 0.0)),
     "Open": ({d: ("straight", 0.0) for d in FINGERS}, None, (0.0, 0.0)),  # relaxed: fingers parallel
 }
 
@@ -134,6 +144,8 @@ def search_thumb(pm, cmd, targets):
     grid = np.arange(-90, 91, 15.0)
     for t1 in grid:
         for t2 in grid:
+            if not LAYOUT.thumb_command_ok(t1, t2):  # the thumb would run into the palm
+                continue
             c = dict(cmd, thumb=(t1, t2))
             pm.settle(c, steps=600)
             tgt = np.mean([pm.site(f"tip{DIGIT_ID[t]}") for t in targets], axis=0)
@@ -240,16 +252,20 @@ def main():
     for name in args.poses:
         pose, targets, _ = POSES[name]
         cmd = finger_commands(pose, straight, base)
-        if targets == "tuck":
-            cmd["thumb"] = TUCK
-            log(f"{name}: thumb tucked {TUCK}")
+        if targets == "fist" and args.model in FIST_THUMB:
+            cmd["thumb"] = FIST_THUMB[args.model]
+            log(f"{name}: thumb on the side of the curled index {cmd['thumb']}")
+        elif targets == "tuck":
+            cmd["thumb"] = TUCK.get(args.model, TUCK["AH_Right_5F"])
+            log(f"{name}: thumb tucked {cmd['thumb']}")
         elif targets:
+            targets = ["index"] if targets == "fist" else targets
             dist_t, thumb, clear = search_thumb(pm, cmd, targets)
             cmd["thumb"] = thumb
             log(f"{name}: thumb folded to {thumb} (tip {dist_t * 1e3:.1f} mm from the {'/'.join(targets)} fingertip"
                 f"{'s' if len(targets) > 1 else ''}, {clear * 1e3:.2f} mm from every other digit)")
         else:
-            cmd["thumb"] = (-35.0, 35.0)
+            cmd["thumb"] = OPEN_THUMB
         cmds[name] = cmd
         log(f"  commands (m1, m2) deg: " + ", ".join(f"{d} {cmd[d]}" for d in ["index", "middle", "ring", "pinky", "thumb"]))
         pairs = check_pose(pm, cmd)

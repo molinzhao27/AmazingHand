@@ -50,13 +50,15 @@ PLATE_POS = np.array([-0.0115, 0.0245, 0.1022])            # m, pose of every CA
 PLATE_QUAT = np.array([0.5, 0.5, -0.5, -0.5])
 R_CAD2ROOT = np.array([[0.0, 0.0, -1.0], [-1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])  # = quat2mat(PLATE_QUAT)
 
-INTERFACE_AXIS = np.array([24.5, -11.5])        # (x, z) CAD of the R-Wrist_Interface ring spigot axis
-INTERFACE_BOTTOM = -102.2                       # CAD y of the wrist interface's lowest face
-INTERFACE_PADS_Y = -101.0                       # CAD y of the recessed faces the adapter flange mates with
+INTERFACE_AXIS = np.array([24.5, -11.5])        # (x, z) CAD of the stock R-Wrist_Interface ring spigot axis
+INTERFACE_BOTTOM = -102.2                       # CAD y of the stock wrist interface's lowest face
+INTERFACE_PADS_Y = -101.0                       # CAD y of the stock interface's recessed pads (C layout below)
 H_FLANGE = 25.0                                 # W y of the flange's nominal top (the gimbal is laid out from it)
 FLANGE_T = 6.5             # flange thickness at the rim's thinnest point; its underside is at W y = H_FLANGE - FLANGE_T = 18.5
-FLANGE_R = 28.0            # 3.5 mm larger than the interface spigot (d49): room for the screw counterbores, and the
-                           # flange (centred on the spigot) still covers the gimbal lugs, which sit 5 mm off its axis
+# C was laid out for a d56 flange (FLANGE_R) bolted under the stock wrist interface's spigot; the hand adapter is now
+# a slim neck that replaces the interface (ADAPTER_R, MOUNT_Y below), but C keeps this layout so the palm length
+# (knuckle centroid to wrist, 113 mm) and everything laid out from C stay as they are.
+FLANGE_R = 28.0
 FLANGE_MIN = FLANGE_T + 1.2                     # thinnest flange section (rim, CAD y), = the stock (yaw 0) flange
 
 PALM_EXT = 20.0            # mm the wrist sits further from the hand than the adapter needs: a longer palm (the palm
@@ -132,6 +134,11 @@ LUG_IN, LUG_OUT = 10.5, 15.5   # radial position of the inner / outer faces of a
 LUG_R = 5.5                # lug boss radius around a pin
 
 # ----------------------------------------------------------------------------- hand adapter (W)
+# The adapter is the hand's wrist mount and the gimbal's hand side in one part: above MOUNT_Y (CAD y) it is the stock
+# wrist interface's plate (palm-plate legs, thumb seat, shell screws), below it a d42 neck on the interface axis down
+# to the W plane y = H_FLANGE - FLANGE_T, with the deviation lugs and the lever bar under it.
+ADAPTER_R = 21.0           # neck radius about the interface axis (d42; the d56 flange and the d49 spigot are gone)
+MOUNT_Y = -95.0            # CAD y of the stock interface plate's underside: the neck starts here
 BAR_X = 14.5               # lever bar half-length (|x| <= BAR_X), clear of the fork lugs at |x| >= 17.5
 BAR_Y = 5.0                # bar half-height (y)
 BAR_Z = (17.5, 25.0)       # bar z range (behind the gimbal; the back lug block fills z = LUG_IN..25 at |x| <= LUG_R)

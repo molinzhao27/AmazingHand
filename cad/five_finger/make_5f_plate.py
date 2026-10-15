@@ -56,6 +56,12 @@ plate is rebuilt from
   material and the r1.4 counterbore 1 mm. The positions are printed: make_5f_shells.py SCREWS must
   follow them.
 
+Thumb (moved layouts; --thumb, default layout.py THUMB_MOUNT): the stock thumb module sits on the wrist interface
+(now the hand adapter's interface plate), not on the plate. A re-mounted thumb ("slim") gets its own unit on the plate,
+made like the finger units: the stock index unit moved rigidly (a 3D turn) by the transform that takes the index module
+onto the thumb module, trimmed to the thumb pack's depth, and joined to the index-side leg by a bridge over the thumb's
+push rods (see "thumb unit" below; check_thumb, and the thumb in check_parts / check_sweep).
+
 Checks (--no-checks skips them):
   stock layout: every small hole/pin of the stock plate is unchanged, and the ring's are copied exactly
   onto the pinky unit;
@@ -483,7 +489,7 @@ def shell_hole_tool(stock, xy):
     return vs[0]
 
 
-def build_moved(stock, tf):
+def build_moved(stock, tf, thumb=None):
     """Units moved by the layout transforms tf, the stock rest below them in place, and the web."""
     frames = module_frames()
     print("module frames (stock): " + ", ".join(f"{f} pivot {np.round(c, 4).tolist()} {a:+.4f} deg" for f, (c, a) in frames.items()))
@@ -609,6 +615,8 @@ def build_moved(stock, tf):
         web += [p.intersect(clip) for p in skirt(moved[f], mframes[f], *SKIRT)]
 
     pieces = [moved[f] for f in FINGERS] + [base] + web
+    thumb_info = thumb_pieces(stock_p, frames, thumb)  # the thumb's unit and bridge (none for the stock thumb mount)
+    pieces += thumb_info["pieces"] if thumb_info else []
     plate = pieces[0].fuse(*pieces[1:], tol=FUZZY).clean()
     inside = classifier(plate)
     for i, p in enumerate(pieces):  # nothing may get lost in the boolean
@@ -621,7 +629,7 @@ def build_moved(stock, tf):
     plate = single_solid(plate.cut(*[hole_tool.translate(cq.Vector(h[0], h[1], 0)) for h in holes]).clean(), "plate")
     plate = single_solid(step_roundtrip(plate), "plate (read back from STEP)")
     info = dict(frames=frames, mframes=mframes, strips=strips, mstrip=mstrip, units=units, moved=moved, base=base,
-                shell_holes=holes, hole_tool=hole_tool, web2d=web2d, rim2d=rim2d, web_poly=web_poly)
+                shell_holes=holes, hole_tool=hole_tool, web2d=web2d, rim2d=rim2d, web_poly=web_poly, thumb=thumb_info)
     return plate, info
 
 
@@ -652,6 +660,120 @@ def _clearance(geom, p):
     """Distance from p to the nearest boundary of geom if p is inside, else -1."""
     pt = Point(*p)
     return geom.boundary.distance(pt) if geom.contains(pt) else -1.0
+
+
+# ----------------------------------------------------------------------------- thumb unit
+# The stock thumb module is screwed into the wrist interface (now the hand adapter's interface plate), not into the
+# plate. A re-mounted thumb (layout.THUMB_MOUNT, see layout.thumb_transform) gets its own unit on the plate instead,
+# made the way the finger units are: the stock index unit (servo window, U pocket - closed at its bottom by the top of
+# the index-side leg, which stays part of the unit here - the three finger-frame screw holes, pivot hole and bushing
+# recess; of the three stock units it leaves the thumb the most room to extend: f down to -55 deg instead of -50 with the
+# middle unit) moved rigidly by the transform that takes the index module onto the thumb module - here a turn in 3D, the
+# thumb module lying on its side along the radial edge of the palm. It
+# is trimmed to the thumb pack's depth (THUMB_TRIM, CAD z: only rim and wall corners beyond the servos go, every unit
+# feature stays inside) and joined to the plate (below the index unit, and the index-side leg) by a bridge
+# (THUMB_BRIDGE, 6.5 mm thick, CAD z 9 ... 15.5) behind the thumb's push rods, >= 1 mm from the thumb's moving parts over
+# its whole command grid (check_sweep) and clear of its servos (check_parts).
+THUMB_SRC = "index"  # its unit: walls on both sides, and the least material over the knuckle (the thumb extends further)
+THUMB_TRIM = {"slim": (-25.9, 19.5)}  # the slim mount's pack (servos, frames, horn/rod sweep) spans z -25.9 ... +18.5
+THUMB_BRIDGE = {"slim": [  # (outline (CAD x, y), z range): three slabs of the free space between the unit's upper
+    # pocket wall and the plate (>= 2 mm from the thumb's moving parts over its whole command grid, sampled; >= 1.2 mm
+    # from its servos and frames; >= 1 mm from the finger modules and the fingers' working sweeps; outside the finger
+    # units' strips), each overlapping both by >= 20 mm2
+    ([(-25.72, -64.72), (-30.95, -63.50), (-30.71, -48.10), (-19.63, -48.06), (-19.24, -50.06), (-9.10, -52.06),
+      (-9.29, -72.90), (-10.10, -72.79), (-10.71, -70.48), (-11.91, -69.43), (-12.71, -64.73), (-14.98, -62.95),
+      (-16.02, -62.96), (-18.53, -64.72), (-20.25, -68.37), (-24.89, -69.95), (-25.69, -69.59)], (9.0, 11.0)),
+    ([(-26.22, -67.71), (-30.95, -66.75), (-30.75, -48.13), (-19.63, -48.06), (-19.24, -50.06), (-9.13, -52.02),
+      (-9.25, -72.87), (-10.10, -72.79), (-10.96, -70.47), (-12.40, -69.71), (-13.21, -67.47), (-15.49, -65.70),
+      (-18.78, -66.96), (-20.04, -68.90), (-21.76, -68.95), (-25.14, -70.45)], (11.0, 13.0)),
+    ([(-27.24, -70.45), (-30.95, -70.00), (-30.79, -48.15), (-19.63, -48.06), (-19.24, -50.06), (-9.15, -51.98),
+      (-9.21, -72.85), (-10.54, -72.85), (-10.96, -71.47), (-12.79, -70.34), (-14.50, -68.20), (-18.26, -68.20),
+      (-19.74, -69.66), (-21.01, -69.45), (-25.39, -71.45)], (13.0, 15.5)),
+]}
+
+
+def thumb_matrix(frames, mount=None):
+    """(M, t): CAD p -> M @ p + t takes the stock THUMB_SRC unit/module onto the thumb module of the mount."""
+    c, ang = frames[THUMB_SRC]
+    A, piv = LAYOUT.thumb_frame(mount)
+    a = np.radians(ang)
+    Rm = np.array([[np.cos(a), -np.sin(a), 0.0], [np.sin(a), np.cos(a), 0.0], [0.0, 0.0, 1.0]])  # module -> CAD (stock)
+    M = A @ Rm.T
+    t = piv - A @ np.array([0.0, 0.0, LAYOUT.STOCK["index"][0][2]]) - M @ np.array([c[0], c[1], 0.0])
+    return M, t
+
+
+def transform(shape, M, t):
+    """A shape moved by the rigid transform p -> M @ p + t."""
+    from OCP.BRepBuilderAPI import BRepBuilderAPI_Transform
+    from OCP.gp import gp_Trsf
+
+    tr = gp_Trsf()
+    tr.SetValues(*map(float, M[0]), float(t[0]), *map(float, M[1]), float(t[1]), *map(float, M[2]), float(t[2]))
+    return cq.Shape.cast(BRepBuilderAPI_Transform(shape.wrapped, tr, True).Shape())
+
+
+def thumb_pieces(stock_p, frames, mount=None):
+    """The thumb unit (trimmed) and its bridge to the plate, or None for the stock thumb mount."""
+    mount = mount or LAYOUT.THUMB_MOUNT
+    if mount == "stock":
+        return None
+    M, t = thumb_matrix(frames, mount)
+    src = stock_p.intersect(prism(unit_strip(frames[THUMB_SRC])))
+    zlo, zhi = THUMB_TRIM[mount]
+    unit = transform(src, M, t).intersect(cq.Solid.makeBox(400, 400, zhi - zlo, cq.Vector(-200, -250, zlo)))
+    bridge = [prism(np.array(poly), z) for poly, z in THUMB_BRIDGE[mount]]
+    # the piece of the unit's source strip that the trim keeps, in the stock frame (for the exact-image check)
+    keep = transform(cq.Solid.makeBox(400, 400, zhi - zlo, cq.Vector(-200, -250, zlo)), M.T, -M.T @ t)
+    print(f"thumb unit ('{mount}' mount): stock {THUMB_SRC} unit {src.Volume():.0f} mm3 -> {unit.Volume():.0f} mm3 after the "
+          f"trim to z {zlo} ... {zhi}; bridge {sum(b.Volume() for b in bridge):.0f} mm3")
+    return dict(mount=mount, M=M, t=t, src=src, unit=unit, bridge=bridge, keep=keep, pieces=[unit] + bridge)
+
+
+def check_thumb(stock, plate, info):
+    """The thumb unit is the exact image of the stock THUMB_SRC unit (within the trim): every hole, pin, window and pocket
+    corner of the unit at its moved place (the plate moved back onto the stock unit: same radius, axis and depth, probed
+    at 24 points), and the plate equals the moved unit at 4000 random probes in its strip (outside the bridge and the
+    leg next to it; the unit is cut, like the finger units, after the stock back-shell screw holes on the rib tops are
+    filled)."""
+    th = info.get("thumb")
+    if not th:
+        return
+    M, t = th["M"], th["t"]
+    back = transform(plate, M.T, -M.T @ t)  # the plate in the stock unit's frame
+    frame = info["frames"][THUMB_SRC]
+    poly = Polygon(unit_strip(frame)).buffer(-0.01)
+    in_keep = classifier(th["keep"])
+    core = Polygon(unit_strip(frame, UNIT_HALF_W - 0.1, (UNIT_V[0] + 0.1, UNIT_V[1] - 0.1)))  # (fillets cut by the strip)
+    new_fts = features(back.intersect(prism(unit_strip(frame, UNIT_HALF_W + 1, (UNIT_V[0] - 1, UNIT_V[1] + 1)))), rmax=6.3)
+    n = 0
+    for ft in features(stock, rmax=6.3):
+        bb = ft["bbox"]
+        if not poly.contains(box(bb[0], bb[2], bb[1], bb[3])):
+            continue
+        ends = np.array([[*ft["xy"], ft["z"][0]], [*ft["xy"], ft["z"][1]]])
+        assert in_keep(ends).all(), f"thumb unit: feature at {ft['xy']} is cut by the trim"
+        assert match(ft, new_fts, ft["xy"]), f"thumb unit: feature r{ft['r']:.2f} at {ft['xy']} not found"
+        assert probe(stock, ft, region=core) == probe(back, ft, region=core), f"thumb unit: feature at {ft['xy']} differs"
+        n += 1
+    bridge_back = [transform(b, M.T, -M.T @ t) for b in th["bridge"]]
+    in_bridge = [classifier(b) for b in bridge_back]
+    rng = np.random.default_rng(3)
+    x0, y0, x1, y1 = poly.bounds
+    pts = rng.uniform([x0, y0, -12.6], [x1, y1, 15.6], size=(12000, 3))
+    pts = pts[[poly.contains(Point(*q[:2])) for q in pts]]
+    in_base = classifier(transform(info["base"], M.T, -M.T @ t))  # the index-side leg lies next to the unit
+    pts = pts[in_keep(pts) & ~np.any([c(pts) for c in in_bridge], axis=0)][:6000]
+    pts = pts[~in_base(pts)][:4000]
+    in_back, in_stock = classifier(back), classifier(th["src"])  # src: cut after the stock rib-top screw holes are filled
+    a_, b_ = in_back(pts), in_stock(pts)
+    # a probe within 0.1 mm of a face may fall either side after the 3D turn and the STEP round trip: only a mismatch
+    # that persists 0.1 mm away in every direction counts
+    bad = [q for q in pts[a_ != b_] if not np.any(in_stock(q + 0.1 * np.vstack([np.eye(3), -np.eye(3)])) != in_stock(q[None]))]
+    print(f"thumb unit: {n} stock holes, pins, window and pocket corners found at their moved places (probed at 24 points "
+          f"each); plate = moved stock unit at {np.sum(a_ == b_)}/{len(pts)} probes in its strip ({b_.sum()} in material), "
+          f"{np.sum(a_ != b_) - len(bad)} more within 0.1 mm of a face")
+    assert not bad, f"thumb unit differs at {np.round(bad, 2).tolist()[:5]}"
 
 
 # ----------------------------------------------------------------------------- features and checks
@@ -780,6 +902,9 @@ def check_moved(stock, plate, info, tf):
     foot = [box(-9.2, -85.0, -2.9, -57.0), box(-16.0, -85.0, -9.2, -63.0), box(51.9, -85.0, 58.0, -72.0)]
     in_stock = classifier(stock)
     pts = np.vstack([rng.uniform([b2.bounds[0], b2.bounds[1], -12.6], [b2.bounds[2], b2.bounds[3], 15.6], size=(1500, 3)) for b2 in foot])
+    if info.get("thumb"):  # the thumb unit's bridge is fused onto the index-side leg: compare outside it
+        in_th = [classifier(p) for p in info["thumb"]["pieces"]]
+        pts = pts[~np.any([c(pts) for c in in_th], axis=0)]
     a_, b_ = in_plate(pts), in_stock(pts)
     n_foot = 0
     for ft in features(stock):
@@ -903,9 +1028,9 @@ def min_material(plate, info):
     return out
 
 
-def part_meshes(tf):
-    """Palm-fixed module parts (moved like the sim moves them), the thumb's parts and the wrist
-    interface, as trimesh meshes in the CAD frame (mm): {name: (finger, mesh)}."""
+def part_meshes(tf, thumb=None):
+    """Palm-fixed module parts (moved like the sim moves them), the thumb's parts (moved to the thumb mount, default
+    layout.THUMB_MOUNT) and the wrist interface, as trimesh meshes in the CAD frame (mm): {name: (finger, mesh)}."""
     import trimesh
 
     root = stock_root()
@@ -941,6 +1066,10 @@ def part_meshes(tf):
                 pk = m.copy()
                 pk.vertices[:, :2] = move_pts(d_pt(pk.vertices[:, :2]), tf["pinky"])
                 moved[name + " (pinky copy)"] = ("pinky", pk)
+        elif owner == "thumb" and (thumb or LAYOUT.THUMB_MOUNT) != "stock":
+            mv = m.copy()
+            mv.vertices = LAYOUT.apply_thumb(LAYOUT.thumb_transform(thumb), mv.vertices)
+            moved[name] = (owner, mv)
         else:
             moved[name] = (owner, m)
     counts = {f: sum(1 for o, _ in moved.values() if o == f) for f in FINGERS + ["thumb", "wrist"]}
@@ -948,9 +1077,10 @@ def part_meshes(tf):
     return moved
 
 
-def check_parts(stock, plate, tf, model_dir=None):
+def check_parts(stock, plate, tf, model_dir=None, thumb=None):
     """Intersection volume of the plate with every palm-fixed part (moved), compared with the stock
-    plate and the stock parts. Optionally cross-checks the part poses against a regenerated 5F model."""
+    plate and the stock parts (a re-mounted thumb's parts: with the same part seated in the stock plate's
+    THUMB_SRC unit). Optionally cross-checks the part poses against a regenerated 5F model."""
     import manifold3d as mf
 
     def manifold(shape_or_mesh):
@@ -972,12 +1102,18 @@ def check_parts(stock, plate, tf, model_dir=None):
 
     stock_tf = {f: (0.0, LAYOUT.STOCK[f][0], LAYOUT.STOCK[f][0]) for f in FINGERS}
     P_new, P_stock = manifold(plate), manifold(stock)
-    new, old = part_meshes(tf), part_meshes(stock_tf)
+    new, old = part_meshes(tf, thumb), part_meshes(stock_tf, "stock")
+    thumb = thumb or LAYOUT.THUMB_MOUNT
     worst = {}
     for name, (owner, m) in new.items():
         v_new = (P_new ^ manifold(m)).volume()
         base_name = name.replace(" (pinky copy)", "")
         v_old = (P_stock ^ manifold(old[base_name][1])).volume()
+        if owner == "thumb" and thumb != "stock":  # the same part in the stock unit it was cut from
+            M, t = thumb_matrix(module_frames(), thumb)
+            back = old[base_name][1].copy()
+            back.vertices = (m.vertices - t) @ M
+            v_old = (P_stock ^ manifold(back)).volume()
         worst[owner] = max(worst.get(owner, (0, 0, "")), (v_new, v_old, name))
         assert v_new <= v_old + 0.05, f"{name} ({owner}): plate intersects it by {v_new:.3f} mm3 (stock plate {v_old:.3f})"
     print("plate vs parts (intersection volume, new / stock plate with stock parts): "
@@ -1012,21 +1148,34 @@ def _crosscheck_model(model_dir, parts):
     return dmax
 
 
-def check_sweep(stock, plate, tf, model_dir, n_grid=13):
+def check_sweep(stock, plate, tf, model_dir, n_grid=13, thumb=None, info=None):
     """Moving parts of every digit (servo horns, push rods, fingers) settled on an n x n grid of its two
     motor commands (+-90 deg), against the plate: the intersection volume per digit may not exceed the
-    stock hand's against the stock plate (pinky: the stock ring's). Needs the sim model built with this
-    layout (Demo/AHSimulation/five_finger/build_5f_model.py)."""
+    stock hand's against the stock plate (pinky: the stock ring's; a re-mounted thumb: the stock THUMB_SRC
+    finger's, whose unit it sits in, over the commands inside its envelope, layout.thumb_command_ok), and the thumb's
+    moving parts stay >= 1 mm from the thumb unit's bridge.
+    Needs the sim model built with this layout (Demo/AHSimulation/five_finger/build_5f_model.py)."""
     import manifold3d as mf
     import mujoco as mj
 
     sys.path.insert(0, str(REPO / "Demo" / "AHSimulation" / "five_finger"))
     import verify_5f_model as V
 
-    if (_crosscheck_model(model_dir, part_meshes(tf)) or 1.0) > 0.01:
+    thumb = thumb or LAYOUT.THUMB_MOUNT
+    if (_crosscheck_model(model_dir, part_meshes(tf, thumb)) or 1.0) > 0.01:
         print("moving-parts sweep skipped: no sim model with this layout")
         return
     plate_p, plate_q = get_pose(part_geoms(stock_root())["r_hand_plate"])
+
+    bridge = None
+    if info and info.get("thumb"):  # surface samples of the thumb unit's bridge (mm)
+        import trimesh
+        from scipy.spatial import cKDTree
+        br = info["thumb"]["bridge"]
+        bv, bt = (br[0].fuse(*br[1:]) if len(br) > 1 else br[0]).tessellate(0.01, 0.1)
+        bm = trimesh.Trimesh(np.array([(p.x, p.y, p.z) for p in bv]), np.array(bt))
+        bridge = cKDTree(np.vstack([bm.sample(60000), bm.vertices]))
+    near = [np.inf, None]
 
     def worst(model, shape):
         v, t = shape.tessellate(0.01, 0.1)
@@ -1037,7 +1186,8 @@ def check_sweep(stock, plate, tf, model_dir, n_grid=13):
         m, d = h.m, h.d
         poses, _ = V.settle_grid(h, np.linspace(-np.pi / 2, np.pi / 2, n_grid))
         out = {}
-        for q in poses.values():
+        for key, q in poses.items():
+            in_env = shape is not plate or LAYOUT.thumb_command_ok(*np.degrees(key), thumb)
             d.qpos[:] = q
             mj.mj_kinematics(m, d)
             Rb, tb = d.xmat[V.ROOT_BODY].reshape(3, 3), d.xpos[V.ROOT_BODY]
@@ -1046,24 +1196,37 @@ def check_sweep(stock, plate, tf, model_dir, n_grid=13):
                 for g in h.geoms[dig][0]:
                     if m.geom_type[g] != mj.mjtGeom.mjGEOM_MESH:
                         continue
+                    tag = dig if dig != "thumb" or in_env else "thumb (outside its envelope)"
                     k = m.geom_dataid[g]
                     va, vn, fa, fn = m.mesh_vertadr[k], m.mesh_vertnum[k], m.mesh_faceadr[k], m.mesh_facenum[k]
                     X = (d.geom_xpos[g] + m.mesh_vert[va:va + vn] @ d.geom_xmat[g].reshape(3, 3).T - tp) @ Rp * 1000
                     M = mf.Manifold(mf.Mesh(vert_properties=X.astype(np.float32), tri_verts=m.mesh_face[fa:fa + fn].astype(np.uint32)))
-                    out[dig] = max(out.get(dig, 0.0), (P ^ M).volume())
+                    out[tag] = max(out.get(tag, 0.0), (P ^ M).volume())
+                    if bridge is not None and dig == "thumb" and shape is plate:
+                        dd = bridge.query(X, distance_upper_bound=5.0)[0].min()
+                        if dd < near[0]:
+                            near[:] = [dd, mj.mj_id2name(m, mj.mjtObj.mjOBJ_MESH, k)]
         return out
 
     new = worst(Path(model_dir), plate)
     old = worst(STOCK_MJCF, stock)
     old["pinky"] = old["ring"]
+    if thumb != "stock":
+        old["thumb"] = max(old["thumb"], old[THUMB_SRC])
     print(f"moving parts vs plate over {n_grid}x{n_grid} motor poses, worst intersection per digit (new / stock): "
-          + ", ".join(f"{dig} {new[dig]:.2f}/{old[dig]:.2f} mm3" for dig in new))
+          + ", ".join(f"{dig} {new[dig]:.2f}/{old[dig]:.2f} mm3" for dig in new if dig in old)
+          + "".join(f"; {dig}: {new[dig]:.2f} mm3 (commands the controller must not send, layout.thumb_command_ok)"
+                    for dig in new if dig not in old))
+    if bridge is not None:
+        print(f"thumb's moving parts vs the thumb unit's bridge: min clearance {near[0]:.2f} mm ({near[1]})")
+        assert near[0] >= 1.0, "thumb's moving parts come within 1 mm of the bridge"
     for dig in new:
-        assert new[dig] <= old[dig] + 0.5, f"{dig}: moving parts hit the plate more than in the stock hand"
+        if dig in old:
+            assert new[dig] <= old[dig] + 0.5, f"{dig}: moving parts hit the plate more than in the stock hand"
 
 
 # ----------------------------------------------------------------------------- preview and export
-def preview(stock, plate, path, info, tf, layout):
+def preview(stock, plate, path, info, tf, layout, thumb=None):
     """Stock plate (left) and the new one (right), seen from the back, with the finger-unit strips, the
     module footprints (servos, finger frames and bushings cut at z = 10) and the stock outline."""
     import matplotlib
@@ -1084,7 +1247,7 @@ def preview(stock, plate, path, info, tf, layout):
         n = np.cross(t[:, 1] - t[:, 0], t[:, 2] - t[:, 0])
         shade = 0.35 + 0.6 * np.abs(n[:, 2]) / (np.linalg.norm(n, axis=1) + 1e-12)
         ax.add_collection(PolyCollection(t[:, :, :2], facecolors=np.outer(shade, [0.75, 0.75, 0.8]), edgecolors="none"))
-        for name, (owner, m) in part_meshes(tf_).items():
+        for name, (owner, m) in part_meshes(tf_, "stock" if shape is stock else thumb).items():
             if owner in colors and not (shape is stock and owner == "pinky"):
                 sec = m.section(plane_origin=[0, 0, 10.0], plane_normal=[0, 0, 1])
                 for e in ([] if sec is None else sec.discrete):
@@ -1129,6 +1292,8 @@ def main():
     ap.add_argument("--no-checks", action="store_true", help="skip the checks")
     ap.add_argument("--sweep", action="store_true", help="also check the moving finger parts over their motor grid "
                     "(needs the sim model AH_Right_5F built with the same layout)")
+    ap.add_argument("--thumb", choices=list(LAYOUT.THUMB_MOUNTS), default=LAYOUT.THUMB_MOUNT,
+                    help="thumb-module mount (layout.py THUMB_MOUNT; stock: no thumb unit, the thumb sits on the wrist interface)")
     args = ap.parse_args()
     tf = LAYOUT.transforms(args.layout)
     stock = cq.importers.importStep(str(STOCK_STEP)).val()
@@ -1137,7 +1302,7 @@ def main():
     if args.layout == "stock":
         plate, info = build_stock(stock)
     else:
-        plate, info = build_moved(stock, tf)
+        plate, info = build_moved(stock, tf, args.thumb)
     bb = plate.BoundingBox()
     print(f"layout '{args.layout}': stock plate {stock.Volume() / 1000:.2f} cm3 -> 5-finger plate {plate.Volume() / 1000:.2f} cm3; "
           f"bbox x [{bb.xmin:.1f}, {bb.xmax:.1f}] y [{bb.ymin:.1f}, {bb.ymax:.1f}] z [{bb.zmin:.1f}, {bb.zmax:.1f}]")
@@ -1150,14 +1315,15 @@ def main():
         else:
             unit_report(stock, info)
             check_moved(stock, plate, info, tf)
+            check_thumb(stock, plate, info)
             check_seams(plate, info)
             min_material(plate, info)
-        check_parts(stock, plate, tf, model)
+        check_parts(stock, plate, tf, model, args.thumb)
         if args.sweep:
-            check_sweep(stock, plate, tf, model)
+            check_sweep(stock, plate, tf, model, thumb=args.thumb, info=info)
 
     export(plate, OUT_STEP, OUT_STL)
-    preview(stock, plate, OUT_PNG, info, tf, args.layout)
+    preview(stock, plate, OUT_PNG, info, tf, args.layout, args.thumb)
 
     stock_l = cq.importers.importStep(str(STOCK_STEP_L)).val()
     diff = mirror(stock).cut(stock_l).Volume() + stock_l.cut(mirror(stock)).Volume()

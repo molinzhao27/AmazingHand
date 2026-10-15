@@ -17,10 +17,16 @@ pitch). Each module - its servos, finger frames and bushings (fixed to the palm)
 and both motor chains - is moved rigidly, so the finger and its drive are unchanged. --layout stock
 keeps the stock fan.
 
+The thumb module (finger4: its servos, finger frames, bushings, knuckle sites and both motor chains) is
+re-mounted the same way, by the rigid transform of layout.py THUMB_MOUNT (default "slim": the servo pack
+lies flatter in the lower radial corner of the palm instead of hanging below it); --thumb stock keeps the
+stock mount on the wrist interface.
+
 Usage:  python build_5f_model.py              (writes AHSimulation/AH_Right_5F/mjcf)
         python build_5f_model.py --side left  (writes AHSimulation/AH_Left_5F/mjcf)
-        add --keyframe to regenerate keyframes.xml by settling at ctrl=0
+        add --keyframe to regenerate keyframes.xml by settling at the home ctrl (0, the thumb at layout.clamp_thumb(0, 0))
         --layout stock|parallel (default: cad/five_finger/layout.py LAYOUT)
+        --thumb stock|slim (default: cad/five_finger/layout.py THUMB_MOUNT)
 """
 
 import argparse
@@ -41,11 +47,14 @@ CAD_STL = HERE.parent.parent.parent / "cad" / "five_finger" / "stl"
 sys.path.insert(0, str(CAD_STL.parent))
 import layout as LAYOUT  # noqa: E402
 # Widened palm plates come from cad/five_finger/make_5f_plate.py (the stock plates have 3 finger mounts).
+# The stock wrist interface is replaced by the powered wrist's hand adapter (cad/five_finger/wrist/make_wrist.py): its
+# interface plate (the same plate, without the stock d49 spigot) is the root's wrist-interface mesh.
+WRIST_REF = CAD_STL.parent / "wrist" / "stl" / "ref"
 SIDES = {
     "right": dict(src=SIM_DIR / "AH_Right" / "mjcf", dst=SIM_DIR / "AH_Right_5F" / "mjcf", root="r_wrist_interface",
-                  plate="r_hand_plate", plate_src=CAD_STL / "R-Hand_Plate_5F.stl"),
+                  plate="r_hand_plate", plate_src=CAD_STL / "R-Hand_Plate_5F.stl", iface_src=WRIST_REF / "R-Wrist_Hand_Adapter_palm.stl"),
     "left": dict(src=SIM_DIR / "AH_Left" / "mjcf", dst=SIM_DIR / "AH_Left_5F" / "mjcf", root="l_wrist_interface",
-                 plate="l_hand_plate", plate_src=CAD_STL / "L-Hand_Plate_5F.stl"),
+                 plate="l_hand_plate", plate_src=CAD_STL / "L-Hand_Plate_5F.stl", iface_src=WRIST_REF / "L-Wrist_Hand_Adapter_palm.stl"),
 }
 SRC, DST = SIDES["right"]["src"], SIDES["right"]["dst"]
 
@@ -241,7 +250,7 @@ def finger_step_transform(root_body):
     return T, new
 
 
-def build_robot(side, plate_mesh, layout):
+def build_robot(side, plate_mesh, layout, thumb=None):
     src, dst = side["src"], side["dst"]
     tree = parse(src / "robot.xml")
     mj = tree.getroot()
@@ -307,6 +316,7 @@ def build_robot(side, plate_mesh, layout):
             scale = float(mesh.get("scale", "1 1 1").split()[0])
             assets[mesh.get("name", stem)] = trimesh.load(src / "assets" / mesh.get("file")).centroid * scale
     moves = apply_layout(side, root_body, assets, layout)
+    moves["thumb"] = apply_thumb(side, root_body, assets, thumb)
 
     if plate_mesh:  # same part frame as the stock plate, but in mm like the other cad/ exports
         for mesh in mj.find("asset").iter("mesh"):
@@ -318,7 +328,7 @@ def build_robot(side, plate_mesh, layout):
     indent(tree)
     text = ET.tostring(mj, encoding="unicode").replace(" />", "/>")
     header = "".join((src / "robot.xml").read_text().splitlines(keepends=True)[:3]) + (
-        "<!-- 5-digit variant: finger5 (pinky) added and the finger modules placed (cad/five_finger/layout.py) by "
+        "<!-- 5-digit variant: finger5 (pinky) added and the finger and thumb modules placed (cad/five_finger/layout.py) by "
         "Demo/AHSimulation/five_finger/build_5f_model.py. Do not edit by hand. -->\n"
     )
     (dst / "robot.xml").write_text(header + text + "\n")
@@ -327,8 +337,9 @@ def build_robot(side, plate_mesh, layout):
 
 # ---------------------------------------------------------------- finger-module layout
 MODULE_MESHES = ("scs0009", "finger_frame_1", "finger_frame_2", "bushing_0608_04")  # palm-fixed parts of a module
-FINGER_NUM = {"index": 1, "middle": 2, "ring": 3, "pinky": 5}
-FINGER_BODIES = {1: ["custom_servo_horn", "rotule_ball_2"], 2: F2_BODIES, 3: F3_BODIES, 5: ["custom_servo_horn_5", "rotule_ball_10"]}
+FINGER_NUM = {"index": 1, "middle": 2, "ring": 3, "pinky": 5, "thumb": 4}
+FINGER_BODIES = {1: ["custom_servo_horn", "rotule_ball_2"], 2: F2_BODIES, 3: F3_BODIES, 5: ["custom_servo_horn_5", "rotule_ball_10"],
+                 4: ["custom_servo_horn_4", "rotule_ball_8"]}
 
 
 def quat_z(R_cad2root, deg):
@@ -396,6 +407,60 @@ def apply_layout(side, root_body, assets, layout):
     return moves
 
 
+# ---------------------------------------------------------------- thumb-module mount
+THUMB_SITES = ["closing_1 (4)_2", "closing_1 (4)_2_z"]  # the knuckle site's frame is the thumb module's frame
+
+
+def apply_thumb(side, root_body, assets, mount=None):
+    """Move the thumb module rigidly by layout.thumb_transform(mount): its palm-fixed parts (servos, finger frames,
+    bushings; found geometrically, in the module frame), its knuckle sites and both motor chains. The thumb, its drive,
+    kinematics and calibration are unchanged; only where it sits on the palm changes. Returns (move, transform, R, plate_p)
+    like apply_layout (move: pose in the root frame -> moved pose)."""
+    tf = LAYOUT.thumb_transform(mount)
+    if side["root"].startswith("l_"):
+        tf = LAYOUT.thumb_mirrored(tf)
+    Rc, p0, p1 = tf
+    plate_p, plate_q = get_pose(part_geoms(root_body)[side["plate"]][1])
+    R = np.zeros(9)
+    mujoco.mju_quat2Mat(R, plate_q)
+    R = R.reshape(3, 3)
+    site_p, site_q = get_pose(child_by_name(root_body, "site", THUMB_SITES[0]))
+    assert np.allclose(R.T @ (site_p - plate_p) * 1000, p0, atol=0.01), "thumb: knuckle not at the layout's stock pivot"
+    Q = R @ Rc @ R.T  # the CAD rotation, in the root frame
+    q = np.zeros(4)
+    mujoco.mju_mat2Quat(q, Q.ravel())
+    t_root = plate_p + R @ p1 / 1000 - Q @ (plate_p + R @ p0 / 1000)
+
+    def move(pose):
+        pos, quat = pose
+        return Q @ pos + t_root, quat_mul(q, quat)
+
+    if np.allclose(Rc, np.eye(3)) and np.allclose(p0, p1):
+        return move, tf, R, plate_p
+    Rs = np.zeros(9)
+    mujoco.mju_quat2Mat(Rs, site_q)
+    Rs = Rs.reshape(3, 3)
+    geoms = part_geoms(root_body)
+    parts = []
+    for name, (_, g) in geoms.items():
+        if g.get("mesh") not in MODULE_MESHES:
+            continue
+        pos, quat = get_pose(g)
+        u, v, w = Rs.T @ (pos + rotate(quat, assets[g.get("mesh")]) - site_p) * 1000  # module frame, mm
+        if abs(u) < 16 and -55 < v < 12 and -25 < w < 25:
+            parts.append(name)
+    assert len(parts) == 6, f"thumb: module parts {parts}"
+    for n in parts:
+        set_pose(geoms[n][1], move(get_pose(geoms[n][1])))
+    for el in [child_by_name(root_body, "site", s) for s in THUMB_SITES] + \
+              [child_by_name(root_body, "body", b) for b in FINGER_BODIES[4]]:
+        set_pose(el, move(get_pose(el)))
+    ang = np.degrees(np.arccos(np.clip((np.trace(Rc) - 1) / 2, -1, 1)))
+    print(f"thumb mount '{mount or LAYOUT.THUMB_MOUNT}': {ang:.2f} deg turn, knuckle {np.round(p0, 2).tolist()} -> "
+          f"{np.round(p1, 2).tolist()} (CAD mm); parts {parts}")
+    return move, tf, R, plate_p
+
+
 def build_scene(side, T, moves):
     text = (side["src"] / "scene.xml").read_text()
     tree = parse(side["src"] / "scene.xml")
@@ -449,16 +514,51 @@ def build_shell_scene(side):
     (side["dst"] / "scene_shells.xml").write_text(text.replace(anchor, shells + anchor))
 
 
-def write_keyframe(dst, qpos):
+def write_keyframe(dst, qpos, ctrl=None):
     (dst / "keyframes.xml").write_text(
         "<mujoco>\n  <keyframe>\n    <key name=\"zero\"\n         qpos=\""
         + " ".join(f"{x:.6g}" for x in qpos)
+        + ("" if ctrl is None or not np.any(ctrl) else "\"\n         ctrl=\"" + " ".join(f"{x:.6g}" for x in ctrl))
         + "\"\n         />\n  </keyframe>\n</mujoco>\n"
     )
 
 
+def home_ctrl(m, left=False):
+    """Home ctrl (rad): every finger at 0, the thumb at layout.clamp_thumb(0, 0) - with a re-mounted thumb, (0, 0) can
+    lie outside its command envelope (the slim mount: inside the palm shell); (0, 22.5) deg for the slim mount, mirrored
+    on the left hand."""
+    c = np.zeros(m.nu)
+    t = LAYOUT.clamp_thumb(0.0, 0.0, side="left" if left else "right")
+    for k, name in enumerate(("finger4_motor1", "finger4_motor2")):
+        c[mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_ACTUATOR, name)] = np.radians(t[k])
+    return c
+
+
+def move_thumb_target(dst, m, d0, d1):
+    """Move the thumb's IK target (finger4_target) in scene.xml / scene_shells.xml with the thumb tip from pose d0 to
+    pose d1 (MjData; the hand root is the world frame)."""
+    b = m.site_bodyid[mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_SITE, "tip4")]
+    R0, R1 = d0.xmat[b].reshape(3, 3), d1.xmat[b].reshape(3, 3)
+    R = R1 @ R0.T
+    t = d1.xpos[b] - R @ d0.xpos[b]
+    qR = np.zeros(4)
+    mujoco.mju_mat2Quat(qR, R.ravel())
+    pat = re.compile(r'(<body name="finger4_target" )pos="([^"]+)" quat="([^"]+)"')
+    for f in ("scene.xml", "scene_shells.xml"):
+        if not (dst / f).exists():
+            continue
+        text = (dst / f).read_text()
+        mo = pat.search(text)
+        pos, quat = np.array(mo.group(2).split(), float), np.array(mo.group(3).split(), float)
+        q = np.zeros(4)
+        mujoco.mju_mulQuat(q, qR, quat / np.linalg.norm(quat))
+        text = text[:mo.start()] + f'{mo.group(1)}pos="{fmt(R @ pos + t)}" quat="{fmt(q)}"' + text[mo.end():]
+        (dst / f).write_text(text)
+
+
 def settle_keyframe(side):
-    """Settle the new model at ctrl = 0 from the stock keyframe (+ finger3's values for finger5)."""
+    """Settle the new model at the home ctrl (home_ctrl: 0, the thumb inside its envelope) from the stock keyframe
+    (+ finger3's values for finger5); the thumb's IK target follows its tip to the home pose."""
     src, dst = side["src"], side["dst"]
     stock = mujoco.MjModel.from_xml_path(str(src / "scene.xml"))
     q_stock = stock.key_qpos[0].copy()
@@ -480,15 +580,26 @@ def settle_keyframe(side):
     print(f"settled keyframe: max |qvel| = {np.abs(d.qvel).max():.2e}, "
           f"stock part max |dq| = {np.abs(d.qpos[:stock.nq] - q_stock).max():.2e}, "
           f"finger5 vs finger3 max |dq| = {np.abs(d.qpos[stock.nq:] - d.qpos[f3]).max():.2e}")
-    write_keyframe(dst, d.qpos)
+    home = home_ctrl(m, left=side["root"].startswith("l_"))
+    if np.any(home):   # the thumb's home is not (0, 0): settle it there and move its IK target along
+        d0 = copy.copy(d)
+        d.ctrl[:] = home
+        for _ in range(5000):
+            mujoco.mj_step(m, d)
+        assert np.all(np.isfinite(d.qpos))
+        move_thumb_target(dst, m, d0, d)
+        print(f"  thumb home {np.round(np.degrees(home[[mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_ACTUATOR, a) for a in ('finger4_motor1', 'finger4_motor2')]]), 2).tolist()} deg "
+              f"(layout.clamp_thumb(0, 0)): max |qvel| = {np.abs(d.qvel).max():.2e}")
+    write_keyframe(dst, d.qpos, d.ctrl)
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--keyframe", action="store_true", help="regenerate keyframes.xml by settling at ctrl=0")
+    ap.add_argument("--keyframe", action="store_true", help="regenerate keyframes.xml by settling at the home ctrl (0; the thumb at layout.clamp_thumb(0, 0))")
     ap.add_argument("--stock-plate", action="store_true", help="use the stock 3-finger palm plate mesh")
     ap.add_argument("--side", choices=SIDES, default="right")
     ap.add_argument("--layout", choices=["parallel", "stock"], default=LAYOUT.LAYOUT, help="finger-module layout")
+    ap.add_argument("--thumb", choices=list(LAYOUT.THUMB_MOUNTS), default=LAYOUT.THUMB_MOUNT, help="thumb-module mount")
     args = ap.parse_args()
     side = SIDES[args.side]
     src, dst = side["src"], side["dst"]
@@ -504,8 +615,11 @@ def main():
         plate = side["plate"] + "_5f.stl"
         shutil.copy2(side["plate_src"], dst / "assets" / plate)
     print(f"palm plate mesh: {plate or side['plate'] + '.stl (stock, 3 fingers + thumb)'}")
+    if side["iface_src"].exists():   # the hand adapter's interface plate (CAD mm) over the stock interface mesh (m)
+        trimesh.load(side["iface_src"]).apply_scale(0.001).export(dst / "assets" / f"{side['root']}.stl")
+        print(f"wrist interface mesh: {side['iface_src'].name} (the hand adapter's interface plate)")
 
-    T, moves = build_robot(side, plate, args.layout)
+    T, moves = build_robot(side, plate, args.layout, args.thumb)
     build_scene(side, T, moves)
     build_shell_scene(side)
     if args.keyframe or not (dst / "keyframes.xml").exists():
