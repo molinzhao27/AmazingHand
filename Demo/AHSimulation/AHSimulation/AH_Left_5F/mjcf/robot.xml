@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <!-- Generated using onshape-to-robot -->
 <!-- Onshape https://cad.onshape.com/documents/430ff184cf3dd9557aaff2be/w/e3658b7152c139971d22c688/e/a30f3af671aa926642803c67 -->
-<!-- 5-digit variant: finger5 (pinky) added and the finger modules placed (cad/five_finger/layout.py) by Demo/AHSimulation/five_finger/build_5f_model.py. Do not edit by hand. -->
+<!-- 5-digit variant: finger5 (pinky) added and the finger and thumb modules placed (cad/five_finger/layout.py) by Demo/AHSimulation/five_finger/build_5f_model.py. Do not edit by hand. -->
 <mujoco model="mjcf">
   <compiler angle="radian" meshdir="assets" autolimits="true"/>
   <default>
@@ -61,7 +61,7 @@
       <!-- Part finger_frame_1 -->
       <geom type="mesh" class="visual" pos="-0.0115 -0.019553 0.101283" quat="0.542448 0.453597 -0.542448 -0.453597" mesh="finger_frame_1" material="finger_frame_1_material"/>
       <!-- Part scs0009_2 -->
-      <geom type="mesh" class="visual" pos="-0.000298971 -0.00773341 0.019125" quat="0.40558 -0.40558 0.579228 -0.579228" mesh="scs0009" material="scs0009_material"/>
+      <geom type="mesh" class="visual" pos="-0.00953239 -0.0633226 0.0200473" quat="-0.0012844 -0.276103 -0.0580597 -0.959372" mesh="scs0009" material="scs0009_material"/>
       <!-- Part finger_frame_2 -->
       <geom type="mesh" class="visual" pos="-0.0115 0.00995067 0.0958484" quat="0.542448 0.453597 -0.542448 -0.453597" mesh="finger_frame_2" material="finger_frame_2_material"/>
       <!-- Part finger_frame_2_2 -->
@@ -75,7 +75,7 @@
       <!-- Part bushing_0608_04_4 -->
       <geom type="mesh" class="visual" pos="-0.025 0.00995067 0.0958484" quat="0.542448 0.453597 -0.542448 -0.453597" mesh="bushing_0608_04" material="bushing_0608_04_material"/>
       <!-- Part finger_frame_2_3 -->
-      <geom type="mesh" class="visual" pos="0.0280778 -0.0245 0.0297" quat="1.33558e-15 0.819152 0.573576 1.88298e-16" mesh="finger_frame_2" material="finger_frame_2_material"/>
+      <geom type="mesh" class="visual" pos="0.00219641 -0.0490236 0.0493076" quat="0.719433 0.637324 0.194326 -0.196142" mesh="finger_frame_2" material="finger_frame_2_material"/>
       <!-- Part scs0009_3 -->
       <geom type="mesh" class="visual" pos="-0.022075 -0.00173857 0.0650308" quat="0.70431 -0.062827 0.062827 0.70431" mesh="scs0009" material="scs0009_material"/>
       <!-- Part scs0009_4 -->
@@ -91,11 +91,11 @@
       <!-- Part finger_frame_1_2 -->
       <geom type="mesh" class="visual" pos="-0.0115 0.00995067 0.0958484" quat="0.542448 0.453597 -0.542448 -0.453597" mesh="finger_frame_1" material="finger_frame_1_material"/>
       <!-- Part bushing_0608_04_5 -->
-      <geom type="mesh" class="visual" pos="0.0280778 -0.0245 0.0262" quat="0.819152 -2.67635e-15 1.55431e-15 0.573576" mesh="bushing_0608_04" material="bushing_0608_04_material"/>
+      <geom type="mesh" class="visual" pos="0.0023 -0.0525 0.0497" quat="0.637324 -0.719433 0.196142 0.194326" mesh="bushing_0608_04" material="bushing_0608_04_material"/>
       <!-- Part scs0009_7 -->
       <geom type="mesh" class="visual" pos="-0.022075 0.0387641 0.0525449" quat="0.70431 -0.0628271 0.0628271 0.70431" mesh="scs0009" material="scs0009_material"/>
       <!-- Part scs0009_8 -->
-      <geom type="mesh" class="visual" pos="-0.00443741 -0.0191037 0.019125" quat="0.40558 -0.40558 0.579228 -0.579228" mesh="scs0009" material="scs0009_material"/>
+      <geom type="mesh" class="visual" pos="-0.0197875 -0.0629048 0.0264557" quat="-0.0012844 -0.276103 -0.0580597 -0.959372" mesh="scs0009" material="scs0009_material"/>
       <!-- Part bushing_0608_04_6 -->
       <geom type="mesh" class="visual" pos="-0.025 -0.019553 0.101283" quat="0.542448 0.453597 -0.542448 -0.453597" mesh="bushing_0608_04" material="bushing_0608_04_material"/>
       <!-- Part bushing_0608_04_7 -->
@@ -103,11 +103,11 @@
       <!-- Part l_wrist_interface -->
       <geom type="mesh" class="visual" pos="-0.0115 -0.1245 0.1022" quat="0.5 0.5 -0.5 -0.5" mesh="l_wrist_interface" material="l_wrist_interface_material"/>
       <!-- Part bushing_0608_04_8 -->
-      <geom type="mesh" class="visual" pos="0.0280778 -0.0245 0.0162" quat="2.39778e-15 0.819152 0.573576 -1.75874e-15" mesh="bushing_0608_04" material="bushing_0608_04_material"/>
+      <geom type="mesh" class="visual" pos="0.00259596 -0.0624325 0.0508211" quat="0.719433 0.637324 0.194326 -0.196142" mesh="bushing_0608_04" material="bushing_0608_04_material"/>
       <!-- Part finger_frame_1_3 -->
       <geom type="mesh" class="visual" pos="-0.0115 0.0385444 0.0855042" quat="0.542448 0.453597 -0.542448 -0.453597" mesh="finger_frame_1" material="finger_frame_1_material"/>
       <!-- Part finger_frame_1_4 -->
-      <geom type="mesh" class="visual" pos="0.0280778 -0.0245 0.0297" quat="7.89596e-16 0.819152 0.573576 -1.47427e-15" mesh="finger_frame_1" material="finger_frame_1_material"/>
+      <geom type="mesh" class="visual" pos="0.00219641 -0.0490236 0.0493076" quat="0.719433 0.637324 0.194326 -0.196142" mesh="finger_frame_1" material="finger_frame_1_material"/>
       <!-- Frame closing_1 (1)_2 -->
       <site group="3" name="closing_1 (1)_2" pos="-0.015 -0.019553 0.101283" quat="0.542448 0.453597 -0.542448 -0.453597"/>
       <!-- Frame closing_1 (1)_2_z -->
@@ -121,9 +121,9 @@
       <!-- Frame closing_1 (3)_2_z -->
       <site group="3" name="closing_1 (3)_2_z" pos="-0.115 0.0385444 0.0855042" quat="0.542448 0.453597 -0.542448 -0.453597"/>
       <!-- Frame closing_1 (4)_2 -->
-      <site group="3" name="closing_1 (4)_2" pos="0.0280778 -0.0245 0.0262" quat="2.68447e-15 0.819152 0.573576 -1.54785e-15"/>
+      <site group="3" name="closing_1 (4)_2" pos="0.0023 -0.0525 0.0497" quat="0.719433 0.637324 0.194326 -0.196142"/>
       <!-- Frame closing_1 (4)_2_z -->
-      <site group="3" name="closing_1 (4)_2_z" pos="0.0280778 -0.0245 -0.0738" quat="2.68447e-15 0.819152 0.573576 -1.54785e-15"/>
+      <site group="3" name="closing_1 (4)_2_z" pos="0.00525965 -0.151825 0.0609111" quat="0.719433 0.637324 0.194326 -0.196142"/>
       <!-- finger5 (pinky): fixed parts, copied from finger3 and moved by the finger2->finger3 step -->
       <!-- Part scs0009_9 -->
       <geom type="mesh" class="visual" pos="-0.022075 0.0665648 0.0379215" quat="0.70431 -0.0628271 0.0628271 0.70431" mesh="scs0009" material="scs0009_material"/>
@@ -544,7 +544,7 @@
         </body>
       </body>
       <!-- Link custom_servo_horn_4 -->
-      <body name="custom_servo_horn_4" pos="-0.00443741 -0.0191037 0.03365" quat="1.31515e-15 0.819152 0.573576 2.77058e-16">
+      <body name="custom_servo_horn_4" pos="-0.0202174 -0.0484778 0.0248273" quat="0.719433 0.637324 0.194326 -0.196142">
         <!-- Joint from l_wrist_interface to custom_servo_horn_4 -->
         <joint axis="0 0 1" name="finger4_motor1" type="hinge" range="-1.570796326794924 1.570796326794869"/>
         <inertial pos="-0.005 1.52438e-17 -0.00655938" mass="0.000410988" fullinertia="4.63584e-09 4.63584e-09 1e-09 -2.25489e-25 -4.58641e-26 1.59816e-25"/>
@@ -650,7 +650,7 @@
         </body>
       </body>
       <!-- Link rotule_ball_8 -->
-      <body name="rotule_ball_8" pos="-0.000298971 -0.00773341 0.03365" quat="2.77058e-16 -0.573576 0.819152 -1.31515e-15">
+      <body name="rotule_ball_8" pos="-0.00996228 -0.0488956 0.0184189" quat="-0.196142 -0.194326 0.637324 -0.719433">
         <!-- Joint from l_wrist_interface to rotule_ball_8 -->
         <joint axis="0 0 1" name="finger4_motor2" type="hinge" range="-1.5707963270150649 1.5707963265747282"/>
         <inertial pos="-0.005 1.24504e-17 -0.00655938" mass="0.000410988" fullinertia="4.63584e-09 4.63584e-09 1e-09 1.37384e-25 1.53325e-38 -8.0173e-27"/>

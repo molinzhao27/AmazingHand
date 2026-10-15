@@ -25,10 +25,11 @@ AHSIM = HERE.parent
 OUT_DIR = AHSIM / "five_finger" / "renders" / "beauty"
 BLENDER = "/Applications/Blender.app/Contents/MacOS/Blender"
 
-# A gently fanned open hand with a relaxed thumb (OpenHand's thumb, -35/35, points straight out sideways).
-OPEN_FAN = {"index": [-46, 60], "middle": [-53, 53], "ring": [-60, 46], "pinky": [-66, 40], "thumb": [-12, 12]}
+# A gently fanned open hand with a relaxed thumb. Thumb commands stay inside its command envelope
+# (cad/five_finger/layout.py, thumb_command_ok): folded deeper into the palm it would run into the palm shell.
+OPEN_FAN = {"index": [-46, 60], "middle": [-53, 53], "ring": [-60, 46], "pinky": [-66, 40], "thumb": [-30, 52]}
 # A relaxed hand: the fingers curl progressively from index to pinky.
-CASCADE = {"index": [-45, 45], "middle": [-30, 30], "ring": [-15, 15], "pinky": [0, 0], "thumb": [0, -10]}
+CASCADE = {"index": [-45, 45], "middle": [-30, 30], "ring": [-15, 15], "pinky": [0, 0], "thumb": [15, 35]}
 FINGERS_ONLY = dict(frame="fingers", frame_classes="white_plastic,black_tpu", frame_digits="index,middle,ring,pinky")
 
 # name: pose (hand_poses.json), digit overrides {digit: [m1, m2] deg}, wrist (flexion > 0 palm-ward, deviation > 0
@@ -53,9 +54,9 @@ SHOTS = {
     "back": dict(
         pose="OpenHand", digits=CASCADE, wrist=(10, 0),
         render=dict(az=345, el=-15, frame="hand", fill=0.72, offset=[0.0, 0.05])),
-    # close-up of the four fingers from the pinky side, shallow depth of field; thumb tucked out of the way
+    # close-up of the four fingers from the pinky side, shallow depth of field; thumb raised out of the way
     "fingers": dict(
-        pose="OpenHand", digits={**CASCADE, "thumb": [90, -90]}, wrist=(10, 0),
+        pose="OpenHand", digits={**CASCADE, "thumb": [90, 88]}, wrist=(10, 0),
         render=dict(az=118, el=-8, fill=0.75, fstop=4, lens=100, **FINGERS_ONLY)),
 }
 

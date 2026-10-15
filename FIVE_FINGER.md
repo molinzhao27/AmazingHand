@@ -95,7 +95,7 @@ Full logs are in [reports/](Demo/AHSimulation/five_finger/reports/). The numbers
 - **Pinky vs ring.** Each digit is settled on a 9×9 grid over (motor1, motor2), ±90° in 22.5° steps, and the meshes of every pose pair are compared (6561 pairs, surface samples every 1 mm, refined to 0.3 mm below 3 mm). The two fingers touch in 887 of 6561 pose pairs. The stock middle/ring pair gives the identical set. Contact needs the two fingers abducted toward each other: with abduction a = (m1+m2)/2 (positive toward the index) and c = a_pinky − a_ring, it starts at c ≥ 0. At c ≤ 22.5° it only happens with the pinky fully abducted toward the ring (both motors at +68° to +90°). In that pose its proximal shell grazes the ring's horn screw. In practice, never command the pinky further toward the ring than the ring itself; the stock software already treats middle/ring the same way. The extreme case is rendered in [renders/5f_06…](Demo/AHSimulation/five_finger/renders/5f_06_ring_pinky_abducted_together.jpg).
 - **Pinky vs thumb.** They stay more than 5 mm apart in all 6561 pose pairs.
 - **Pinky vs plate.** Its moving parts touch the widened plate at 9 of 81 grid poses. These are full over-extension poses, where the proximal segment rests on the plate edge. That is the same 9 of 81 as the ring on the stock plate; index, middle and ring are unchanged at 7, 9 and 9.
-- **Demo poses with a pinky.** No finger-to-finger contact; ring/pinky are 3.7 mm apart in OpenHand. The only contacts are the stock thumb/index ones the demos intend (CloseHand, Perfect, Pinched, Fuck).
+- **Demo poses with a pinky.** No finger-to-finger contact; ring/pinky are 3.7 mm apart in OpenHand. The only contacts are the stock thumb/index ones the demos intend (CloseHand, Perfect, Pinched, Fuck). With the slim thumb mount ([Thumb mount](#thumb-mount-a-thinner-thenar)) the thumb overlaps no finger: it rests on the curled middle in Index_Pointing and stays 0.23–0.67 mm from the index in CloseHand, Perfect, Pinched and Fuck.
 - **Renders.** Six camera angles × 8 poses are in [renders/](Demo/AHSimulation/five_finger/renders/).
 
 ### Left hand (`AH_Left_5F`)
@@ -130,39 +130,40 @@ The result is one valid solid of 36.6 cm³ (stock: 29.1 cm³). It sits on the st
 
 The stock Palm_Shell and Top_Shell cannot go on the widened plate: [check_shells.py](Demo/AHSimulation/five_finger/check_shells.py) shows they cut through the pinky's servo and horn screw ([report](Demo/AHSimulation/five_finger/reports/shells_stock_on_AH_Right_5F.txt)). So [make_5f_shells.py](cad/five_finger/make_5f_shells.py) generates new ones around the 5-digit mechanism. They are sculpted to read as a hand rather than a box, after the reference robot hands: white shells, a domed back, a palm that waists into a round wrist, and one large black ribbed TPU grip pad wrapped around the thumb opening.
 
-![before/after](Demo/AHSimulation/five_finger/renders/before_after_shells.jpg)
+![beauty renders](Demo/AHSimulation/five_finger/renders/beauty/contact_sheet.jpg)
 
-*Before (the earlier box-like shells) and after, on the slim fingers.*
+*The shells on the 3-phalanx hand with the slim thumb mount ([render pipeline](Demo/AHSimulation/render/README.md)).*
 
 - **Shape.** The shells are implicit (signed-distance) solids on a 0.5 mm voxel grid, in the same frame as the stock parts. From the sim, every digit is settled on a 19×19 grid of its two motors, on both the 2-phalanx hand (`AH_Right_5F`) and the 3-phalanx hand (`AH_Right_5F_3S`), and the two are merged into two keep-out sets, so one set of shells fits either finger:
   - **Enclose:** plate, wrist interface, servos, finger frames, servo horns, push rods (and the wrist's hand adapter). The walls stay at least 1 mm from these.
-  - **Stay clear of:** each finger's knuckle, lever and phalanges, and the thumb. The walls stay at least 1.2 mm from these (2.2 mm from the thumb).
+  - **Stay clear of:** each finger's knuckle, lever and phalanges, and the thumb. The walls stay at least 1.2 mm from these. The thumb is swept over the commands inside its envelope only (layout.py, `thumb_command_ok`), and cuts its opening only within 37 mm of its knuckle (`THUMB_ROOT_R`), with 2.2 mm of clearance. Beyond that, the envelope itself keeps the thumb at least 1.2 mm off the closed palm shell (see [Thumb mount](#thumb-mount-a-thinner-thenar)): folded deeper into the palm it would rise to within 1 mm of the finger modules' undersides, where no palm shell fits.
 
   The outer form is laid out along the forearm axis (frame W of the [wrist](cad/five_finger/wrist/README.md#hand-on-the-forearm)) as a smooth union of a few shapes, each with its parameters at the top of the script:
-  - **Palm slab.** Straight, parallel sides from the knuckles down (134 mm wide), flaring in from the wrist neck. The back is a dome: its crown at CAD z = 30 mm mid-hand (8.7 mm above the servo backs), dropping towards the wrist, with a 6 mm transverse arch, a 1 mm bump behind each knuckle and a 3.5 mm roll-down to the knuckle line. The palm is a wedge: its surface is at z = −45 mm at the heel and −22 mm under the fingers, with a shallow hollow. Edge radii grow from 10–11 mm at the knuckles to 20–22 mm at the wrist.
-  - **Wrist neck.** A round column (Ø69) on the forearm axis. The palm waists into it like a hand into its wrist.
-  - **Thenar.** A mound over the thumb's two servos, tilted along them.
+  - **Palm slab.** Straight, parallel sides from the knuckles down (131 mm wide), flaring in from the wrist neck. The back is a dome: its crown at CAD z = 25.5 mm mid-hand (4.2 mm above the servo backs), dropping towards the wrist, with a 3 mm transverse arch, a 1 mm bump behind each knuckle and a 3.5 mm roll-down to the knuckle line. The palm is a wedge: its surface is at z = −38 mm at the heel and −18.5 mm under the fingers, with a shallow hollow. Edge radii grow from 9 mm at the knuckles to 20–22 mm at the wrist.
+  - **Wrist neck.** A round column (Ø51) on the forearm axis, around the hand adapter's Ø42 neck. The palm waists into it like a hand into its wrist.
+  - **Thenar.** A rounded superquadric around the thumb's servo pack, laid along the palm's radial edge in the thumb module's own frame, cut softly to CAD z −31 … +23.5 mm so it never rises above the back of the hand.
   - **Hypothenar.** A soft mound low on the pinky side.
-  - **Fit.** The back, and the palm under the fingers, are lifted smoothly wherever a part needs room. A last tight blend with the enclosed parts covers anything the shapes miss (at most 0.8 mm in a few spots, so no visible bumps).
+  - **Fit.** The back, and the palm under the fingers, are lifted smoothly wherever a part needs room. A last tight blend with the enclosed parts covers anything the shapes miss (at most 3.2 mm, at the ends of the thenar).
+  - **Size** (outer shells, before → after the slim thumb mount and the Ø42 wrist neck). Thickness (CAD z): 76 → 67 mm at the heel (W y 60–80), 74 → 55 mm across the thenar (W y 100), 52 → 47 mm under the fingers (W y 125). Width (W x): 132 → 162 mm across the thenar (W y 80) and 126 → 134 mm under the fingers. The hand is up to 19 mm thinner, and up to 30 mm wider where the thumb's servo pack now lies along the radial edge.
   - **Panel lines.** Two 1.4 mm wide, 0.6 mm deep grooves: one across the back 17 mm below the knuckle line (a knuckle band), and one around the wrist 8 mm above the cut. They stop 2 mm short of the seam, so the lap joint stays whole.
   - **Wrist end:** cut square to the forearm axis, rising towards the back and towards the palm (like the creases of a wrist) so the shells clear the wrist fork at the hard stops (≥ 3.5 mm; > 5 mm everywhere on the operating range). For a hand on the stock wrist interface without the powered wrist, `make_5f_shells.py --no-wrist` cuts at the stock plane (CAD y = −97.5) instead.
-  - **Top edges:** the back stops 3 mm under the knuckle line, leaving the knuckle hardware exposed as in the reference. The palm stops on a smooth curve just under where the fingers sweep in a fist.
+  - **Top edges:** the back shell reaches 8 mm past the knuckle line (`KNUCKLE_HOOD`), hooding the finger frames and horn screws; the fingers' own sweeps cut their slots through it, so from the back the fingers emerge cleanly from under the shell. The palm stops on a smooth curve just under where the fingers sweep in a fist.
 
   The thumb's sweep carves the thumb opening. The finger and thumb openings have rounded edges. Walls are 2 mm.
 - **Parts and materials.** Same split as stock:
   - `R-Top_Shell_5F`, PLA, rigid.
   - `R-Palm_Shell_5F`, Filaflex 82A / TPU.
-  - `R-Palm_Pad_Palm_5F`, one black TPU insert (52 cm² seen from the palm). It covers the palm-facing surface with an even 5 mm border to every edge and opening, so it runs under the fingers, down the pinky side and around the thumb opening. It sits in a 1 mm recess, stands 0.8 mm proud, has rounded grip ribs across the palm at a 1.8 mm pitch, and a 0.15 mm side gap. Glue it in with flexible CA, or print the palm shell with a second material.
+  - `R-Palm_Pad_Palm_5F`, one black TPU insert (56 cm² seen from the palm). It covers the palm-facing surface at least 5 mm from every edge and opening, wrapping around the thumb opening and staying off the thenar; its outline is smoothed (5 mm) into one clean curve, and the opening edges are smoothed too (1.5 mm, with 0.5 mm extra clearance). It sits in a 1 mm recess, stands 0.8 mm proud, has rounded grip ribs across the palm at a 1.8 mm pitch, and a 0.15 mm side gap. Glue it in with flexible CA, or print the palm shell with a second material.
 
   The left parts (`L-*`) are the right ones mirrored about x = −50 mm, exactly how the stock left shells relate to the right ones (checked: 0 mm³ difference).
 - **Assembly:**
   - The palm shell sits under the back shell with a 1.5 mm lap joint all around the rim.
-  - Its floor flange lies on the wrist interface's back face and is clamped by the back shell's two bottom screws.
+  - Its floor flange lies on the wrist interface's back face (ulnar of CAD x = −12 mm, clear of the thumb module) and is clamped by the back shell's two bottom screws.
   - The back shell takes 5 screws, the same type and seats as the stock Top_Shell screws. Four go in the stock positions (two into the plate, two into the wrist interface). The fifth goes into the widened plate's copied threaded hole on the pinky side, at (77.8, −32.9) mm.
   - The stock palm shell's flange screws and the side screws into the wrist interface are not used.
-- **Verification.** I checked the shells and pads against every digit over a 13×13 grid per digit, which is not the grid the shells were built from ([right](Demo/AHSimulation/five_finger/reports/shells_5f_on_AH_Right_5F.txt), [left](Demo/AHSimulation/five_finger/reports/shells_5f_on_AH_Left_5F.txt)).
-  - No moving part touches any shell or pad in any of the 169 poses, on either hand.
-  - The smallest clearances on the right are 2.28 mm (thumb vs palm shell) and 4.6 mm (fingers); the grip pad is at least 4.8 mm from every digit. On the left the thumb comes to 1.14 mm, because the stock left export is not an exact mirror of the right (the thumb opening has 2.2 mm of clearance instead of 1.2 mm to absorb that). On the slim fingers every finger keeps at least 4.6 mm, the thumb 2.35 mm. On the 3-phalanx hand ([report](Demo/AHSimulation/five_finger/reports/shells_5f_on_AH_Right_5F_3S.txt)), which curls deeper into the palm, the closest is the pinky in a full fist (1.50 mm), then the other fingers (≥ 2.65 mm) and the thumb (2.39 mm); the pad keeps 3.65 mm.
+- **Verification.** I checked the shells and pads against every digit over a 25×25 grid (7.5° steps) per digit, which is not the grid the shells were built from ([right](Demo/AHSimulation/five_finger/reports/shells_5f_on_AH_Right_5F.txt), [left](Demo/AHSimulation/five_finger/reports/shells_5f_on_AH_Left_5F.txt), [slim](Demo/AHSimulation/five_finger/reports/shells_5f_on_AH_Right_5F_Slim.txt), [3-phalanx](Demo/AHSimulation/five_finger/reports/shells_5f_on_AH_Right_5F_3S.txt)).
+  - No finger touches any shell or pad in any of the 625 poses, on any hand. The thumb touches nothing in any of the 146 poses inside its command envelope (outside it, it would run into the palm).
+  - Closest approaches, all without contact: the fingers keep at least 1.66 mm from the knuckle hood (fully extended) and 2.5 mm from the palm shell; on the 3-phalanx hand, whose longer fingertips curl deeper into the palm, the pinky comes to 1.62 mm in a full fist. The thumb keeps 2.02 mm from the palm shell on the right, 1.74 mm on the left (the stock left export is not an exact mirror of the right; the thumb opening's 2.2 mm clearance absorbs that), 2.74 mm with the slim fingers and 1.33 mm on the 3-phalanx hand, and never comes near the back shell or the pad. The thumb's servo pack keeps 3.6 mm from the palm shell.
   - For comparison, the stock shells on the stock hand touch the ring's horn screw at 36 of 81 poses and the thumb at 6.
   - The only contacts with fixed parts are by design: the bosses seat on the plate, and the flange rests on the wrist interface, 0.18 mm beside the plate's foot.
 - **Printing.**
@@ -250,7 +251,7 @@ Details are in [cad/five_finger/wrist/README.md](cad/five_finger/wrist/README.md
 - **Hand on the forearm:** the forearm runs through the middle of the four fingers, between the middle and ring knuckles. It points along their mean direction, 10.5° from the stock index axis. The fingers therefore fan symmetrically about the forearm, and the knuckle line arcs down to the pinky as on a human hand. With the forearm on the stock interface axis instead, the hand would lean about 11° to the pinky side, and the pinky would look stuck on. ([before / after](Demo/AHSimulation/five_finger/renders/before_after_centering.jpg))
 - **Drive:** two Feetech STS3215 (12 V) servos in a tapered forearm push rods, the same parallel drive as the fingers. Flexion is ±60°; deviation is ±25°, tapering to ±15° at full flexion.
 - **Longer palm:** the wrist sits 20 mm further from the hand (`PALM_EXT`), and the palm shells reach down to it. The thumb therefore sits higher above the wrist, and palm and finger lengths are in human proportion (113 mm palm for 87 mm fingers).
-- **Torque:** the worst static load is 23% of stall for the hand alone and 40% with 200 g at the fingertips.
+- **Torque:** the worst static load is 24% of stall for the hand alone and 41% with 200 g at the fingertips.
 - **Electrical:** servo IDs 21/22 (left 31/32), on their own 12 V branch.
 - **Software contract:** the coupled range must be enforced in software (`clamp_wrist()`). With the longer palm, the thumb no longer needs an interlock.
 
@@ -273,8 +274,8 @@ The stock hand fans its finger modules 6–7.5° apart at a ~33.3 mm knuckle pit
 
   I swept a ±30° abduction × straight-to-curled envelope in the sim. At 30 mm, parallel fingers keep 1.2–1.8 mm between neighbouring drives, against 0.8–1.2 mm for the stock fan with the fingers turned parallel. At 29 mm the drives rub.
 
-  Going tighter needs custom servo horns with the rod ends tucked inward (worth ~3 mm), or a different servo arrangement. The thumb's servos, right under the index and middle modules, block the obvious stagger.
-- **Plate.** [make_5f_plate.py](cad/five_finger/make_5f_plate.py) cuts each finger unit out of the stock plate and moves it by the same transform as its module. A unit is the servo pocket and window, the finger-frame screw holes, and the pivot hole and bushing recess; the pinky unit is the ring's. The thumb side and both legs on the wrist interface stay stock, and a back sheet plus rim web joins it all.
+  Going tighter needs custom servo horns with the rod ends tucked inward (worth ~3 mm), or a different servo arrangement. With the stock thumb mount, the thumb's servos, right under the index and middle modules, block the obvious stagger (the slim mount moves them to the palm's radial edge, see [Thumb mount](#thumb-mount-a-thinner-thenar)).
+- **Plate.** [make_5f_plate.py](cad/five_finger/make_5f_plate.py) cuts each finger unit out of the stock plate and moves it by the same transform as its module. A unit is the servo pocket and window, the finger-frame screw holes, and the pivot hole and bushing recess; the pinky unit is the ring's. The thumb side and both legs on the wrist interface stay stock, and a back sheet plus rim web joins it all. With the slim thumb mount the plate also carries the thumb's own unit ([Thumb mount](#thumb-mount-a-thinner-thenar)).
 
   Checks:
   - all 49 unit features are at their moved positions;
@@ -299,6 +300,101 @@ The stock hand fans its finger modules 6–7.5° apart at a ~33.3 mm knuckle pit
 
 Rebuild with `build_5f_model.py --layout stock` and `make_5f_plate.py --layout stock` for the stock fan; set `LAYOUT = "stock"` in layout.py so the shells follow.
 
+### Thumb mount: a thinner thenar
+
+![thumb mount, before / after](Demo/AHSimulation/five_finger/renders/before_after_thumb.jpg)
+
+On the stock hand the thumb module hangs under the palm. Its two SCS0009 servos stand on the wrist interface, under the index and middle modules, and with their horns and push rods they reach CAD z = −51.1 mm. The palm face is z = 0, and the plate, the finger servos and their frames all stay above z = −12.5. That one module (and the thumb seat under it, down to −40.3) set the depth of the thenar and of the heel.
+
+[layout.py](cad/five_finger/layout.py) (`THUMB_MOUNT = "slim"`) re-mounts it the way it moves the finger modules: the whole module (both servos, finger frames, gimbal, horns, push rods and the thumb) is turned and shifted as one rigid piece, so the thumb's drive, kinematics and calibration do not change. The left hand gets the mirror image.
+
+- **Transform** (`THUMB_MOUNTS["slim"]`): the module's axis points at azimuth −7.5° and elevation −32°, with a roll of 92°, and its pivot moves from CAD (0, −76, −39.6) to (−28, −52.5, −13.8) mm: a 101.4° turn of the stock module. The module lies on its side along the radial edge of the palm plate, 7.5° off the fingers' direction and tilted 32° palm-ward, with its knuckle 14 mm in front of the plate beside the index module's foot, about where a human thumb's metacarpal lies.
+- **Thenar depth:** the servo pack (servos, finger frames, bushings, and the horn/rod sweep over the full ±90° command grid) now reaches z = −25.9 mm instead of −51.1: **25.2 mm shallower**. Its top rises from +7.2 to +18.5 mm, still under the finger servos (+21.3).
+- **Palm thickness** (CAD z extent of every palm-fixed part plus the thumb's sweep): 72.4 → 54.7 mm overall (−17.7 mm). Across the thenar (W y 80–100 mm) it drops from 66.6–70.4 to 40.0–47.2 mm. At the heel (W y 50–80) it drops from 55.9–61.2 to 49.6–52.9 mm; the deepest part there is now the hand adapter's interface plate, at z −33.4 instead of −40.3 with the stock thumb seat ([wrist README](cad/five_finger/wrist/README.md#mounting-the-hand-the-adapter-replaces-the-wrist-interface)).
+- **Width, the price:** the pack moves to the radial side of the palm. It spans W x −85.8 … −47.0 and W y 44.8 … 102.9 mm, against x −50.7 … −9.1, y 52.8 … 93.8 for the stock pack. Its long axis runs along the forearm, dipping 31° palm-ward towards the fingers (half-lengths 28.6 / 18.6 / 14.8 mm). The palm shell's thenar mound has to follow it:
+
+  | W y (mm) | W x (mm) | CAD z (mm) |
+  |---|---|---|
+  | 40–50 | −83.3 … −64.8 | −4.5 … +10.5 |
+  | 50–60 | −84.5 … −47.0 | −10.2 … +18.5 |
+  | 60–70 | −84.8 … −47.3 | −16.4 … +18.5 |
+  | 70–80 | −85.1 … −48.4 | −19.6 … +16.7 |
+  | 80–90 | −85.8 … −48.0 | −24.6 … +6.6 |
+  | 90–100 | −78.4 … −48.3 | −25.9 … 0.0 |
+  | 100–110 | −60.1 … −49.6 | −13.9 … −7.3 |
+- **Command envelope:** lying along the palm's edge, the thumb can be commanded into the palm. Extended past f = (m1 − m2)/2 ≈ −50° it runs back into the plate and the index module (measured on AH_Right_5F, AH_Right_5F_3S and AH_Left_5F with one 7.5° grid step to spare). Folded into the palm, its proximal and distal phalanges rise to z ≈ −16.5 … −24 under the index–ring modules, right where the closed palm shell and grip pad are (their outer surface is at z ≈ −18.5 there, the modules' undersides at −15.5). So the shell takes the rest: the thumb must keep m1 ≥ −67.5° and m2 ≥ 22.5 … 82.5° (rising with m1) to stay ≥ 1.2 mm from it. In practice the thumb cannot flex at all (f ≤ +3.75°): it only extends and swings across the palm. `layout.thumb_command_ok(m1, m2)` and `layout.clamp_thumb()` hold the envelope (`THUMB_ENVELOPE`). It keeps **22 %** of the ±90° command square (58 % without the shell). **The controller must clamp the thumb's commands to it**, as it does the wrist's, and **start the thumb at its home (0, 22.5)** (`layout.clamp_thumb(0, 0)`; left hand (−22.5, 0)), not at (0, 0), which is inside the palm shell. The models' keyframe (`build_5f_model.py --keyframe`, `build_wrist_model.py --keyframe`) settles the thumb there. The stock mount needs no such limit.
+- **Plate:** [make_5f_plate.py](cad/five_finger/make_5f_plate.py) gives the thumb its own unit on the palm plate, made like the finger units: the stock index unit (servo pocket and window, finger-frame screw holes, pivot hole and bushing recess) moved by the transform that takes the index module onto the thumb module, trimmed to the pack's depth (z −25.9 … +19.5) and joined to the index-side leg by a three-step bridge over the thumb's push rods. The stock thumb seat on the wrist interface is no longer used; the hand adapter fills it in (`remove_thumb_seat()` in make_wrist.py). The plate grows from 36.9 to 44.4 cm³ (+8.5 g), the adapter's interface plate by 2.0 g.
+- **Plate checks:** all 12 holes, pins, window and pocket corners of the thumb unit are at their moved places, and the unit is the exact moved stock unit (4000/4000 probes). The finger units, legs and foot are unchanged (49/49 features). The plate does not intersect any palm part. Inside its envelope the thumb's moving parts never touch the plate over 13×13 motor poses (0 mm³; outside it, 142 mm³), and they keep 1.8 mm from the bridge.
+
+**How the mount was chosen.** I searched the six mount parameters (turn and pivot) with differential evolution and an evolution strategy, on voxel distance fields of every palm part and of the fingers' working sweeps. The objective was the pack's depth, with these constraints:
+- at least 0.8 mm from the finger modules, the plate's finger units and legs, the wrist interface and the hand adapter, and 0.3 mm from the fingers' working sweeps;
+- a human-like thumb, on both the stock-width and the 3-phalanx fingers: pad-to-pad pinch with the index and the middle fingertips, the OK sign, tucked across the palm (peace sign), folded over the curled fingers (fist), and spread for the open hand.
+
+Keeping the pack above the wrist neck and inside the palm's outline costs depth, or functions:
+
+| Pack limit (W x ≥, W y ≥) | Thinnest pack (lowest z) | Kept |
+|---|---|---|
+| stock mount | −51.1 | all |
+| −72, 55 | −37.7 | pinch only (no tuck, fist or OK sign) |
+| −72, 55 | −45.2 | pinch, tuck, fist (no OK sign) |
+| −72, 45 | −37.2 / −40.5 | pinch only / + tuck, fist |
+| −78, 45…55 | −35.6 / −40.4 … −44.8 | pinch only / + tuck, fist |
+| −85, 55 | −35.6 | index pinch only |
+| −85, 50 | −31.6 | all, but the OK sign only to a 2 mm gap and 0.02 mm short of the 0.8 mm clearance |
+| **−85, 45 (chosen)** | **−26.0** (−25.9 after the final trim) | **all** |
+| −85, 40 | −25.0 | all |
+| −85, 30 | −22.3 | all, but the pack hangs beside the wrist neck |
+
+Inside W x ≥ −72 the thumb loses the tuck, the fist and the OK sign, or the palm stays 11–19 mm thicker. With W y ≥ 45 the pack's lower end stays radial of the hand adapter's interface plate and its Ø42 neck (W x ≤ −65 below W y = 50).
+
+**Opposition.** All the thumb commands below are inside the envelope. None has an exact (mesh-boolean) overlap between the thumb and any finger, and the thumb keeps 0.40 mm from every palm part (its pivot washer over the bushing recess, as on the stock hand). Pinch gaps are pad to pad (distal shells on the stock-width fingers):
+
+| Pinch | stock-width fingers (`AH_Right_5F`) | 3-phalanx fingers (`AH_Right_5F_3S`) |
+|---|---|---|
+| tip on the index fingertip | index (35, −35), thumb (−3, 57.5): 0.20 mm | index (0, 0), thumb (−7.5, 42): 0.10 mm |
+| OK sign (index curled further) | index (50, −50), thumb (−13, 69.5): 0.31 mm | index (35, −55), thumb (−6, 67.5): 0.64 mm |
+| tip on the middle fingertip | middle (50, −50), thumb (21.5, 42): 0.25 mm | middle (30, −30), thumb (68.5, 66): 0.23 mm |
+
+In the mount search's model the stock mount found no pad-to-pad pinch with the middle fingertip (either finger type) or with the stock-width index fingertip; on the parallel-layout hand the stock demo's `Perfect` and `CloseHand` run the stock thumb 279 and 246 mm³ into the index, and `Pinched` / `Fuck` stop 1.1 mm short of it.
+
+**Demo poses** (`DEMO_POSES_5F` in verify_5f_model.py; right-hand (m1, m2), mirror to (−m2, −m1) for the left hand):
+
+| Pose | Thumb, stock mount | Thumb, slim mount | Where the thumb is |
+|---|---|---|---|
+| OpenHand | (−35, 35) | (−52.5, 45) | extended along the radial side: 13° from the fingers, 30° out of the palm plane (stock: 77° / 68°) |
+| SpreadHand | (−90, −4) | (−36, 71) | 15° from the fingers, 38° out of the palm plane (stock: 83° / 48°) |
+| ClenchHand | (−4, 90) | (−50, 37) | along the palm's radial edge, 6.3 mm from the index |
+| CloseHand | (90, −90) | (−16, 66.5) | resting on the side of the curled index, 0.67 mm |
+| Index_Pointing | (90, −90) | (−7.5, 30) | resting on the curled middle (touching, no overlap) |
+| Perfect | (65, 12) | (−13, 69.5) | OK sign, thumb tip on the index tip, 0.26 mm |
+| Victory | (90, −90) | (64.5, 57.5) | swung across the front of the palm towards the curled ring and pinky (tip 34 mm from their tips), ≥ 6.9 mm from every digit |
+| Pinched | (0, −75), index (90, −90) | (−3, 57.5), index (35, −35) | tip pinch, 0.23 mm |
+| Fuck | (0, −75) | (−16, 66.5) | resting on the side of the curled index, 0.67 mm |
+
+On `AH_Left_5F` the same (mirrored) commands keep the thumb out of every finger too, but the stock left export is not an exact mirror, so the contacts open up: Perfect stops 3.2 mm short of the index, Pinched 1.0 mm, CloseHand and Fuck 2.6 mm ([report](Demo/AHSimulation/five_finger/reports/verify_AH_Left_5F.txt)). A command closing the right hand's OK sign to 0.3 mm runs the left thumb 35 mm³ into the index.
+
+The 3-phalanx hand's poses (`ultimate_finger/data/hand_poses.json`, via thumb_refine.py) use the same thumb commands for OpenHand, SpreadHand and ClenchHand. Victory and Peace use (48, 41), the envelope's closest approach to its deeper-curled ring and pinky (tip 43 mm from their tips, ≥ 6.1 mm from every digit). Its fist (CloseHand) and middle finger (Fuck, MiddleFinger) use (−19.5, 45), with the thumb's distal on the curled index's middle phalanx (0.48 mm), Index_Pointing (−1, 23.5) with the thumb's distal 0.6 mm from the curled middle, Perfect index (35, −55) / thumb (−6, 67.5) and Pinched index (0, 0) / thumb (−7.5, 42) ([report](Demo/AHSimulation/ultimate_finger/reports/thumb_poses.txt)).
+
+- **Gained:** the thumb now reaches across the palm: it swings across the front of the palm towards the curled ring and pinky (peace sign), and it pinches the middle fingertip as well as the index on both finger types. The stock thumb opposed only towards the index. Inside the envelope it still stays more than 5 mm from the ring and pinky over their whole range ([report](Demo/AHSimulation/five_finger/reports/verify_AH_Right_5F.txt)); without the palm shell's limit, folded into the palm, it could touch the ring.
+- **Lost: the tuck into the palm.** The palm shell takes the room the folded thumb needs (see the envelope above), so the thumb can no longer fold into the palm or hold the curled ring and pinky down: in the peace sign it hovers across the front of the palm instead, and in a fist it rests on the side of the curled index.
+- **Lost: the wide-open thumb.** Extended past f ≈ −50° the thumb runs into its own unit, so the open thumb stands only 13–15° from the fingers, 30–38° out of the palm plane: a relaxed thumb beside the index rather than a wide-open hand. A mount turned further radially (azimuth ≈ +20°) would spread about 50° at nearly the same depth (−27 mm), but its push rods and servo end pass through the plate's index-side leg, so that leg would need rerouting first. That is a follow-up.
+- **Note:** the thumb commands quoted in earlier sections are for the stock mount.
+- **Stock mount:** `THUMB_MOUNT = "stock"` in layout.py rebuilds the stock thumb everywhere (plate, models, and the hand adapter keeps its thumb seat); build_5f_model.py and make_5f_plate.py also take `--thumb stock`.
+
+Rebuild (the thumb's part of the sequence at the top):
+
+```bash
+.venv/bin/python cad/five_finger/wrist/make_wrist.py                    # hand adapter without the stock thumb seat (+ CAD checks)
+.venv/bin/python cad/five_finger/make_5f_plate.py                       # plate with the thumb unit and bridge (+ plate checks)
+.venv/bin/python Demo/AHSimulation/five_finger/build_5f_model.py --keyframe
+.venv/bin/python Demo/AHSimulation/five_finger/build_5f_model.py --side left --keyframe
+.venv/bin/python Demo/AHSimulation/slim_fingers/build_slim_model.py
+.venv/bin/python Demo/AHSimulation/ultimate_finger/build_models.py
+.venv/bin/python Demo/AHSimulation/wrist/build_wrist_model.py --keyframe   # and --hand AH_Right_5F_Slim / AH_Right_5F_3S
+.venv/bin/python Demo/AHSimulation/five_finger/verify_5f_model.py           # and --model AH_Left_5F
+.venv/bin/python Demo/AHSimulation/wrist/verify_wrist_model.py --model AH_Right_5F_Wrist
+```
+
 ### Poses: peace sign and middle finger
 
 ![poses](Demo/AHSimulation/five_finger/renders/poses_AH_Right_5F_Slim_Wrist.jpg)
@@ -309,14 +405,14 @@ Rebuild with `build_5f_model.py --layout stock` and `make_5f_plate.py --layout s
 
 | Pose | Index | Middle | Ring | Pinky | Thumb | Closest digits |
 |---|---|---|---|---|---|---|
-| Open (relaxed) | (−32, 32) | (−32, 32) | (−32, 32) | (−32, 32) | (−35, 35) | one pair < 3 mm (drive levers) |
-| PeaceSign | (−2, 62) | (−62, 2) | (90, −90) | (90, −90) | (90, −90) tucked | none within 3 mm |
-| MiddleFinger | (90, −90) | (−32, 32) | (90, −90) | (90, −90) | (75, 45) over the index | thumb/index 0.69 mm |
+| Open (relaxed) | (−32, 32) | (−32, 32) | (−32, 32) | (−32, 32) | (−52.5, 45) | one pair < 3 mm (drive levers) |
+| PeaceSign | (−2, 62) | (−62, 2) | (90, −90) | (90, −90) | (64.5, 57.5) across the front of the palm | none within 3 mm |
+| MiddleFinger | (90, −90) | (−32, 32) | (90, −90) | (90, −90) | (−13, 63) on the side of the curled index | thumb/index 0.19 mm (touching, no penetration) |
 
-The commands are right-hand (m1, m2) in degrees, for `AH_Right_5F_Slim`. For the left hand, mirror to (−m2, −m1).
+The commands are right-hand (m1, m2) in degrees, for `AH_Right_5F_Slim` with the slim thumb mount ([Thumb mount](#thumb-mount-a-thinner-thenar)). For the left hand, mirror to (−m2, −m1). (The stock thumb mount used (−35, 35), (90, −90) and (75, 45).) The thumb commands are per finger type (`TUCK`, `FIST_THUMB` in hand_poses.py).
 
-- **Compared with the stock demo:** these are close to the stock `Victory` and `Fuck` demos. The V is symmetric about the forearm (±16°), the pinky is curled, and the middle finger has the thumb folded over the curled index.
-- **Thumb limit:** the thumb cannot hold down the curled ring and pinky in the peace sign. It opposes only towards the index, and its tip stays at least 56 mm from the curled ring. So it tucks into the palm instead, as in the stock `Victory`.
+- **Compared with the stock demo:** these are close to the stock `Victory` and `Fuck` demos. The V is symmetric about the forearm (±16°), the pinky is curled, and the middle finger has the thumb resting on the curled index.
+- **Thumb:** with the slim mount and the closed palm shell the thumb cannot fold into the palm; in the peace sign it swings across the front of the palm towards the curled ring and pinky as far as its envelope allows. (The stock thumb opposed only towards the index, its tip at least 56 mm from the curled ring, so it could only tuck into the palm.)
 
 ```bash
 .venv/bin/python Demo/AHSimulation/five_finger/hand_poses.py --model AH_Right_5F_Slim --render-model AH_Right_5F_Slim_Wrist
@@ -338,9 +434,9 @@ The commands are right-hand (m1, m2) in degrees, for `AH_Right_5F_Slim`. For the
 
   | Pose (`AH_Right_5F_3S`) | Index | Middle | Ring | Pinky | Thumb |
   |---|---|---|---|---|---|
-  | Open | (−56, 56) | (−56, 56) | (−56, 56) | (−56, 56) | (−35, 35) |
-  | PeaceSign | (−26, 86) | (−86, 26) | (90, −90) | (90, −90) | (90, −90) tucked |
-  | MiddleFinger | (90, −90) | (−56, 56) | (90, −90) | (90, −90) | (15, −60), 1.1 mm from the curled fingers |
+  | Open | (−56, 56) | (−56, 56) | (−56, 56) | (−56, 56) | (−52.5, 45) |
+  | PeaceSign | (−26, 86) | (−86, 26) | (90, −90) | (90, −90) | (48, 41) across the front of the palm, ≥ 6.1 mm from every digit |
+  | MiddleFinger | (90, −90) | (−56, 56) | (90, −90) | (90, −90) | (−19.5, 45) on the curled index, 0.28 mm |
 
   ![3-phalanx poses](Demo/AHSimulation/five_finger/renders/poses_AH_Right_5F_3S_Wrist.jpg)
 - **Not done:** printing and fit; the thumb keeps the slim shells (with the new black pads); the left hand.
@@ -434,7 +530,9 @@ The optional wrist's STS3215 C018 servos run on a separate 12 V branch, at least
 
   **On the parallel layout** (the default, see [Finger layout](#finger-layout-parallel-at-30-mm)), two poses change:
   - **ClenchHand** for all four fingers: index (−35, 25), middle (−30, 40), ring (−20, 50), pinky (−27, 43).
-  - **Thumb in Pinched/Fuck:** (5, −75) with stock-width fingers, (25, −75) with slim fingers.
+  - **Thumb in Pinched/Fuck:** (5, −75) with stock-width fingers, (25, −75) with slim fingers (stock thumb mount).
+
+  **With the slim thumb mount** (the default, see [Thumb mount](#thumb-mount-a-thinner-thenar)) every thumb command changes, to the `DEMO_POSES_5F` values: OpenHand (−52.5, 45), CloseHand (−16, 66.5), SpreadHand (−36, 71), ClenchHand (−50, 37), Index_Pointing (−7.5, 30), Perfect (−13, 69.5), Victory (64.5, 57.5), Pinched (−3, 57.5) with the index at (35, −35), and Fuck (−16, 66.5). Clamp every thumb command to the envelope (`layout.clamp_thumb()`); outside it the thumb runs into the palm or the palm shell. Home the thumb at (0, 22.5), mirrored (−22.5, 0) on the left, not at (0, 0).
 
   Mirror these the same way for the left hand. Keep the abduction (m1 + m2)/2 within ±30°, except for the index and pinky spreading outward, and keep neighbours converging by ≤ 15°.
 

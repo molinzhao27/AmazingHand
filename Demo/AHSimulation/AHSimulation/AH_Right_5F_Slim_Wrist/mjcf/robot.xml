@@ -68,7 +68,7 @@
   <worldbody>
     <!-- Link r_wrist_interface -->
     <body name="wrist_forearm" pos="0 0 0" quat="0.995805 -0.0915016 0 0">
-      <inertial pos="0.00998949 0.0233731 -0.166459" mass="0.438807" fullinertia="0.00160815 0.00159301 0.000469415 1.06949e-05 -5.93928e-05 0.000226087"/>
+      <inertial pos="0.0099961 0.0233186 -0.166164" mass="0.439767" fullinertia="0.00161834 0.00160344 0.000470379 1.07357e-05 -5.9613e-05 0.000227902"/>
       <geom type="mesh" mesh="wrist_r_forearm_front" rgba="0.92 0.92 0.93 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1022" quat="0.5 0.5 -0.5 -0.5"/>
       <geom type="mesh" mesh="wrist_r_forearm_back" rgba="0.95 0.95 0.96 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1022" quat="0.5 0.5 -0.5 -0.5"/>
       <geom type="mesh" mesh="wrist_r_wrist_fork" rgba="0.80 0.81 0.83 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.0245 0.1022" quat="0.5 0.5 -0.5 -0.5"/>
@@ -87,9 +87,9 @@
         <geom type="mesh" mesh="wrist_pin_d3x10_pz" rgba="0.6 0.6 0.65 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.022582 0.15269" quat="0.5 0.5 -0.5 -0.5"/>
         <geom type="mesh" mesh="wrist_pin_d3x10__z" rgba="0.6 0.6 0.65 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.022582 0.15269" quat="0.5 0.5 -0.5 -0.5"/>
         <body name="wrist_hand_adapter" pos="0 0 0">
-          <inertial pos="-0.00230318 -0.00306776 0.0282586" mass="0.0598552" fullinertia="2.48304e-05 2.74229e-05 2.72363e-05 3.13614e-07 -3.19175e-06 -6.40925e-07"/>
+          <inertial pos="-0.00320115 -0.00239407 0.0261722" mass="0.0387372" fullinertia="1.52205e-05 1.67117e-05 1.16689e-05 2.24986e-07 -2.67978e-06 -8.98323e-08"/>
           <joint name="wrist_deviation" type="hinge" axis="-1 0 0" range="-0.523599 0.523599" class="wrist_passive"/>
-          <geom type="mesh" mesh="wrist_r_wrist_hand_adapter" rgba="0.80 0.81 0.83 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.022582 0.15269" quat="0.5 0.5 -0.5 -0.5"/>
+          <geom type="mesh" mesh="wrist_r_wrist_hand_adapter_neck" rgba="0.80 0.81 0.83 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.022582 0.15269" quat="0.5 0.5 -0.5 -0.5"/>
           <geom type="mesh" mesh="wrist_f683zz_pz" rgba="0.75 0.76 0.8 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.022582 0.15269" quat="0.5 0.5 -0.5 -0.5"/>
           <geom type="mesh" mesh="wrist_f683zz__z" rgba="0.75 0.76 0.8 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.022582 0.15269" quat="0.5 0.5 -0.5 -0.5"/>
           <geom type="mesh" mesh="wrist_stud_top_1" rgba="0.75 0.76 0.8 1" contype="0" conaffinity="0" group="2" pos="-0.0115 0.022582 0.15269" quat="0.5 0.5 -0.5 -0.5"/>
@@ -98,8 +98,8 @@
           <site name="wrist_ball2_hand" pos="-0.02125 0.0206484 0.00382695" size="0.002" group="3"/>
           <site name="wrist_centre" pos="0 0 0" size="0.003" group="3"/>
           <body name="r_wrist_interface" pos="-0 -0.00191797 0.0504897" quat="1 0 0 0" childclass="mjcf">
-            <!-- lumped inertial: hand mass model 480.9 g (Demo/AHSimulation/wrist/hand_mass_model.py) minus the finger bodies' own 110.6 g -->
-            <inertial pos="-0.0107417 -0.0115808 0.0492853" mass="0.370301" fullinertia="0.000762468 0.000512091 0.000546335 -3.08669e-05 1.27125e-05 -8.8328e-06"/>
+            <!-- lumped inertial: hand mass model 487.6 g (Demo/AHSimulation/wrist/hand_mass_model.py) minus the finger bodies' own 110.6 g -->
+            <inertial pos="-0.0133527 -0.00298485 0.0502525" mass="0.377023" fullinertia="0.000969288 0.000457319 0.000719063 -5.71113e-06 -1.36649e-05 5.46028e-05"/>
             <!-- Part scs0009 -->
             <geom type="mesh" class="visual" pos="-0.022075 0.0312422 0.0704655" quat="0.70431 0.062827 -0.062827 0.70431" mesh="scs0009" material="scs0009_material"/>
             <!-- Part finger_frame_1 -->
@@ -107,7 +107,7 @@
             <!-- Part r_hand_plate -->
             <geom type="mesh" class="visual" pos="-0.0115 0.0245 0.1022" quat="0.5 0.5 -0.5 -0.5" mesh="r_hand_plate" material="r_hand_plate_material"/>
             <!-- Part scs0009_2 -->
-            <geom type="mesh" class="visual" pos="-0.00443741 0.0191037 0.019125" quat="0.579228 -0.579228 0.40558 -0.40558" mesh="scs0009" material="scs0009_material"/>
+            <geom type="mesh" class="visual" pos="-0.0197875 0.0629048 0.0264557" quat="0.959372 0.0580597 0.276103 0.0012844" mesh="scs0009" material="scs0009_material"/>
             <!-- Part finger_frame_2 -->
             <geom type="mesh" class="visual" pos="-0.0115 -0.00995067 0.0958484" quat="0.453597 0.542448 -0.453597 -0.542448" mesh="finger_frame_2" material="finger_frame_2_material"/>
             <!-- Part finger_frame_2_2 -->
@@ -121,7 +121,7 @@
             <!-- Part bushing_0608_04_4 -->
             <geom type="mesh" class="visual" pos="-0.025 -0.00995067 0.0958484" quat="0.453597 0.542448 -0.453597 -0.542448" mesh="bushing_0608_04" material="bushing_0608_04_material"/>
             <!-- Part finger_frame_2_3 -->
-            <geom type="mesh" class="visual" pos="0.0280778 0.0245 0.0297" quat="3.51037e-16 0.573576 0.819152 7.48307e-16" mesh="finger_frame_2" material="finger_frame_2_material"/>
+            <geom type="mesh" class="visual" pos="0.00219641 0.0490236 0.0493076" quat="-0.196142 0.194326 0.637324 0.719433" mesh="finger_frame_2" material="finger_frame_2_material"/>
             <!-- Part scs0009_3 -->
             <geom type="mesh" class="visual" pos="-0.022075 -0.0101703 0.0628891" quat="0.70431 0.062827 -0.062827 0.70431" mesh="scs0009" material="scs0009_material"/>
             <!-- Part scs0009_4 -->
@@ -135,23 +135,23 @@
             <!-- Part finger_frame_1_2 -->
             <geom type="mesh" class="visual" pos="-0.0115 -0.00995067 0.0958484" quat="0.453597 0.542448 -0.453597 -0.542448" mesh="finger_frame_1" material="finger_frame_1_material"/>
             <!-- Part bushing_0608_04_5 -->
-            <geom type="mesh" class="visual" pos="0.0280778 0.0245 0.0262" quat="0.573576 -4.6886e-16 -6.93889e-16 0.819152" mesh="bushing_0608_04" material="bushing_0608_04_material"/>
+            <geom type="mesh" class="visual" pos="0.0023 0.0525 0.0497" quat="0.194326 0.196142 -0.719433 0.637324" mesh="bushing_0608_04" material="bushing_0608_04_material"/>
             <!-- Part scs0009_7 -->
             <geom type="mesh" class="visual" pos="-0.022075 -0.0268551 0.0546866" quat="0.70431 0.0628271 -0.0628271 0.70431" mesh="scs0009" material="scs0009_material"/>
             <!-- Part r_wrist_interface -->
             <geom type="mesh" class="visual" pos="-0.0115 0.0245 0.1022" quat="0.5 0.5 -0.5 -0.5" mesh="r_wrist_interface" material="r_wrist_interface_material"/>
             <!-- Part scs0009_8 -->
-            <geom type="mesh" class="visual" pos="-0.000298971 0.00773341 0.019125" quat="0.579228 -0.579228 0.40558 -0.40558" mesh="scs0009" material="scs0009_material"/>
+            <geom type="mesh" class="visual" pos="-0.00953239 0.0633226 0.0200473" quat="0.959372 0.0580597 0.276103 0.0012844" mesh="scs0009" material="scs0009_material"/>
             <!-- Part bushing_0608_04_6 -->
             <geom type="mesh" class="visual" pos="-0.025 0.019553 0.101283" quat="0.453597 0.542448 -0.453597 -0.542448" mesh="bushing_0608_04" material="bushing_0608_04_material"/>
             <!-- Part bushing_0608_04_7 -->
             <geom type="mesh" class="visual" pos="-0.025 -0.0385444 0.0855042" quat="0.453597 0.542448 -0.453597 -0.542448" mesh="bushing_0608_04" material="bushing_0608_04_material"/>
             <!-- Part bushing_0608_04_8 -->
-            <geom type="mesh" class="visual" pos="0.0280778 0.0245 0.0162" quat="3.37101e-16 0.573576 0.819152 4.75257e-16" mesh="bushing_0608_04" material="bushing_0608_04_material"/>
+            <geom type="mesh" class="visual" pos="0.00259596 0.0624325 0.0508211" quat="-0.196142 0.194326 0.637324 0.719433" mesh="bushing_0608_04" material="bushing_0608_04_material"/>
             <!-- Part finger_frame_1_3 -->
             <geom type="mesh" class="visual" pos="-0.0115 -0.0385444 0.0855042" quat="0.453597 0.542448 -0.453597 -0.542448" mesh="finger_frame_1" material="finger_frame_1_material"/>
             <!-- Part finger_frame_1_4 -->
-            <geom type="mesh" class="visual" pos="0.0280778 0.0245 0.0297" quat="5.83086e-16 0.573576 0.819152 6.68824e-16" mesh="finger_frame_1" material="finger_frame_1_material"/>
+            <geom type="mesh" class="visual" pos="0.00219641 0.0490236 0.0493076" quat="-0.196142 0.194326 0.637324 0.719433" mesh="finger_frame_1" material="finger_frame_1_material"/>
             <!-- Frame closing_1 (1)_2 -->
             <site group="3" name="closing_1 (1)_2" pos="-0.015 0.019553 0.101283" quat="0.453597 0.542448 -0.453597 -0.542448"/>
             <!-- Frame closing_1 (1)_2_z -->
@@ -165,9 +165,9 @@
             <!-- Frame closing_1 (3)_2_z -->
             <site group="3" name="closing_1 (3)_2_z" pos="-0.115 -0.0385444 0.0855042" quat="0.453597 0.542448 -0.453597 -0.542448"/>
             <!-- Frame closing_1 (4)_2 -->
-            <site group="3" name="closing_1 (4)_2" pos="0.0280778 0.0245 0.0262" quat="4.8152e-16 0.573576 0.819152 7.27392e-16"/>
+            <site group="3" name="closing_1 (4)_2" pos="0.0023 0.0525 0.0497" quat="-0.196142 0.194326 0.637324 0.719433"/>
             <!-- Frame closing_1 (4)_2_z -->
-            <site group="3" name="closing_1 (4)_2_z" pos="0.0280778 0.0245 -0.0738" quat="4.8152e-16 0.573576 0.819152 7.27392e-16"/>
+            <site group="3" name="closing_1 (4)_2_z" pos="0.00525965 0.151825 0.0609111" quat="-0.196142 0.194326 0.637324 0.719433"/>
             <!-- finger5 (pinky): fixed parts, copied from finger3 and moved by the finger2->finger3 step -->
             <!-- Part scs0009_9 -->
             <geom type="mesh" class="visual" pos="-0.022075 -0.0546558 0.0400631" quat="0.70431 0.0628271 -0.0628271 0.70431" mesh="scs0009" material="scs0009_material"/>
@@ -594,7 +594,7 @@
               </body>
             </body>
             <!-- Link custom_servo_horn_4 -->
-            <body name="custom_servo_horn_4" pos="-0.000298971 0.00773341 0.03365" quat="1.09642e-15 0.573573 0.819154 2.26766e-16">
+            <body name="custom_servo_horn_4" pos="-0.00996228 0.0488956 0.0184189" quat="-0.196139 0.194323 0.637325 0.719434">
               <!-- Joint from r_wrist_interface to custom_servo_horn_4 -->
               <joint axis="0 0 1" name="finger4_motor1" type="hinge" range="-1.5707889966987234 1.5708036568910697"/>
               <inertial pos="-0.005 1.34196e-17 -0.00655938" mass="0.000410988" fullinertia="4.63584e-09 4.63584e-09 1e-09 -8.22944e-25 -2.0357e-26 -1.90632e-25"/>
@@ -702,7 +702,7 @@
               </body>
             </body>
             <!-- Link rotule_ball_8 -->
-            <body name="rotule_ball_8" pos="-0.00443741 0.0191037 0.03365" quat="1.42065e-15 -0.819152 0.573576 6.98838e-17">
+            <body name="rotule_ball_8" pos="-0.0202174 0.0484778 0.0248273" quat="0.719433 -0.637324 0.194326 0.196142">
               <!-- Joint from r_wrist_interface to rotule_ball_8 -->
               <joint axis="0 0 1" name="finger4_motor2" type="hinge" range="-1.5707963267948957 1.5707963267948974"/>
               <inertial pos="-0.005 1.88698e-17 -0.00655938" mass="0.000410988" fullinertia="4.63584e-09 4.63584e-09 1e-09 -4.00135e-25 1.5509e-24 -3.69519e-24"/>
@@ -963,7 +963,7 @@
     <mesh name="wrist_pin_d3x10__x" file="wrist_pin_d3x10__x.stl" scale="0.001 0.001 0.001"/>
     <mesh name="wrist_pin_d3x10_pz" file="wrist_pin_d3x10_pz.stl" scale="0.001 0.001 0.001"/>
     <mesh name="wrist_pin_d3x10__z" file="wrist_pin_d3x10__z.stl" scale="0.001 0.001 0.001"/>
-    <mesh name="wrist_r_wrist_hand_adapter" file="wrist_r_wrist_hand_adapter.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="wrist_r_wrist_hand_adapter_neck" file="wrist_r_wrist_hand_adapter_neck.stl" scale="0.001 0.001 0.001"/>
     <mesh name="wrist_f683zz_pz" file="wrist_f683zz_pz.stl" scale="0.001 0.001 0.001"/>
     <mesh name="wrist_f683zz__z" file="wrist_f683zz__z.stl" scale="0.001 0.001 0.001"/>
     <mesh name="wrist_stud_top_1" file="wrist_stud_top_1.stl" scale="0.001 0.001 0.001"/>

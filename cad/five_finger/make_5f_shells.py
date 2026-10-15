@@ -61,39 +61,45 @@ from build_5f_model import child_by_name, get_pose, parse  # noqa: E402
 OUT_STL = HERE / "stl"
 MODEL = "AH_Right_5F"  # hand model (folder under Demo/AHSimulation/AHSimulation) being swept
 MODELS = ["AH_Right_5F", "AH_Right_5F_3S"]  # the shells clear the moving parts of all of these (2- and 3-phalanx fingers)
-LO = np.array([-40.0, -142.0, -62.0])  # voxel grid bounds (plate frame, mm)
+LO = np.array([-70.0, -142.0, -62.0])  # voxel grid bounds (plate frame, mm)
 HI = np.array([128.0, 22.0, 42.0])
 # plate pose in the MuJoCo root frame: part-studio frame (mm) <-> MJCF (m)
 PLATE_POS = np.array([-0.0115, 0.0245, 0.1022])
 PLATE_QUAT = np.array([0.5, 0.5, -0.5, -0.5])
 
-WALL = 2.0  # shell wall thickness
-CLR = 1.0  # clearance around enclosed parts
+WALL = 1.8  # shell wall thickness
+CLR = 0.8  # clearance around enclosed parts
 FREE = 1.2  # clearance around moving finger parts
+OPEN_SMOOTH, OPEN_MARGIN = 1.5, 0.5  # smoothing of the finger/thumb opening edges, and the extra room for it
 THUMB_FREE = 2.2  # around the thumb: the left shells are the right ones mirrored, and the stock left thumb sits up to
 #                   ~1 mm off the right one's mirror image
+THUMB_ROOT_R = 37.0  # the thumb's opening is cut within this radius of its knuckle only: beyond it, the thumb's
+#                     command envelope (layout.THUMB_ENVELOPE) keeps it >= 1.2 mm off the closed shells
 Z_SPLIT = 15.5  # plate back face: palm shell below, back shell above
 LAP_H, LAP_GAP = 1.5, 0.2  # lap joint height and clearance
 FLANGE_Y = -85.0  # palm-shell floor flange on the wrist interface below this y
+FLANGE_X = -12.0  # and ulnar of this x (the interface ends at x = -9; the thumb module sits radial of it)
 FLANGE_T = 1.3
-CAP_BELOW_KNUCKLE = 3.0  # back shell top edge this far below the knuckle (pivot) line
+KNUCKLE_HOOD = 8.0  # the back shell reaches this far past the knuckle (pivot) line, hooding the knuckle hardware
 Z_PALM_TOP = 0.0  # below this z the top edge follows the palm cap (under the finger sweeps)
 # Outer form, laid out in the wrist frame W (u = W x across the hand, + towards the pinky; v = W y up the forearm axis;
 # heights in CAD z). A palm slab, blended (smooth union) with a round wrist column, a thenar and a hypothenar mound:
-OUTLINE_RADIAL = [(0, -26), (42, -27), (52, -46), (62, -54), (80, -63), (94, -67), (170, -67)]  # (v, u): index / thumb edge;
-OUTLINE_ULNAR = [(0, 20), (44, 22), (58, 46), (72, 62), (84, 67), (170, 67)]         # (v, u): pinky edge. Below
+OUTLINE_RADIAL = [(0, -26), (42, -27), (52, -45), (62, -56), (80, -64), (96, -66), (170, -65)]  # (v, u): index / thumb edge;
+OUTLINE_ULNAR = [(0, 20), (44, 22), (58, 45), (72, 60), (84, 65), (170, 65)]         # (v, u): pinky edge. Below
 # v ~ 50 the slab stays inside the wrist column, so the palm waists into a round wrist neck
-BACK_Z = (20.5, 30.0, (25.0, 100.0))  # back height at the wrist, at mid-hand, and the v range of the rise
-ARCH = (6.0, 67.0)  # transverse arch of the back: it drops ARCH[0] mm at u = +-ARCH[1]
+BACK_Z = (19.5, 25.5, (25.0, 100.0))  # back height at the wrist, at mid-hand, and the v range of the rise
+ARCH = (3.0, 65.0)  # transverse arch of the back: it drops ARCH[0] mm at u = +-ARCH[1]
 KNUCKLES = (1.0, 8.0, 3.5)  # knuckle bump height and radius (9 mm below each pivot); back rolled down 3.5 mm to the cap
-PALM_DEPTH = (45.0, 22.0, (74.0, 118.0))  # palm surface below z = 0 at the heel, under the fingers, v range between
+PALM_DEPTH = (38.0, 18.5, (74.0, 118.0))  # palm surface below z = 0 at the heel, under the fingers, v range between
 HOLLOW = ((26.0, 94.0), (20.0, 16.0), 3.0)  # palm hollow: centre (u, v), radii, depth
-EDGE_R = ((45.0, 20.0, 22.0), (95.0, 11.0, 10.0))  # (v, back edge radius, palm edge radius): rounder at the wrist
-COLUMN = ((-6.0, -11.5), 34.5, 2.4, 58.0)  # wrist column on the forearm axis: centre (u, z), radius, exponent, top v
-THENAR = ((-33.0, 79.0, -24.0), 68.0, (17.0, 25.0, 38.0))  # centre, tilt in the u-z plane (along the thumb's
-#                                                            base servo), half-axes (across, along v, along the tilt)
+EDGE_R = ((45.0, 20.0, 22.0), (95.0, 9.0, 9.0))  # (v, back edge radius, palm edge radius): rounder at the wrist
+COLUMN = ((-4.2, -11.5), 25.5, 2.2, 58.0)  # wrist column on the forearm axis: centre (u, z), radius, exponent, top v
+THENAR = ((3.0, -22.0, -0.9), (22.7, 40.0, 28.2), (4.0, 2.6))  # around the thumb's servo pack, in the thumb module's
+#   frame (layout.thumb_frame: u across the two servos, v along the thumb, w radial): centre, half-axes, exponents
+#   (across the module, along it)
+THENAR_Z = (-31.0, 23.5)  # and cut (softly) to this CAD z range: no higher than the back, no deeper than the pack needs
 HYPOTHENAR = ((46.0, 76.0, -10.0), (16.0, 30.0, 16.0))  # centre, half-axes
-BLEND = (16.0, 12.0, 14.0)  # smooth-union radii: column, thenar, hypothenar
+BLEND = (16.0, 20.0, 14.0)  # smooth-union radii: column, thenar, hypothenar
 # panel lines (grooves) on the outside, for a finished, product-like look
 GROOVE_W, GROOVE_D = 1.4, 0.6
 KNUCKLE_BAND = 17.0  # back: a line this far below the knuckle cap marks off a knuckle band
@@ -125,7 +131,9 @@ BOSS_R, HOLE_R, HEAD_R, HOLE_LEN = 3.6, 1.35, 2.5, 3.0  # stock: r1.35 hole 3 mm
 # grip pads (grey TPU inserts in recesses of the palm shell)
 PAD_DEPTH, PAD_PROUD, PAD_GAP, PAD_TEX, PAD_PITCH = 1.0, 0.8, 0.15, 0.4, 1.8  # ribs across the palm, PAD_PITCH apart
 PAD_BORDER = 5.0  # the pad keeps this even border to every edge and opening of the palm-facing surface
+PAD_SMOOTH = 5.0  # mm of smoothing of the pad outline (no wiggles from the surface it is fitted to)
 PAD_V_MIN = 50.0  # and ends above the wrist neck (W y)
+PAD_U_MIN = -52.0  # and stays off the thenar (W x)
 PAD_VOX = 0.25
 
 
@@ -177,7 +185,8 @@ def geom_points_sphere(r, h):
 # ------------------------------------------------------------------ 1. keep-out volumes
 def keepout(n_grid, vox):
     """Voxelised K_enc (enclose), K_free (fingers' moving parts, stay clear) and K_thumb (the
-    thumb's moving parts, stay clear) in the plate frame."""
+    thumb's moving parts, stay clear) in the plate frame. The thumb is swept over the grid poses inside its
+    command envelope only (layout.thumb_command_ok; outside it the thumb would run into the palm)."""
     shape = np.ceil((HI - LO) / vox).astype(int)
     h = V.Hand(V.SIM_DIR / MODEL / "mjcf")
     m, d = h.m, h.d
@@ -207,10 +216,13 @@ def keepout(n_grid, vox):
     mujoco.mj_kinematics(m, d)
     for g in [g for dig in h.digits for g in h.geoms[dig][1]] + h.palm:
         mark(K_enc, g)
-    for q in poses.values():
+    for (a1, a2), q in poses.items():
         d.qpos[:] = q
         mujoco.mj_kinematics(m, d)
+        thumb_ok = LAYOUT.thumb_command_ok(*np.degrees([a1, a2]), side=h.side)
         for dig in h.digits:
+            if dig == "thumb" and not thumb_ok:  # the controller keeps the thumb inside its command envelope
+                continue
             for g in h.geoms[dig][0]:
                 mark(K_enc if depth(m.geom_bodyid[g]) <= 1 else K_thumb if dig == "thumb" else K_free, g)
     return K_enc, K_free, K_thumb
@@ -280,7 +292,8 @@ def vmax(*fields):
 
 
 def knuckle_cap(G):
-    """Top edge of the shells: a smooth curve CAP_BELOW_KNUCKLE under the four finger pivots."""
+    """Top edge of the back shell: a smooth curve KNUCKLE_HOOD past the four finger pivots (the fingers' sweeps cut
+    their slots through it)."""
     root = parse(V.SIM_DIR / MODEL / "mjcf" / "robot.xml").getroot().find("worldbody/body")
     R = np.zeros(9)
     mujoco.mju_quat2Mat(R, PLATE_QUAT)
@@ -289,7 +302,7 @@ def knuckle_cap(G):
         p = get_pose(child_by_name(root, "site", f"closing_1 ({n})_2"))[0]
         piv.append(((p - PLATE_POS) @ R.reshape(3, 3) * 1000)[:2])
     piv = np.array(piv)
-    return np.polyval(np.polyfit(piv[:, 0], piv[:, 1], 2), G.X) - CAP_BELOW_KNUCKLE
+    return np.polyval(np.polyfit(piv[:, 0], piv[:, 1], 2), G.X) + KNUCKLE_HOOD
 
 
 def smoothstep(x, a, b):
@@ -351,10 +364,13 @@ def envelope(G, K_enc):
     # wrist column, thenar, hypothenar
     (cu, cz), cr, cp, cv = COLUMN
     s = smin(s, smax(superellipsoid((U - cu, Z - cz), (cr, cr), cp), V - cv, 14.0), BLEND[0])
-    (tu, tv, tz), tilt, tr = THENAR
-    a = np.radians(tilt)
-    along, across = (U - tu) * np.cos(a) + (Z - tz) * np.sin(a), -(U - tu) * np.sin(a) + (Z - tz) * np.cos(a)
-    s = smin(s, superellipsoid((across, V - tv, along), tr, 2.4), BLEND[1])
+    tc, tr, (tp, tq) = THENAR
+    ax, piv = LAYOUT.thumb_frame()
+    t = [np.abs((G.XX[:, :, None] - piv[0]) * ax[0, k] + (G.YY[:, :, None] - piv[1]) * ax[1, k]
+                + (Z - piv[2]) * ax[2, k] - tc[k]) / tr[k] for k in range(3)]
+    t = (((t[0] ** tp + t[2] ** tp) ** (tq / tp) + t[1] ** tq) ** (1 / tq) - 1) * min(tr)
+    s = smin(s, smax(t, np.maximum(Z - THENAR_Z[1], THENAR_Z[0] - Z), 6.0), BLEND[1])
+    del t
     (hu, hv, hz), hr = HYPOTHENAR
     s = smin(s, superellipsoid((U - hu, V - hv, Z - hz), hr, 2.2), BLEND[2])
     s = np.maximum(s, (G.YY - ycap[:, None] - 12.0)[:, :, None])  # bounded above the cap
@@ -393,7 +409,8 @@ def openings(G, K_free, K_enc, ycap, closing=5.0, free=FREE):
     near_cap = (G.YY > (ycap[:, None] - 4.0))[:, :, None]
     O = G.dist(K_free | (K_enc & near_cap)) <= free
     O = ndi.binary_closing(O, structure=ndi.generate_binary_structure(3, 1), iterations=int(closing / G.vox))
-    return ndi.gaussian_filter(G.sdf(O), 1.0)
+    # smooth edges (OPEN_SMOOTH mm), grown by OPEN_MARGIN so the smoothing never eats into the clearance
+    return ndi.gaussian_filter(G.sdf(O), OPEN_SMOOTH / G.vox) - OPEN_MARGIN
 
 
 # ------------------------------------------------------------------ 4. parts
@@ -414,8 +431,8 @@ def part_fields(G, s_E, s_O, s_top, K_enc_noplate):
     palm_sel = np.minimum(Z - Z_SPLIT, np.maximum(Z - top, s_E - (half - LAP_GAP / 2)))
     palm = np.maximum(wall, palm_sel)
     # palm floor flange on the wrist interface's back face, clamped by the two bottom screws
-    flange = vmax(s_E - (half - LAP_GAP / 2), Z_SPLIT - Z, Z - top, YY - FLANGE_Y, G.below_cut3(), -s_O,
-                  0.3 - G.dist(K_enc_noplate))
+    flange = vmax(s_E - (half - LAP_GAP / 2), Z_SPLIT - Z, Z - top, YY - FLANGE_Y, FLANGE_X - G.XX[:, :, None],
+                  G.below_cut3(), -s_O, CLR - G.dist(K_enc_noplate))
     palm = np.minimum(palm, flange)
     # screw bosses on the back shell, from the plate / flange (or just above the servos) up into the back wall,
     # kept clear of the enclosed parts
@@ -460,18 +477,21 @@ def palm_face(G, s_E, palm):
 def pad_outlines(G, facing, edge):
     """2D signed distance (negative inside) of the grip pad: one large pad over the palm-facing surface,
     PAD_BORDER from every edge and opening (so it runs under the fingers, down the pinky side and around the
-    thumb opening with an even border) and above the wrist neck. (The thenar and hypothenar flanks face
+    thumb opening with an even border), above the wrist neck and off the thenar. (The hypothenar's flank faces
     sideways, too steeply for a pad.)"""
-    mask = facing & (edge > PAD_BORDER) & (G.WY > PAD_V_MIN)
-    r = int(4 / G.vox)  # round the outline (opening with a 4 mm disc), then smooth it
-    mask = ndi.binary_opening(mask, structure=np.hypot(*np.mgrid[-r:r + 1, -r:r + 1]) <= r)
-    mask = (ndi.gaussian_filter(G.sdf(mask), 2.5 / G.vox) < 0) & facing & (edge > PAD_BORDER - 1.5)
+    allowed = facing & (edge > PAD_BORDER) & (G.WY > PAD_V_MIN) & (G.WX > PAD_U_MIN)
+    r = int(4 / G.vox)  # round the outline (opening with a 4 mm disc)
+    mask = ndi.binary_opening(allowed, structure=np.hypot(*np.mgrid[-r:r + 1, -r:r + 1]) <= r)
     lab, n = ndi.label(mask)
     if n > 1:  # keep the biggest piece
         mask = lab == (1 + np.argmax(ndi.sum(mask, lab, range(1, n + 1))))
-    assert mask.sum() * G.vox ** 2 > 1500, "grip pad too small"
-    log(f"grip pad: {mask.sum() * G.vox ** 2 / 100:.0f} cm2 (projected)")
-    return {"Palm": ndi.gaussian_filter(G.sdf(mask), 1.0)}
+    # a smooth outline: the blurred signed distance, shrunk until it lies inside the allowed area
+    d = ndi.gaussian_filter(G.sdf(mask), PAD_SMOOTH / G.vox)
+    d += max(0.0, -d[~allowed].min())
+    area = (d < 0).sum() * G.vox ** 2
+    assert area > 1500, "grip pad too small"
+    log(f"grip pad: {area / 100:.0f} cm2 (projected)")
+    return {"Palm": d}
 
 
 def pad_mesh(G, s_E, p2, name):
@@ -587,7 +607,9 @@ def main():
     G = Grid(K_enc.shape, args.vox)
     s_E, ycap, _ = envelope(G, K_enc)
     s_F = openings(G, K_free, K_enc, ycap)  # the four fingers
-    s_O = np.minimum(s_F, openings(G, K_thumb, np.zeros_like(K_enc), ycap, closing=3.0, free=THUMB_FREE))  # + thumb
+    piv = LAYOUT.thumb_frame()[1]
+    root = ((G.XX - piv[0]) ** 2 + (G.YY - piv[1]) ** 2)[:, :, None] + (G.Z[None, None, :] - piv[2]) ** 2 < THUMB_ROOT_R ** 2
+    s_O = np.minimum(s_F, openings(G, K_thumb & root, np.zeros_like(K_enc), ycap, closing=3.0, free=THUMB_FREE))  # + thumb
     s_top, ypalm = top_cut(G, s_E, s_F, ycap)
     back_f, palm_f = part_fields(G, s_E, s_O, s_top, K_enc & ~K_plate)
     facing, edge = palm_face(G, s_E, palm_f)

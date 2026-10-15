@@ -22,23 +22,23 @@
         <light pos="0.6 0.6 0.6" dir="-1 -1 -1" diffuse="0.35 0.35 0.35" />
         <geom name="floor" size="0 0 0.05" pos="0 0 -0.2710" type="plane" material="groundplane" />
 
-        <body name="finger1_target" pos="0.0557001719 0.0159792622 0.119593744" quat="0.68377475 -0.180144584 0.295795319 -0.642265637" mocap="true">
+        <body name="finger1_target" pos="0.0595590397 0.0165295984 0.116462726" quat="0.683775935 -0.180140093 0.295790867 -0.642267687" mocap="true">
           <geom type="sphere" size=".01" contype="0" conaffinity="0" rgba="1 0. 0. .2"/>
         </body>
 
-        <body name="finger2_target" pos="0.0557001142 -0.0135241656 0.114157549" quat="0.68377097 -0.180158933 0.295808022 -0.642259787" mocap="true">
+        <body name="finger2_target" pos="0.0595588524 -0.0129738059 0.111026375" quat="0.683772154 -0.180154443 0.29580357 -0.642261836" mocap="true">
           <geom type="sphere" size=".01" contype="0" conaffinity="0" rgba="1 0. 0. .2"/>
         </body>
 
-        <body name="finger3_target" pos="0.0557001078 -0.0421178616 0.103813184" quat="0.683770452 -0.180160898 0.295808924 -0.642259372" mocap="true">
+        <body name="finger3_target" pos="0.0595588324 -0.0415675037 0.100681993" quat="0.683771636 -0.180156407 0.295804472 -0.642261421" mocap="true">
           <geom type="sphere" size=".01" contype="0" conaffinity="0" rgba="1 0. 0. .2"/>
         </body>
 
-        <body name="finger4_target" pos="0.0811900898 0.0443377475 0.0895819809" quat="0.961321865 -0.0375346245 0.215357598 0.167548585" mocap="true">
+        <body name="finger4_target" pos="0.0437344259 -0.00623117106 0.0974686797" quat="0.683960381 0.525873218 -0.0909192049 0.497382402" mocap="true">
           <geom type="sphere" size=".01" contype="0" conaffinity="0" rgba="1 0. 0. .2"/>
         </body>
 
-        <body name="finger5_target" pos="0.0475864911 -0.0694974762 0.08679518" quat="0.686261094 -0.170427974 0.286650258 -0.646398984" mocap="true">
+        <body name="finger5_target" pos="0.0510602962 -0.0690300489 0.0841357103" quat="0.686261825 -0.170425035 0.286647333 -0.64640028" mocap="true">
           <geom type="sphere" size=".01" contype="0" conaffinity="0" rgba="1 0. 0. .2"/>
         </body>
 

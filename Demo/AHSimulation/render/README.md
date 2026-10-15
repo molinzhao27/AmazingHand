@@ -33,7 +33,7 @@ From the repository root:
 ```
 
 `export_pose.py --list-poses` lists the named poses (`ultimate_finger/data/hand_poses.json` over `DEMO_POSES_5F`);
-`--digit thumb=-12,12` overrides one digit's (m1, m2) command in degrees.
+`--digit thumb=-30,52` overrides one digit's (m1, m2) command in degrees.
 
 ## Time per shot (Apple M5 Pro, 20-core GPU)
 

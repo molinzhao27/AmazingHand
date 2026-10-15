@@ -18,7 +18,7 @@ import numpy as np
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-from verify_5f_model import SIM_DIR, Group, Hand, fmt_pose, geom_label, group_distance, log, posed, settle_grid  # noqa: E402
+from verify_5f_model import LAYOUT, SIM_DIR, Group, Hand, fmt_pose, geom_label, group_distance, log, posed, settle_grid  # noqa: E402
 
 REPO = HERE.parent.parent.parent
 def shells(kind, side="R"):
@@ -82,6 +82,14 @@ def main():
             log(f"  {dig:<6} vs {n:<10} min {res[i][0] * 1e3:5.2f} mm at {fmt_pose(keys[i])}"
                 + (f" [{geom_label(h, res[i][1][0])}]" if res[i][1] else "")
                 + f"; touching at {len(hits)}/{len(res)} poses" + (f": {', '.join(fmt_pose(k) for k in hits[:8])}" if hits else ""))
+            if dig == "thumb":  # the controller keeps the thumb inside its command envelope (cad/five_finger/layout.py)
+                inside = [k for k, key in enumerate(keys) if LAYOUT.thumb_command_ok(*np.degrees(key), side=h.side)]
+                if inside and len(inside) < len(keys):
+                    j = min(inside, key=lambda k: res[k][0])
+                    hits = [keys[k] for k in inside if res[k][0] < touch]
+                    log(f"         inside its command envelope ({len(inside)} poses): min {res[j][0] * 1e3:5.2f} mm at "
+                        f"{fmt_pose(keys[j])}" + (f" [{geom_label(h, res[j][1][0])}]" if res[j][1] else "")
+                        + f"; touching at {len(hits)}" + (f": {', '.join(fmt_pose(k) for k in hits[:8])}" if hits else ""))
 
 
 if __name__ == "__main__":

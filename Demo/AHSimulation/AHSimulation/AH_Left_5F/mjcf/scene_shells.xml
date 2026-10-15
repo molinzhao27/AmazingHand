@@ -33,7 +33,7 @@
           <geom type="sphere" size=".01" contype="0" conaffinity="0" rgba="1 0. 0. .2"/>
         </body>
 
-        <body name="finger4_target" pos="0.08151079 -0.04344162  0.08958596" quat="0.96066438  0.03837579  0.21515213 -0.17134994" mocap="true">
+        <body name="finger4_target" pos="0.0308679 0.016717 0.0900054" quat="0.654391 -0.562331 -0.233941 -0.448138" mocap="true">
           <geom type="sphere" size=".01" contype="0" conaffinity="0" rgba="1 0. 0. .2"/>
         </body>
 

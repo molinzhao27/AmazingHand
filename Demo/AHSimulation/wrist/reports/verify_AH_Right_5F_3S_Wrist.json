@@ -1,10 +1,10 @@
 {
- "moving_mass_g": 530.377545,
- "hand_mass_g": 466.33406500000007,
+ "moving_mass_g": 510.36158499999993,
+ "hand_mass_g": 467.43610500000005,
  "stability": {
   "alone_OpenHand": {
    "time": 15.0,
-   "vmax": 1.138066,
+   "vmax": 1.137938,
    "rod_err": 2.3e-05,
    "rod_err_settled": 2.3e-05,
    "finger_err": 4e-06,
@@ -12,23 +12,23 @@
   },
   "corners_OpenHand": {
    "time": 12.0,
-   "vmax": 4.991511,
-   "rod_err": 6.5e-05,
+   "vmax": 5.009431,
+   "rod_err": 6.4e-05,
    "rod_err_settled": 3.9e-05,
    "finger_err": 4e-06,
    "warnings": {}
   },
   "rom_OpenHand": {
    "time": 25.2,
-   "vmax": 1.573099,
+   "vmax": 1.573556,
    "rod_err": 5e-06,
-   "rod_err_settled": 4e-06,
+   "rod_err_settled": 3e-06,
    "finger_err": 4e-06,
    "warnings": {}
   },
   "alone_CloseHand": {
    "time": 15.0,
-   "vmax": 1.13226,
+   "vmax": 1.131966,
    "rod_err": 2.3e-05,
    "rod_err_settled": 2.3e-05,
    "finger_err": 1.2e-05,
@@ -36,26 +36,26 @@
   },
   "corners_CloseHand": {
    "time": 12.0,
-   "vmax": 4.942411,
-   "rod_err": 6.3e-05,
+   "vmax": 4.956024,
+   "rod_err": 6.4e-05,
    "rod_err_settled": 3.9e-05,
    "finger_err": 1.2e-05,
    "warnings": {}
   },
   "rom_CloseHand": {
    "time": 25.2,
-   "vmax": 1.562526,
-   "rod_err": 5e-06,
+   "vmax": 1.5625,
+   "rod_err": 4e-06,
    "rod_err_settled": 3e-06,
    "finger_err": 1.2e-05,
    "warnings": {}
   },
   "random": {
    "time": 36.0,
-   "vmax": 90.934481,
-   "rod_err": 6.7e-05,
-   "rod_err_settled": 3e-05,
-   "finger_err": 0.0012,
+   "vmax": 90.93454,
+   "rod_err": 6.6e-05,
+   "rod_err_settled": 2.3e-05,
+   "finger_err": 0.001195,
    "warnings": {}
   }
  },
@@ -72,8 +72,8 @@
  "rom": {
   "rectangle_reachable": true,
   "servo_max_deg": 54.9,
-  "open_loop_err_max_deg": 3.53,
-  "closed_loop_err_max_deg": 0.08,
+  "open_loop_err_max_deg": 3.6,
+  "closed_loop_err_max_deg": 0.09,
   "linkage_flex": [
    -70,
    70
@@ -84,22 +84,22 @@
   ]
  },
  "static_worst_hand": {
-  "torque": 0.624,
+  "torque": 0.631,
   "where": "('forearm horizontal, thumb up', (-60.0, -15.0))"
  },
  "static_worst_payload": {
-  "torque": 1.167,
+  "torque": 1.206,
   "where": "('forearm horizontal, thumb up', (-60.0, -15.0))"
  },
- "static_neutral_hand": 0.308,
- "static_neutral_payload": 0.591,
+ "static_neutral_hand": 0.306,
+ "static_neutral_payload": 0.589,
  "inertia_hand": [
-  0.0069010486304562895,
-  0.007133413134655011
+  0.006771317911371566,
+  0.007339761135080546
  ],
  "inertia_payload": [
-  0.017197996754184156,
-  0.017429598606057188
+  0.01706818350205899,
+  0.017635946606482725
  ],
  "clearance_rom_min_mm": {
   "hand (+ shells, pads) / forearm (shells, fork, frame, servos)": null,
@@ -130,11 +130,11 @@
   "horn arm 2 / servo 1": null
  },
  "clearance_stops_min_mm": {
-  "hand (+ shells, pads) / forearm (shells, fork, frame, servos)": 3.55,
+  "hand (+ shells, pads) / forearm (shells, fork, frame, servos)": null,
   "hand (+ shells, pads) / gimbal ring": null,
   "hand (+ shells, pads) / rod 1 (links + rod)": null,
   "hand (+ shells, pads) / rod 2 (links + rod)": null,
-  "hand adapter / forearm (shells, fork, frame, servos)": 0.05,
+  "hand adapter / forearm (shells, fork, frame, servos)": 0.09,
   "adapter studs / forearm (shells, fork, frame, servos)": 1.43,
   "hand adapter / gimbal ring": 0.74,
   "gimbal ring / fork": 0.73,
