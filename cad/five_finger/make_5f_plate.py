@@ -96,6 +96,10 @@ import cadquery as cq
 import mujoco
 import numpy as np
 import shapely
+from OCP.BRepMesh import BRepMesh_IncrementalMesh
+from OCP.BRepTools import BRepTools
+from OCP.IMeshTools import IMeshTools_Parameters
+from OCP.StlAPI import StlAPI_Writer
 from shapely.geometry import Point, Polygon, box
 
 HERE = Path(__file__).resolve().parent
@@ -1278,11 +1282,24 @@ def mirror(shape):
     return shape.mirror("YZ", cq.Vector(MIRROR_X, 0, 0))
 
 
+def export_stl(shape, path, tol=0.01, ang=0.1, min_size=0.1):
+    """Binary STL within `tol` mm of the B-rep: an absolute chordal deflection (cq.exporters.export scales it by each
+    face's size), as cad/five_finger/wrist/make_wrist.py."""
+    p = IMeshTools_Parameters()
+    p.Deflection, p.Angle, p.MinSize, p.Relative, p.InParallel = tol, ang, min_size, False, True
+    BRepTools.Clean_s(shape.wrapped)
+    BRepMesh_IncrementalMesh(shape.wrapped, p)
+    w = StlAPI_Writer()
+    w.ASCIIMode = False
+    if not w.Write(shape.wrapped, str(path)):
+        raise RuntimeError(f"STL export failed: {path}")
+
+
 def export(shape, step, stl):
     step.parent.mkdir(parents=True, exist_ok=True)
     stl.parent.mkdir(parents=True, exist_ok=True)
     cq.exporters.export(cq.Workplane().add(shape), str(step))
-    cq.exporters.export(cq.Workplane().add(shape), str(stl), tolerance=0.02, angularTolerance=0.15)
+    export_stl(shape, stl)
     print(f"wrote {step.relative_to(REPO)}, {stl.relative_to(REPO)}")
 
 

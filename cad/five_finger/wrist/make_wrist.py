@@ -22,6 +22,10 @@ from pathlib import Path
 import cadquery as cq
 import numpy as np
 import trimesh
+from OCP.BRepMesh import BRepMesh_IncrementalMesh
+from OCP.BRepTools import BRepTools
+from OCP.IMeshTools import IMeshTools_Parameters
+from OCP.StlAPI import StlAPI_Writer
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
@@ -33,11 +37,26 @@ V = cq.Vector
 STEP_DIR, STL_DIR, REF_DIR, PREV_DIR = HERE / "step", HERE / "stl", HERE / "stl" / "ref", HERE / "previews"
 STOCK_INTERFACE = HERE.parent.parent / "step" / "Amazing Hand Parts - R-Wrist_Interface.step"   # replaced by the adapter
 PLA_DENSITY = 1.00            # g/cm3, wrist parts printed with 3-4 walls and ~25 % infill
-STL_TOL, STL_ANG = 0.04, 0.15
+# STL tessellation: absolute chordal deflection (mm) and angle (rad). cq.exporters.export scales the deflection by each
+# face's size, which left the forearm shells faceted by up to 0.84 mm. MinSize 0.1 mm: with OCC's default (a tenth of
+# the deflection) the mesher leaves a few under-refined patches (~0.04 mm) on the shells' many-knot loft skin.
+STL_TOL, STL_ANG, STL_MIN = 0.01, 0.1, 0.1
 
 
 def log(*a):
     print(*a, flush=True)
+
+
+def export_stl(shape, path):
+    """Binary STL of a cq.Shape within STL_TOL mm of its B-rep (absolute deflection, unlike cq.exporters.export)."""
+    p = IMeshTools_Parameters()
+    p.Deflection, p.Angle, p.MinSize, p.Relative, p.InParallel = STL_TOL, STL_ANG, STL_MIN, False, True
+    BRepTools.Clean_s(shape.wrapped)
+    BRepMesh_IncrementalMesh(shape.wrapped, p)
+    w = StlAPI_Writer()
+    w.ASCIIMode = False
+    if not w.Write(shape.wrapped, str(path)):
+        raise RuntimeError(f"STL export failed: {path}")
 
 
 # ============================================================================ primitives (W frame, mm)
@@ -780,7 +799,7 @@ def export(shape, name, folder_step=STEP_DIR, folder_stl=STL_DIR):
     s = w_to_cad(shape)
     if folder_step is not None:
         cq.exporters.export(s, str(folder_step / f"{name}.step"))
-    cq.exporters.export(s, str(folder_stl / f"{name}.stl"), tolerance=STL_TOL, angularTolerance=STL_ANG)
+    export_stl(s, folder_stl / f"{name}.stl")
     return s
 
 
@@ -820,7 +839,7 @@ def main():
         lname = "L-" + name[2:]
         m = w_to_cad(parts[name]).mirror("YZ", (-50.0, 0, 0))
         cq.exporters.export(m, str(STEP_DIR / f"{lname}.step"))
-        cq.exporters.export(m, str(STL_DIR / f"{lname}.stl"), tolerance=STL_TOL, angularTolerance=STL_ANG)
+        export_stl(m, STL_DIR / f"{lname}.stl")
         table[lname] = dict(volume_cm3=table[name]["volume_cm3"], mass_g=table[name]["mass_g"], solids=len(m.Solids()),
                             valid=bool(m.isValid()), mirror_of=name, print=PRINT_NOTE[name])
     # the adapter split for the sim: its interface plate (CAD y >= MOUNT_Y) is the hand models' root mesh in place of
@@ -828,10 +847,9 @@ def main():
     ad = w_to_cad(parts["R-Wrist_Hand_Adapter"])
     for piece, sel in (("palm", box(-200, 200, wd.MOUNT_Y, 0, -200, 200)), ("neck", box(-200, 200, -400, wd.MOUNT_Y, -200, 200))):
         sh = ad.intersect(sel)
-        cq.exporters.export(sh, str(REF_DIR / f"R-Wrist_Hand_Adapter_{piece}.stl"), tolerance=STL_TOL, angularTolerance=STL_ANG)
+        export_stl(sh, REF_DIR / f"R-Wrist_Hand_Adapter_{piece}.stl")
         if piece == "palm":
-            cq.exporters.export(sh.mirror("YZ", (-50.0, 0, 0)), str(REF_DIR / "L-Wrist_Hand_Adapter_palm.stl"),
-                                tolerance=STL_TOL, angularTolerance=STL_ANG)
+            export_stl(sh.mirror("YZ", (-50.0, 0, 0)), REF_DIR / "L-Wrist_Hand_Adapter_palm.stl")
     # instance of the arm on servo 2 (same part, rotated) for the checks / sim
     arm2 = rot_z180(parts["Wrist_Horn_Arm"], Y_PAIR)
     export(arm2, "Wrist_Horn_Arm_motor2_placed", None, REF_DIR)
