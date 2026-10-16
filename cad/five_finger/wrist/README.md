@@ -26,7 +26,7 @@ Everything was designed in CadQuery, assembled in MuJoCo and checked there. **No
 | Reports and renders | [reports/](../../../Demo/AHSimulation/wrist/reports/), [renders/](../../../Demo/AHSimulation/wrist/renders/) |
 | Control code: AHControl patch + TOML, Python demo | [control/](../../../Demo/AHSimulation/wrist/control/) |
 
-The STEP/STL files are in mm, in the hand's CAD part-studio frame (x from index to pinky, y along the fingers, z towards the back), at the neutral wrist pose. In that frame the forearm parts are turned 10.5° about z (see [Hand on the forearm](#hand-on-the-forearm)). Each part prints as exported, in the orientation listed under [Printing](#printing). The `L-*` files are the left-hand versions: the `R-*` parts mirrored about x = −50 mm, the same rule that maps the stock R parts onto the L parts. The ring, horn arm and elbow flange are their own mirror images. There is no left-hand sim model.
+The STEP/STL files are in mm, in the hand's CAD part-studio frame (x from index to pinky, y along the fingers, z towards the back), at the neutral wrist pose. In that frame the forearm parts are turned 10.5° about z (see [Hand on the forearm](#hand-on-the-forearm)). Each part prints as exported, in the orientation listed under [Printing](#printing). The `L-*` files are the left-hand versions: the `R-*` parts mirrored about x = −50 mm, the same rule that maps the stock R parts onto the L parts. The ring, horn arm and elbow flange are their own mirror images. There is no left-hand sim model. The STLs are meshed with an absolute 0.01 mm chordal deflection (`make_wrist.export_stl`), so every one is within 0.02 mm of its STEP and can be printed as is.
 
 ## View it
 
@@ -40,7 +40,7 @@ In the viewer, `wrist_motor1` / `wrist_motor2` (the last two sliders) are servo 
 Regenerate everything (from the repo root, after the 5F steps in [FIVE_FINGER.md](../../../FIVE_FINGER.md)):
 
 ```bash
-.venv/bin/python cad/five_finger/wrist/make_wrist.py                     # CAD + checks  (~30 s)
+.venv/bin/python cad/five_finger/wrist/make_wrist.py                     # CAD + checks  (~70 s)
 .venv/bin/python cad/five_finger/make_5f_shells.py                       # palm shells   (~2 min; they fit the adapter and the wrist cut)
 .venv/bin/python Demo/AHSimulation/five_finger/build_5f_model.py          # copies the shells and the adapter's interface plate into AH_Right_5F
 .venv/bin/python Demo/AHSimulation/five_finger/build_5f_model.py --side left   # ... and into AH_Left_5F
@@ -263,13 +263,13 @@ Results from `make_wrist.py`:
 - Every part is one valid, watertight solid.
 - At the 1st percentile, local wall thickness is ≥ 1.25 mm on every part, and < 1 % of the surface samples are under 1.2 mm (edges and chamfers). The forearm skin itself is ≥ 2.5 mm everywhere (the CAD distance between skin and cavity is ≥ 2.53 mm).
 - Overhangs > 45°, in mm², and horizontal ceilings (short bridges):
-  - forearm front: 101 and 54. The overhangs are the roofs of the four teardrop spot faces (exactly 45°) and the tops of the countersinks;
-  - forearm back: 34 and 50;
-  - fork: 69 and 11;
-  - servo frame: 25 and 178 (the chamfer trimmed the ~47° undersides of the side blocks, which were 242);
-  - elbow flange: 211 and 96. The overhang is the 1 mm × 45° chamfer round the bottom edge, which is the first layer;
-  - hand adapter: 375 and 19 (386 with the stock thumb seat, whose servo pocket floors were the ceilings; 603 and 821 for the Ø56 one). The overhang is the lever block's underside behind the gimbal (≈ 160 mm², carried by the gussets) and the cone roof of the neck's cavity (≈ 170 mm², exactly 45°);
-  - ring: 53 and 12.
+  - forearm front: 101 and 55. The overhangs are the roofs of the four teardrop spot faces (exactly 45°) and the tops of the countersinks;
+  - forearm back: 32 and 51;
+  - fork: 67 and 12;
+  - servo frame: 24 and 178 (the chamfer trimmed the ~47° undersides of the side blocks, which were 242);
+  - elbow flange: 296 and 96. The overhang is the 1 mm × 45° chamfer round the bottom edge, which is the first layer;
+  - hand adapter: 365 and 18 (386 with the stock thumb seat, whose servo pocket floors were the ceilings; 603 and 821 for the Ø56 one). The overhang is the lever block's underside behind the gimbal (≈ 160 mm², carried by the gussets) and the cone roof of the neck's cavity (≈ 170 mm², exactly 45°);
+  - ring: 58 and 13.
 
   The inner pads, ribs and struts of the shells have ≥ 50° undersides. The ceilings are the webs under the cap-screw bosses and the tops of the blind insert holes and counterbores. Each part's report is in [previews/cad_checks.txt](previews/cad_checks.txt).
 
@@ -281,13 +281,13 @@ Results from `make_wrist.py`:
 | Wrist_Gimbal_Ring | 1.6 | flat | PETG |
 | R-Wrist_Fork | 25.7 | cap face down, fork up; teardrop bearing seats | PETG |
 | R-Forearm_Front | 60.2 | standing on the elbow end | PLA |
-| R-Forearm_Back | 71.7 | standing on the elbow end | PLA |
+| R-Forearm_Back | 71.9 | standing on the elbow end | PLA |
 | R-Wrist_Servo_Frame | 28.3 | base down | PLA |
 | Wrist_Horn_Arm ×2 | 2 × 2.4 | flat, stud face down | PETG |
-| Elbow_Flange | 61.8 | flat | PLA |
+| Elbow_Flange | 61.9 | flat | PLA |
 | **Total** | **≈ 306 g** | | |
 
-The forearm parts (fork, both shells, flange) weigh 219 g: 264 g for the first restyle, 239 g for the old rounded box. The adapter includes the interface plate (20.5 g) and replaces the stock wrist interface (26.4 g), so the printed parts add ≈ 280 g to the hand.
+The forearm parts (fork, both shells, flange) weigh 220 g: 264 g for the first restyle, 239 g for the old rounded box. The adapter includes the interface plate (20.5 g) and replaces the stock wrist interface (26.4 g), so the printed parts add ≈ 280 g to the hand.
 
 PLA works for every part. I suggest PETG for the four gimbal and linkage parts because they carry sustained loads (creep).
 

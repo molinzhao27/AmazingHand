@@ -1,10 +1,10 @@
 {
- "moving_mass_g": 541.9260399999998,
- "hand_mass_g": 499.00056000000006,
+ "moving_mass_g": 541.9322199999999,
+ "hand_mass_g": 499.0035600000001,
  "stability": {
   "alone_OpenHand": {
    "time": 15.0,
-   "vmax": 1.144949,
+   "vmax": 1.14495,
    "rod_err": 2.3e-05,
    "rod_err_settled": 2.3e-05,
    "finger_err": 4e-06,
@@ -12,7 +12,7 @@
   },
   "corners_OpenHand": {
    "time": 12.0,
-   "vmax": 5.063599,
+   "vmax": 5.063603,
    "rod_err": 6.5e-05,
    "rod_err_settled": 3.9e-05,
    "finger_err": 4e-06,
@@ -20,7 +20,7 @@
   },
   "rom_OpenHand": {
    "time": 25.2,
-   "vmax": 1.584756,
+   "vmax": 1.584757,
    "rod_err": 6e-06,
    "rod_err_settled": 4e-06,
    "finger_err": 4e-06,
@@ -36,7 +36,7 @@
   },
   "corners_CloseHand": {
    "time": 12.0,
-   "vmax": 5.024646,
+   "vmax": 5.02465,
    "rod_err": 6.6e-05,
    "rod_err_settled": 3.9e-05,
    "finger_err": 8e-06,
@@ -44,7 +44,7 @@
   },
   "rom_CloseHand": {
    "time": 25.2,
-   "vmax": 1.57564,
+   "vmax": 1.575641,
    "rod_err": 5e-06,
    "rod_err_settled": 4e-06,
    "finger_err": 8e-06,
@@ -52,7 +52,7 @@
   },
   "random": {
    "time": 36.0,
-   "vmax": 90.964782,
+   "vmax": 90.964781,
    "rod_err": 7.1e-05,
    "rod_err_settled": 2.3e-05,
    "finger_err": 0.000843,
@@ -94,12 +94,12 @@
  "static_neutral_hand": 0.342,
  "static_neutral_payload": 0.623,
  "inertia_hand": [
-  0.008059564475158017,
-  0.008679839317470163
+  0.008059634360505698,
+  0.008679912663317225
  ],
  "inertia_payload": [
-  0.01835642974329197,
-  0.018976024788872344
+  0.018356499625123614,
+  0.018976098134719406
  ],
  "clearance_rom_min_mm": {
   "hand (+ shells, pads) / forearm (shells, fork, frame, servos)": null,
@@ -136,12 +136,12 @@
   "hand (+ shells, pads) / rod 2 (links + rod)": null,
   "hand adapter / forearm (shells, fork, frame, servos)": 0.09,
   "adapter studs / forearm (shells, fork, frame, servos)": 1.43,
-  "hand adapter / gimbal ring": 0.74,
+  "hand adapter / gimbal ring": 0.73,
   "gimbal ring / fork": 0.73,
-  "rod 1 (links + rod) / forearm w/o servos": 0.08,
-  "rod 2 (links + rod) / forearm w/o servos": 0.12,
+  "rod 1 (links + rod) / forearm w/o servos": 0.1,
+  "rod 2 (links + rod) / forearm w/o servos": 0.09,
   "rod 1 (links + rod) / servo 1": 0.02,
-  "rod 2 (links + rod) / servo 2": 0.06,
+  "rod 2 (links + rod) / servo 2": 0.05,
   "rod 1 (links + rod) / servo 2": null,
   "rod 2 (links + rod) / servo 1": null,
   "rod 1 (links + rod) / hand adapter": 0.21,

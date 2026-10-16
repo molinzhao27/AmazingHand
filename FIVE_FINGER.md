@@ -36,7 +36,7 @@ With the new palm/back shells and grip pads on (`scene_shells.xml`; swap `Right`
 To set up the environment and regenerate everything, run these from the repo root:
 
 ```bash
-uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python mujoco scipy pillow cadquery matplotlib scikit-image trimesh manifold3d fast-simplification
+uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python mujoco scipy pillow cadquery matplotlib scikit-image trimesh manifold3d fast-simplification shapely rtree
 .venv/bin/python cad/five_finger/wrist/make_wrist.py                       # the shells fit the wrist's hand adapter
 .venv/bin/python cad/five_finger/make_5f_plate.py
 .venv/bin/python Demo/AHSimulation/five_finger/build_5f_model.py --keyframe

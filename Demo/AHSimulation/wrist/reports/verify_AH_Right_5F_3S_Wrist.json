@@ -1,6 +1,6 @@
 {
- "moving_mass_g": 510.36158499999993,
- "hand_mass_g": 467.43610500000005,
+ "moving_mass_g": 510.36876499999994,
+ "hand_mass_g": 467.4401050000001,
  "stability": {
   "alone_OpenHand": {
    "time": 15.0,
@@ -12,7 +12,7 @@
   },
   "corners_OpenHand": {
    "time": 12.0,
-   "vmax": 5.009431,
+   "vmax": 5.009437,
    "rod_err": 6.4e-05,
    "rod_err_settled": 3.9e-05,
    "finger_err": 4e-06,
@@ -20,7 +20,7 @@
   },
   "rom_OpenHand": {
    "time": 25.2,
-   "vmax": 1.573556,
+   "vmax": 1.573557,
    "rod_err": 5e-06,
    "rod_err_settled": 3e-06,
    "finger_err": 4e-06,
@@ -36,7 +36,7 @@
   },
   "corners_CloseHand": {
    "time": 12.0,
-   "vmax": 4.956024,
+   "vmax": 4.956029,
    "rod_err": 6.4e-05,
    "rod_err_settled": 3.9e-05,
    "finger_err": 1.2e-05,
@@ -44,7 +44,7 @@
   },
   "rom_CloseHand": {
    "time": 25.2,
-   "vmax": 1.5625,
+   "vmax": 1.562501,
    "rod_err": 4e-06,
    "rod_err_settled": 3e-06,
    "finger_err": 1.2e-05,
@@ -94,12 +94,12 @@
  "static_neutral_hand": 0.306,
  "static_neutral_payload": 0.589,
  "inertia_hand": [
-  0.006771317911371566,
-  0.007339761135080546
+  0.0067713984621236255,
+  0.007339846160023233
  ],
  "inertia_payload": [
-  0.01706818350205899,
-  0.017635946606482725
+  0.017068264049299738,
+  0.01763603163142542
  ],
  "clearance_rom_min_mm": {
   "hand (+ shells, pads) / forearm (shells, fork, frame, servos)": null,
@@ -136,12 +136,12 @@
   "hand (+ shells, pads) / rod 2 (links + rod)": null,
   "hand adapter / forearm (shells, fork, frame, servos)": 0.09,
   "adapter studs / forearm (shells, fork, frame, servos)": 1.43,
-  "hand adapter / gimbal ring": 0.74,
+  "hand adapter / gimbal ring": 0.73,
   "gimbal ring / fork": 0.73,
-  "rod 1 (links + rod) / forearm w/o servos": 0.08,
-  "rod 2 (links + rod) / forearm w/o servos": 0.12,
+  "rod 1 (links + rod) / forearm w/o servos": 0.1,
+  "rod 2 (links + rod) / forearm w/o servos": 0.09,
   "rod 1 (links + rod) / servo 1": 0.02,
-  "rod 2 (links + rod) / servo 2": 0.06,
+  "rod 2 (links + rod) / servo 2": 0.05,
   "rod 1 (links + rod) / servo 2": null,
   "rod 2 (links + rod) / servo 1": null,
   "rod 1 (links + rod) / hand adapter": 0.21,
