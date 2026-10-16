@@ -7,14 +7,14 @@ Frame: the hand's CAD frame (the palm plate's, as every part in cad/), mm: x ind
 AH_Right_5F_3S_Wrist_assembly.step: 98 parts as B-rep (STEP of the part, or the solid it is built from), in sub-assemblies palm, index, middle, ring, pinky, thumb, wrist.
   re-imported: 98 parts, names all match, vertices within 9.8e-11 mm of where they were put, volumes within 2.8e-06 (relative).
 AH_Right_5F_3S_Wrist_assembly.3mf: all 255 parts as meshes (the sim meshes, 91 distinct), same names and frame.
-  re-imported: 255 parts; every sim vertex within 1.1e-05 mm of its part's vertices.
+  re-imported: 255 parts; every sim vertex within 1.2e-05 mm of its part's vertices.
 
 Placement check (B-rep parts): sim -> CAD = distance of the sim mesh's world vertices to the placed B-rep surface, tessellated to 0.002 mm (max / 99th percentile, limit 0.05 mm); CAD -> sim = the B-rep's surface to the sim mesh (max, limit 1.0 mm): mostly the sim STL's own chordal error (the cad/ STLs are exported with cadquery's relative tolerance), it would catch a STEP feature that the STL lacks.
 Mesh parts: the file placed by its 3MF transform vs the sim's world vertices: <= 4.2e-06 mm.
 Result: every B-rep part is in place.
 
 part                                       in    source                                                              sim->CAD max/p99  CAD->sim
-R-Hand_Plate_5F                            STEP  cad/five_finger/step/R-Hand_Plate_5F.step                            0.0036 / 0.0008    0.0548
+R-Hand_Plate_5F                            STEP  cad/five_finger/step/R-Hand_Plate_5F.step                            0.0037 / 0.0009    0.0177
 R-Palm_Pad_Palm_5F                         3MF   cad/five_finger/stl/R-Palm_Pad_Palm_5F.stl                         
 R-Palm_Shell_5F                            3MF   cad/five_finger/stl/R-Palm_Shell_5F.stl                            
 R-Top_Shell_5F                             3MF   cad/five_finger/stl/R-Top_Shell_5F.stl                             
@@ -240,35 +240,35 @@ thumb_Servo_Horn_M2                        3MF   Demo/AHSimulation/AHSimulation/
 thumb_Spacer_M1                            STEP  cad/step/BallJoint_Rod - Spacer.step (ICP onto the sim STL)          0.0002 / 0.0002    0.0019
 thumb_Spacer_M2                            STEP  cad/step/BallJoint_Rod - Spacer.step (ICP onto the sim STL)          0.0002 / 0.0002    0.0019
 thumb_Washer_M2.5                          3MF   Demo/AHSimulation/AHSimulation/AH_Right_5F_3S_Wrist/mjcf/assets/plain_washer_large_grade_a_m2_5__9a369f0dc77bf9c598cdf3fb468977e5.stl (m) 
-Elbow_Flange                               STEP  cad/five_finger/wrist/step/Elbow_Flange.step                         0.0146 / 0.0009    0.2810
-R-Forearm_Back                             STEP  cad/five_finger/wrist/step/R-Forearm_Back.step                       0.0032 / 0.0017    0.8408
-R-Forearm_Front                            STEP  cad/five_finger/wrist/step/R-Forearm_Front.step                      0.0148 / 0.0014    0.6861
-R-Wrist_Fork                               STEP  cad/five_finger/wrist/step/R-Wrist_Fork.step                         0.0028 / 0.0013    0.0991
-R-Wrist_Hand_Adapter                       STEP  cad/five_finger/wrist/step/R-Wrist_Hand_Adapter.step                 0.0023 / 0.0010    0.1029
-R-Wrist_Servo_Frame                        STEP  cad/five_finger/wrist/step/R-Wrist_Servo_Frame.step                  0.0000 / 0.0000    0.0013
-Wrist_Gimbal_Ring                          STEP  cad/five_finger/wrist/step/Wrist_Gimbal_Ring.step                    0.0040 / 0.0011    0.0065
-Wrist_Horn_Arm_1                           STEP  cad/five_finger/wrist/step/Wrist_Horn_Arm.step                       0.0010 / 0.0010    0.0086
-Wrist_Horn_Arm_2                           STEP  cad/five_finger/wrist/step/Wrist_Horn_Arm.step (ICP onto the sim STL)   0.0009 / 0.0008    0.0087
-wrist_F683ZZ_+x                            STEP  cad/five_finger/wrist/make_wrist.py                                  0.0000 / 0.0000    0.0025
-wrist_F683ZZ_+z                            STEP  cad/five_finger/wrist/make_wrist.py                                  0.0000 / 0.0000    0.0025
-wrist_F683ZZ_-x                            STEP  cad/five_finger/wrist/make_wrist.py                                  0.0000 / 0.0000    0.0025
-wrist_F683ZZ_-z                            STEP  cad/five_finger/wrist/make_wrist.py                                  0.0000 / 0.0000    0.0025
-wrist_STS3215_motor1                       STEP  cad/five_finger/wrist/make_wrist.py                                  0.0000 / 0.0000    0.0075
-wrist_STS3215_motor2                       STEP  cad/five_finger/wrist/make_wrist.py                                  0.0000 / 0.0000    0.0075
-wrist_link_bot_1                           STEP  cad/five_finger/wrist/make_wrist.py                                  0.0034 / 0.0001    0.0030
-wrist_link_bot_2                           STEP  cad/five_finger/wrist/make_wrist.py                                  0.0034 / 0.0001    0.0030
-wrist_link_top_1                           STEP  cad/five_finger/wrist/make_wrist.py                                  0.0034 / 0.0001    0.0030
-wrist_link_top_2                           STEP  cad/five_finger/wrist/make_wrist.py                                  0.0034 / 0.0001    0.0030
-wrist_pin_d3x10_+x                         STEP  cad/five_finger/wrist/make_wrist.py                                  0.0000 / 0.0000    0.0009
-wrist_pin_d3x10_+z                         STEP  cad/five_finger/wrist/make_wrist.py                                  0.0000 / 0.0000    0.0009
-wrist_pin_d3x10_-x                         STEP  cad/five_finger/wrist/make_wrist.py                                  0.0000 / 0.0000    0.0009
-wrist_pin_d3x10_-z                         STEP  cad/five_finger/wrist/make_wrist.py                                  0.0000 / 0.0000    0.0009
-wrist_rod_1                                STEP  cad/five_finger/wrist/make_wrist.py                                  0.0000 / 0.0000    0.0009
-wrist_rod_2                                STEP  cad/five_finger/wrist/make_wrist.py                                  0.0000 / 0.0000    0.0009
-wrist_stud_arm_1                           STEP  cad/five_finger/wrist/make_wrist.py                                  0.0009 / 0.0007    0.0133
-wrist_stud_arm_2                           STEP  cad/five_finger/wrist/make_wrist.py                                  0.0009 / 0.0007    0.0161
-wrist_stud_top_1                           STEP  cad/five_finger/wrist/make_wrist.py                                  0.0009 / 0.0007    0.0161
-wrist_stud_top_2                           STEP  cad/five_finger/wrist/make_wrist.py                                  0.0009 / 0.0007    0.0133
+Elbow_Flange                               STEP  cad/five_finger/wrist/step/Elbow_Flange.step                         0.0148 / 0.0009    0.0099
+R-Forearm_Back                             STEP  cad/five_finger/wrist/step/R-Forearm_Back.step                       0.0277 / 0.0017    0.0124
+R-Forearm_Front                            STEP  cad/five_finger/wrist/step/R-Forearm_Front.step                      0.0188 / 0.0017    0.0128
+R-Wrist_Fork                               STEP  cad/five_finger/wrist/step/R-Wrist_Fork.step                         0.0028 / 0.0016    0.0137
+R-Wrist_Hand_Adapter                       STEP  cad/five_finger/wrist/step/R-Wrist_Hand_Adapter.step                 0.0104 / 0.0012    0.0099
+R-Wrist_Servo_Frame                        STEP  cad/five_finger/wrist/step/R-Wrist_Servo_Frame.step                  0.0000 / 0.0000    0.0006
+Wrist_Gimbal_Ring                          STEP  cad/five_finger/wrist/step/Wrist_Gimbal_Ring.step                    0.0038 / 0.0000    0.0034
+Wrist_Horn_Arm_1                           STEP  cad/five_finger/wrist/step/Wrist_Horn_Arm.step                       0.0029 / 0.0000    0.0039
+Wrist_Horn_Arm_2                           STEP  cad/five_finger/wrist/step/Wrist_Horn_Arm.step (ICP onto the sim STL)   0.0029 / 0.0000    0.0039
+wrist_F683ZZ_+x                            STEP  cad/five_finger/wrist/make_wrist.py                                  0.0000 / 0.0000    0.0013
+wrist_F683ZZ_+z                            STEP  cad/five_finger/wrist/make_wrist.py                                  0.0000 / 0.0000    0.0013
+wrist_F683ZZ_-x                            STEP  cad/five_finger/wrist/make_wrist.py                                  0.0000 / 0.0000    0.0013
+wrist_F683ZZ_-z                            STEP  cad/five_finger/wrist/make_wrist.py                                  0.0000 / 0.0000    0.0013
+wrist_STS3215_motor1                       STEP  cad/five_finger/wrist/make_wrist.py                                  0.0000 / 0.0000    0.0037
+wrist_STS3215_motor2                       STEP  cad/five_finger/wrist/make_wrist.py                                  0.0000 / 0.0000    0.0037
+wrist_link_bot_1                           STEP  cad/five_finger/wrist/make_wrist.py                                  0.0039 / 0.0024    0.0015
+wrist_link_bot_2                           STEP  cad/five_finger/wrist/make_wrist.py                                  0.0039 / 0.0024    0.0015
+wrist_link_top_1                           STEP  cad/five_finger/wrist/make_wrist.py                                  0.0039 / 0.0024    0.0015
+wrist_link_top_2                           STEP  cad/five_finger/wrist/make_wrist.py                                  0.0040 / 0.0024    0.0015
+wrist_pin_d3x10_+x                         STEP  cad/five_finger/wrist/make_wrist.py                                  0.0001 / 0.0001    0.0008
+wrist_pin_d3x10_+z                         STEP  cad/five_finger/wrist/make_wrist.py                                  0.0001 / 0.0001    0.0008
+wrist_pin_d3x10_-x                         STEP  cad/five_finger/wrist/make_wrist.py                                  0.0001 / 0.0001    0.0008
+wrist_pin_d3x10_-z                         STEP  cad/five_finger/wrist/make_wrist.py                                  0.0001 / 0.0001    0.0008
+wrist_rod_1                                STEP  cad/five_finger/wrist/make_wrist.py                                  0.0001 / 0.0001    0.0008
+wrist_rod_2                                STEP  cad/five_finger/wrist/make_wrist.py                                  0.0001 / 0.0001    0.0008
+wrist_stud_arm_1                           STEP  cad/five_finger/wrist/make_wrist.py                                  0.0010 / 0.0007    0.0062
+wrist_stud_arm_2                           STEP  cad/five_finger/wrist/make_wrist.py                                  0.0010 / 0.0007    0.0071
+wrist_stud_top_1                           STEP  cad/five_finger/wrist/make_wrist.py                                  0.0010 / 0.0007    0.0071
+wrist_stud_top_2                           STEP  cad/five_finger/wrist/make_wrist.py                                  0.0010 / 0.0007    0.0062
 
 Mesh-only parts (157, in the 3MF only; no B-rep of them exists in the repo: the shells, covers and pads are implicit/voxel solids, UF_P3_Distal is trimmed by a mesh boolean, the hand's bought parts are the onshape-to-robot meshes):
   Bushing_0608 x10, Distal_Pad x1, Distal_Shell x1, P1_Pad x3, P1_Pad_S088 x1, P1_Shell x3, P1_Shell_S088 x1, P2_Pad x3, P2_Pad_S088 x1, P2_Shell x3, P2_Shell_S088 x1, P3_Distal x3, P3_Distal_S088 x1, P3_Pad x3, P3_Pad_S088 x1, P3_Shell x3, P3_Shell_S088 x1, Pin_2x10 x6, Pin_2x16 x2, Proximal_Pad x1, Proximal_Shell x1, R-Palm_Pad_Palm_5F x1, R-Palm_Shell_5F x1, R-Top_Shell_5F x1, Rod_M2_L18 x10, Rotule_Ball x20, Rotule_Lever x20, SCS0009_Servo x10, Screw_2.5x5_Thermo x4, Screw_2.5x8_Torx x5, Screw_M2x10_Pan x20, Servo_Horn x10, Washer_M2.5 x5
