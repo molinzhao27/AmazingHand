@@ -1,0 +1,68 @@
+# Config for the final 5-digit right hand: 3-phalanx index, middle, ring and pinky, slim-mount thumb
+# (AH_Right_5F_3S / AH_Right_5F_3S_Wrist; FIVE_FINGER.md, cad/five_finger/ultimate_finger/README.md).
+# Same IDs as r_hand_5f.toml (index 1/2, middle 3/4, ring 5/6, pinky 9/10), offsets = your calibration:
+#   cargo run --bin=get_zeros -- --config AHControl/config/r_hand_5f_3s.toml
+#
+# AHControl does NOT enforce this hand's limits: at start it drives every motor listed here to its offset (command 0),
+# then passes the sim's commands straight through. PythonExample/AmazingHand_Demo_5F.py is the controller that does.
+#  - The thumb (r_finger4, IDs 7/8) is left out on purpose, so AHControl never powers it. On the slim thumb mount its
+#    zero (0, 0) is inside the palm shell, and only 22 % of the +-90 deg command square is safe (layout.THUMB_ENVELOPE;
+#    home is (0, 22.5)). Add it back (commented block at the end) only once AHControl clamps the thumb's commands.
+#  - Fingers: straight at f = (m1 - m2)/2 = -56 deg (stock -37.5); keep f >= -60 (m1 - m2 >= -120), |a| <= 90 - |f| with
+#    a = (m1 + m2)/2, |a| <= 30 towards a neighbour, neighbours converging by <= 15 deg. AHControl clamps none of it, and
+#    the dora sim/tracking nodes compute stock 2-phalanx finger commands.
+#  - max_torque_limit (EEPROM addr 16) must be 800 on IDs 1-6 and 9-10 (lower for PETG or PLA cores); AHControl does
+#    not set it. Write it once, it stays in the EEPROM:
+#      python PythonExample/AmazingHand_Demo_5F.py --port /dev/ttyACM0 --setup-only [--cores petg|pla]
+[Fingers]
+[[motors]]
+finger_name="r_finger1"
+motor1.id = 1
+motor1.offset = 0.12217304763960307
+motor1.invert = false
+motor1.model = "SCS0009"
+motor2.id = 2
+motor2.offset = 0.08726646259971647
+motor2.invert = false
+motor2.model = "SCS0009"
+[[motors]]
+finger_name="r_finger2"
+motor1.id = 3
+motor1.offset = 0.0
+motor1.invert = false
+motor1.model = "SCS0009"
+motor2.id = 4
+motor2.offset = 0.12217304763960307
+motor2.invert = false
+motor2.model = "SCS0009"
+[[motors]]
+finger_name="r_finger3"
+motor1.id = 5
+motor1.offset = 0.08726646259971647
+motor1.invert = false
+motor1.model = "SCS0009"
+motor2.id = 6
+motor2.offset = 0.12217304763960307
+motor2.invert = false
+motor2.model = "SCS0009"
+[[motors]]
+finger_name="r_finger5" # pinky
+motor1.id = 9
+motor1.offset = 0.0 # replace with your calibration (get_zeros)
+motor1.invert = false
+motor1.model = "SCS0009"
+motor2.id = 10
+motor2.offset = 0.0 # replace with your calibration (get_zeros)
+motor2.invert = false
+motor2.model = "SCS0009"
+# Thumb, slim mount: only with an AHControl that clamps its commands to the envelope (see the top of this file).
+# [[motors]]
+# finger_name="r_finger4"
+# motor1.id = 7
+# motor1.offset = 0.0
+# motor1.invert = false
+# motor1.model = "SCS0009"
+# motor2.id = 8
+# motor2.offset = 0.12217304763960307
+# motor2.invert = false
+# motor2.model = "SCS0009"
