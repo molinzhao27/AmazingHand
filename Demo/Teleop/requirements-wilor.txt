@@ -1,0 +1,5 @@
+# Extra packages for `--tracker wilor`. Use Python 3.11 or 3.12 (wilor-mini pins torch<=2.5).
+# chumpy must be installed first with --no-build-isolation; see README.md.
+torch>=2.0,<=2.5
+torchvision
+wilor-mini @ git+https://github.com/warmshao/WiLoR-mini

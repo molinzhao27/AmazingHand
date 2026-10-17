@@ -34,3 +34,4 @@ You can use the software tools located in [AHControl](AHControl).
 - [AHControl](AHControl) contains a dora-rs node to control the motors, along with some useful tools to configure them.
 - [AHSimulation](AHSimulation) contains a dora-rs node to simulate the hand and get the inverse kinematics.
 - [HandTracking](HandTracking) contains a dora-rs node to track hands from a webcam and use it as target to control AH!.
+- [Teleop](Teleop) is a single-script webcam teleop in simulation (no dora-rs), with current MediaPipe or WiLoR and an optional second camera.

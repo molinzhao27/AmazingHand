@@ -1,3 +1,29 @@
+## This fork: the 5-digit AmazingHand
+
+This fork adds a pinky to the stock hand and rebuilds it around slim, styled 3-phalanx fingers and a powered 2-DOF wrist. The final version is the right hand `AH_Right_5F_3S_Wrist`.
+
+![final hand](Demo/AHSimulation/five_finger/renders/beauty/hero.jpg)
+
+| What | Where |
+|---|---|
+| Design notes, BOM delta, servo IDs, power | [FIVE_FINGER.md](FIVE_FINGER.md) |
+| Assembled CAD (STEP + 3MF) | [cad/five_finger/assembly/](cad/five_finger/assembly/) |
+| Palm plate, palm/back shells and grip pads (STL) | [cad/five_finger/stl/](cad/five_finger/stl/) |
+| 3-phalanx fingers and thumb (STEP + STL) | [cad/five_finger/ultimate_finger/](cad/five_finger/ultimate_finger/) |
+| Wrist and forearm base (STEP + STL) | [cad/five_finger/wrist/](cad/five_finger/wrist/) |
+| MuJoCo model | [Demo/AHSimulation/AHSimulation/AH_Right_5F_3S_Wrist/mjcf/](Demo/AHSimulation/AHSimulation/AH_Right_5F_3S_Wrist/mjcf/) |
+| Webcam teleop (sim; still drives the stock hand with a placeholder pinky) | [Demo/Teleop/](Demo/Teleop/) |
+
+```bash
+python -m mujoco.viewer --mjcf=Demo/AHSimulation/AHSimulation/AH_Right_5F_3S_Wrist/mjcf/scene_shells.xml
+```
+
+The other `AH_*_5F*` models are earlier steps. The build scripts still use `AH_Right_5F`, `AH_Right_5F_Slim` and `AH_Right_5F_3S` as inputs to the final one.
+
+Everything below is the upstream Pollen Robotics README.
+
+---
+
 Project is licensed under [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
 
