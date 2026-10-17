@@ -9,9 +9,16 @@ use facet_pretty::FacetPretty;
 
 use std::{fs, thread};
 
+#[path = "../limits.rs"]
+#[allow(dead_code)]
+mod limits;
+
 // use std::io::Read;
 #[derive(Debug, Facet)]
 struct Fingers {
+    /// Hand whose limits are enforced (src/limits.rs): "AH_Right_5F_3S", or none (stock hand). Top of the file.
+    #[allow(dead_code)]
+    limits: Option<String>,
     #[allow(dead_code)] // Disable dead code warning for the entire struct
     motors: Vec<Motors>,
 }
@@ -64,6 +71,23 @@ fn main() -> Result<(), Box<dyn Error>> {
         facet_toml::from_str(&toml_str).expect("Failed to deserialize config file");
 
     println!("{}", motors_conf.pretty());
+    // limits = "AH_Right_5F_3S": the hand goes to its home instead (the slim-mount thumb's 0 is inside the palm shell)
+    let hand = limits::from_config(
+        &toml_str,
+        motors_conf.limits.as_deref(),
+        motors_conf
+            .motors
+            .iter()
+            .map(|m| {
+                let servo = |s: &Motor| {
+                    let servo = limits::Servo { id: s.id, offset: s.offset, invert: s.invert };
+                    (servo, s.model.clone())
+                };
+                (m.finger_name.clone(), [servo(&m.motor1), servo(&m.motor2)])
+            })
+            .collect(),
+    )
+    .map_err(|e| eyre!("{e}"))?;
     let serial_port = serialport::new(serialport, baudrate)
         .timeout(Duration::from_millis(10))
         .open()?;
@@ -91,6 +115,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     let motors_on: Vec<u8> = vec![1; motor_ids.len()];
     let motors_off: Vec<u8> = vec![0; motor_ids.len()];
 
+    if let Some(hand) = &hand {
+        hand.go_home(&mut controller)?;
+        for (id, goal) in motor_ids.iter().zip(motor_offsets.iter_mut()) {
+            *goal = hand.home_goal(*id).unwrap_or(*goal);
+        }
+        println!("Home: fingers at 0, thumb at (m1, m2) = (0, 22.5) deg");
+    }
     //torque enable
     controller.sync_write_torque_enable(&motor_ids, &motors_on)?;
     thread::sleep(Duration::from_millis(1000));

@@ -1,6 +1,6 @@
 --- a/Demo/AHControl/src/main.rs
 +++ b/Demo/AHControl/src/main.rs
-@@ -75,34 +75,60 @@
+@@ -97,29 +97,49 @@ fn main() -> Result<(), Box<dyn Error>> {
      let serial_port = serialport::new(serialport, baudrate)
          .timeout(Duration::from_millis(10))
          .open()?;
@@ -55,6 +55,10 @@
 +    let sts_on: Vec<bool> = vec![true; sts_ids.len()]; // STS3215 torque_enable is a bool register in rustypot
 +    let sts_off: Vec<bool> = vec![false; sts_ids.len()];
  
+     if let Some(hand) = &hand {
+         // the digits go home along a clamped path, and start there instead of at command 0 (the slim-mount thumb's 0
+@@ -131,8 +151,14 @@ fn main() -> Result<(), Box<dyn Error>> {
+     }
      //torque enable
      controller.sync_write_torque_enable(&motor_ids, &motors_on)?;
 +    if !sts_ids.is_empty() {
@@ -68,7 +72,7 @@
      thread::sleep(Duration::from_millis(1000));
      let (mut _node, mut events) =
          // DoraNode::init_from_node_id(NodeId::from("hand_controller".to_string()))?;
-@@ -119,6 +145,8 @@
+@@ -169,6 +195,8 @@ fn main() -> Result<(), Box<dyn Error>> {
  
                      let mut motors_ids: Vec<u8> = Vec::new();
                      let mut motors_goalpos: Vec<f64> = Vec::new();
@@ -77,7 +81,7 @@
  
                      for (_idx, finger) in motors.iter().enumerate() {
                          // println!("conf: {:?} {:?}", idx, finger.finger_name);
-@@ -141,19 +169,23 @@
+@@ -191,19 +219,23 @@ fn main() -> Result<(), Box<dyn Error>> {
                              //     ],
                              // )?;
  
@@ -106,7 +110,7 @@
  
                              // controller.write_goal_position(
                              //     finger.motor1.id,
-@@ -168,6 +200,9 @@
+@@ -218,6 +250,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                          }
                      }
                      controller.sync_write_goal_position(&motors_ids, &motors_goalpos)?;
@@ -116,7 +120,7 @@
                      // let parameters = MetadataParameters::default();
                      // let e: Vec<f64> = Vec::new(); //TODO return actual positions
                      // node.send_output(output.clone(), parameters, e.into_arrow())?;
-@@ -184,6 +219,9 @@
+@@ -234,6 +269,9 @@ fn main() -> Result<(), Box<dyn Error>> {
      println!("Quitting");
      //torque off
      controller.sync_write_torque_enable(&motor_ids, &motors_off)?;

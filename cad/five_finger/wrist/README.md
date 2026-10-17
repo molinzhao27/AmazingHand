@@ -402,7 +402,7 @@ def Move_Wrist(Flex_deg, Dev_deg):            # flexion > 0 palm-ward, deviation
   - It opens an `Sts3215Controller` on a `try_clone()` of the same serial port (one thread, so packets never interleave).
   - It routes each motor's goal to the controller of its family.
   - STS torque-enable takes `bool`.
-  - Apply it with `git apply Demo/AHSimulation/wrist/control/ahcontrol_wrist.patch`. It is **checked to apply cleanly but not compiled**: cargo would have had to download the crates.
+  - Apply it with `git apply Demo/AHSimulation/wrist/control/ahcontrol_wrist.patch`. It applies cleanly on the current `main.rs` (with the `AH_Right_5F_3S` limits) and compiles. Not run on hardware.
 - [control/r_hand_5f_wrist.toml](../../../Demo/AHSimulation/wrist/control/r_hand_5f_wrist.toml) is `r_hand_5f.toml` + a `r_wrist` entry (IDs 21/22, `model = "STS3215"`). Point the dataflow's `--config` at it.
 - `get_zeros` / `set_zeros` / `goto` / `change_id` still speak SCS0009 only. Use the Python snippets for the wrist servos.
 

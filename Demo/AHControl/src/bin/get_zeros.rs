@@ -12,6 +12,9 @@ use std::{fs, thread};
 // use std::io::Read;
 #[derive(Debug, Facet)]
 struct Fingers {
+    /// Kept in the TOML written below (src/limits.rs): "AH_Right_5F_3S", or none (stock hand). Top of the file.
+    #[allow(dead_code)]
+    limits: Option<String>,
     #[allow(dead_code)] // Disable dead code warning for the entire struct
     motors: Vec<Motors>,
 }
