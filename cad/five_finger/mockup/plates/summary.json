@@ -1,0 +1,342 @@
+{
+ "00_test_fit_PLA": {
+  "plates": [
+   {
+    "time": "1h 22m 8s",
+    "grams": "12.87",
+    "fits_bed": true,
+    "filament_changes": 0
+   }
+  ],
+  "ok": true,
+  "filament_changes": 0,
+  "parts": [
+   "Fit_Arm_Shank_D3.20",
+   "Fit_Arm_Shank_D3.30",
+   "Fit_Arm_Shank_D3.40",
+   "Fit_Axle_D2.00",
+   "Fit_Axle_D2.10",
+   "Fit_Axle_D2.20",
+   "Fit_Ball_Hand",
+   "Fit_Ball_Hole_D1.90",
+   "Fit_Ball_Hole_D2.00",
+   "Fit_Ball_Hole_D2.10",
+   "Fit_Ball_Wrist",
+   "Fit_Cup_Hand_Lip1.0",
+   "Fit_Cup_Hand_Lip1.2",
+   "Fit_Cup_Hand_Lip1.4",
+   "Fit_Cup_Wrist_Lip1.2",
+   "Fit_Cup_Wrist_Lip1.4",
+   "Fit_Cup_Wrist_Lip1.6",
+   "Fit_Disc_Bore_D5.80",
+   "Fit_Disc_Bore_D5.90",
+   "Fit_Disc_Bore_D6.00",
+   "Fit_F683_OD7.00",
+   "Fit_F683_OD7.10",
+   "Fit_F683_OD7.20",
+   "Fit_Hole_Gauge",
+   "Fit_Horn_Bore_D3.80",
+   "Fit_Horn_Bore_D3.90",
+   "Fit_Horn_Bore_D4.00",
+   "Fit_Insert_OD4.00",
+   "Fit_Insert_OD4.10",
+   "Fit_Insert_OD4.20",
+   "Fit_PegM25_D2.30",
+   "Fit_PegM25_D2.40",
+   "Fit_PegM25_D2.50",
+   "Fit_PegM3_D2.90",
+   "Fit_PegM3_D3.00",
+   "Fit_PegM3_D3.10",
+   "Fit_Peg_D1.90",
+   "Fit_Peg_D2.00",
+   "Fit_Peg_D2.10",
+   "Fit_Pin3_D2.95",
+   "Fit_Pin3_D3.05",
+   "Fit_Pin3_D3.15",
+   "Fit_Pin_D1.90",
+   "Fit_Pin_D2.00",
+   "Fit_Pin_D2.10",
+   "Fit_STS_Stub",
+   "Fit_Servo_Stub"
+  ]
+ },
+ "00_test_switch_PLA_TPU": {
+  "plates": [
+   {
+    "time": "8m 44s",
+    "grams": "2.06, 0.93",
+    "fits_bed": true,
+    "filament_changes": 0
+   }
+  ],
+  "ok": true,
+  "filament_changes": 0,
+  "parts": [
+   "Switch_PLA_Base",
+   "Switch_TPU_Pad"
+  ]
+ },
+ "01_hand_cores_PLA_white": {
+  "plates": [
+   {
+    "time": "7h 52m 23s",
+    "grams": "69.04",
+    "fits_bed": true,
+    "filament_changes": 0
+   },
+   {
+    "time": "46m 18s",
+    "grams": "7.06",
+    "fits_bed": true,
+    "filament_changes": 0
+   }
+  ],
+  "ok": true,
+  "filament_changes": 0,
+  "parts": [
+   "Amazing Hand Parts - Finger_Frame-1",
+   "Amazing Hand Parts - Finger_Frame-2",
+   "Amazing Hand Parts - Gimbal",
+   "Distal_Slim",
+   "Proximal_Slim",
+   "UF_L2_Coupler",
+   "UF_L2_Coupler_S088",
+   "UF_P1_Proximal",
+   "UF_P1_Proximal_S088",
+   "UF_P2_Middle",
+   "UF_P2_Middle_S088",
+   "UF_P3_Distal",
+   "UF_P3_Distal_S088"
+  ]
+ },
+ "01_hand_cores_PLA_white_brim": {
+  "plates": [
+   {
+    "time": "1h 27m 4s",
+    "grams": "10.20",
+    "fits_bed": true,
+    "filament_changes": 0
+   }
+  ],
+  "ok": true,
+  "filament_changes": 0,
+  "parts": [
+   "Amazing Hand Parts - Link",
+   "UF_Link",
+   "UF_Link_S088"
+  ]
+ },
+ "02_palm_PLA_white": {
+  "plates": [
+   {
+    "time": "4h 28m 54s",
+    "grams": "57.42",
+    "fits_bed": true,
+    "filament_changes": 0
+   },
+   {
+    "time": "4h 48m 45s",
+    "grams": "93.09",
+    "fits_bed": true,
+    "filament_changes": 0
+   }
+  ],
+  "ok": true,
+  "filament_changes": 0,
+  "parts": [
+   "R-Hand_Plate_5F",
+   "R-Top_Shell_5F",
+   "R-Wrist_Hand_Adapter"
+  ]
+ },
+ "03_wrist_PLA_white": {
+  "plates": [
+   {
+    "time": "3h 58m 50s",
+    "grams": "91.05",
+    "fits_bed": true,
+    "filament_changes": 0
+   }
+  ],
+  "ok": true,
+  "filament_changes": 0,
+  "parts": [
+   "Elbow_Flange",
+   "R-Wrist_Fork",
+   "R-Wrist_Servo_Frame",
+   "Wrist_Gimbal_Ring",
+   "Wrist_Horn_Arm"
+  ]
+ },
+ "04_forearm_PLA_white_brim": {
+  "plates": [
+   {
+    "time": "5h 8m 31s",
+    "grams": "172.84",
+    "fits_bed": true,
+    "filament_changes": 0
+   }
+  ],
+  "ok": true,
+  "filament_changes": 0,
+  "parts": [
+   "R-Forearm_Back",
+   "R-Forearm_Front"
+  ]
+ },
+ "05_standins_PLA_black": {
+  "plates": [
+   {
+    "time": "6h 3m 44s",
+    "grams": "74.92",
+    "fits_bed": true,
+    "filament_changes": 0
+   },
+   {
+    "time": "1h 14m 36s",
+    "grams": "12.11",
+    "fits_bed": true,
+    "filament_changes": 0
+   },
+   {
+    "time": "48m 21s",
+    "grams": "5.77",
+    "fits_bed": true,
+    "filament_changes": 0
+   },
+   {
+    "time": "9m 35s",
+    "grams": "0.70",
+    "fits_bed": true,
+    "filament_changes": 0
+   }
+  ],
+  "ok": true,
+  "filament_changes": 0,
+  "parts": [
+   "Axle_D2.1_L20",
+   "Bushing_0608",
+   "Bushing_F683",
+   "Disc_Horn",
+   "Dummy_SCS0009",
+   "Dummy_STS3215",
+   "Insert_M3",
+   "Link_Ball",
+   "Peg_2.5x16",
+   "Peg_2.5x6",
+   "Peg_2.5x8",
+   "Peg_M2.5x6",
+   "Peg_M3x10",
+   "Peg_M3x8_CSK",
+   "Pin_D2_L10",
+   "Pin_D2_L12",
+   "Pin_D2_L16",
+   "Pin_D2_L8",
+   "Pin_D3_L10",
+   "Rod_Wrist_M1",
+   "Rod_Wrist_M2",
+   "Washer_M2.5"
+  ]
+ },
+ "05_standins_PLA_black_brim": {
+  "plates": [
+   {
+    "time": "2h 32m 43s",
+    "grams": "17.28",
+    "fits_bed": true,
+    "filament_changes": 0
+   }
+  ],
+  "ok": true,
+  "filament_changes": 0,
+  "parts": [
+   "Ball_Stud_Arm",
+   "Ball_Stud_Top",
+   "Mock_Horn",
+   "Rod_index_M1",
+   "Rod_index_M2",
+   "Rod_middle_M1",
+   "Rod_middle_M2",
+   "Rod_pinky_M1",
+   "Rod_pinky_M2",
+   "Rod_ring_M1",
+   "Rod_ring_M2",
+   "Rod_thumb_M1",
+   "Rod_thumb_M2"
+  ]
+ },
+ "06_TPU95A_white_palm": {
+  "plates": [
+   {
+    "time": "11h 12m 41s",
+    "grams": "105.99",
+    "fits_bed": true,
+    "filament_changes": 0
+   }
+  ],
+  "ok": true,
+  "filament_changes": 0,
+  "parts": [
+   "R-Palm_Shell_5F"
+  ]
+ },
+ "07_TPU95A_black_pad_brim": {
+  "plates": [
+   {
+    "time": "3h 7m 13s",
+    "grams": "25.90",
+    "fits_bed": true,
+    "filament_changes": 0
+   }
+  ],
+  "ok": true,
+  "filament_changes": 0,
+  "parts": [
+   "R-Palm_Pad_Palm_5F"
+  ]
+ },
+ "08_TPU95A_white_covers_brim": {
+  "plates": [
+   {
+    "time": "1h 41m 5s",
+    "grams": "15.19",
+    "fits_bed": true,
+    "filament_changes": 0
+   }
+  ],
+  "ok": true,
+  "filament_changes": 0,
+  "parts": [
+   "Thumb_Distal_Shell",
+   "Thumb_Proximal_Shell",
+   "UF_P1_Shell",
+   "UF_P1_Shell_S088",
+   "UF_P2_Shell",
+   "UF_P2_Shell_S088",
+   "UF_P3_Shell",
+   "UF_P3_Shell_S088"
+  ]
+ },
+ "09_TPU95A_black_gloves_brim": {
+  "plates": [
+   {
+    "time": "2h 16m 1s",
+    "grams": "20.57",
+    "fits_bed": true,
+    "filament_changes": 0
+   }
+  ],
+  "ok": true,
+  "filament_changes": 0,
+  "parts": [
+   "Thumb_Distal_Pad",
+   "Thumb_Proximal_Pad",
+   "UF_P1_Pad",
+   "UF_P1_Pad_S088",
+   "UF_P2_Pad",
+   "UF_P2_Pad_S088",
+   "UF_P3_Pad",
+   "UF_P3_Pad_S088"
+  ]
+ }
+}

@@ -1,0 +1,264 @@
+{
+ "Pin_D2_L8": {
+  "group": "hand",
+  "qty": 8,
+  "up": null,
+  "note": "d2 x 8 dowel: printed pin, or a 1.75 mm filament piece (looser)"
+ },
+ "Pin_D2_L10": {
+  "group": "hand",
+  "qty": 6,
+  "up": null,
+  "note": "d2 x 10 dowel: printed pin, or a 1.75 mm filament piece (looser)"
+ },
+ "Pin_D2_L12": {
+  "group": "hand",
+  "qty": 12,
+  "up": null,
+  "note": "d2 x 12 dowel: printed pin, or a 1.75 mm filament piece (looser)"
+ },
+ "Pin_D2_L16": {
+  "group": "hand",
+  "qty": 6,
+  "up": null,
+  "note": "d2 x 16 dowel: printed pin, or a 1.75 mm filament piece (looser)"
+ },
+ "Bushing_0608": {
+  "group": "hand",
+  "qty": 10,
+  "up": null,
+  "note": "replaces Bushing_0608 (same shape)"
+ },
+ "Washer_M2.5": {
+  "group": "hand",
+  "qty": 5,
+  "up": null,
+  "note": "replaces Washer_M2.5 (same shape)"
+ },
+ "Peg_2.5x8": {
+  "group": "hand",
+  "qty": 22,
+  "up": null,
+  "note": "2.5x8 thermoplastic screw: gimbal (with the washer) 5, finger frames -> plate 3 per digit, back shell -> hand adapter 2"
+ },
+ "Peg_2.5x16": {
+  "group": "hand",
+  "qty": 3,
+  "up": null,
+  "note": "back shell -> palm plate ribs (2.5x16 thermoplastic screws)"
+ },
+ "Peg_2.5x6": {
+  "group": "hand",
+  "qty": 4,
+  "up": null,
+  "note": "hand adapter -> palm plate legs (2.5x6 thermoplastic screws)"
+ },
+ "Dummy_SCS0009": {
+  "group": "hand",
+  "qty": 10,
+  "up": null,
+  "note": "servo stand-in; its ear holes (d2.0) take 1.75 mm filament pins into the finger frames"
+ },
+ "Mock_Horn": {
+  "group": "hand",
+  "qty": 10,
+  "up": [
+   -1.2918118253201872e-17,
+   4.240638554791992e-17,
+   1.0000000000000142
+  ],
+  "note": "cross horn + M2 ball stud + nut in one piece; slides onto the Dummy_SCS0009 stub (friction)"
+ },
+ "Link_Ball": {
+  "group": "hand",
+  "qty": 10,
+  "up": null,
+  "note": "d5 ball pressed on the Link axle, one each side of the Link"
+ },
+ "Axle_D2.1_L20": {
+  "group": "hand",
+  "qty": 5,
+  "up": null,
+  "note": "through the Link's d2.2 ball-stud hole, a Link_Ball pressed on each end"
+ },
+ "Rod_index_M1": {
+  "group": "hand",
+  "qty": 1,
+  "up": [
+   0,
+   0,
+   1
+  ],
+  "note": "push rod, 33.00 mm between ball centres: cup with the mouth up on the horn ball, the other on the Link ball"
+ },
+ "Rod_index_M2": {
+  "group": "hand",
+  "qty": 1,
+  "up": [
+   0,
+   0,
+   1
+  ],
+  "note": "push rod, 33.00 mm between ball centres: cup with the mouth up on the horn ball, the other on the Link ball"
+ },
+ "Rod_middle_M1": {
+  "group": "hand",
+  "qty": 1,
+  "up": [
+   0,
+   0,
+   1
+  ],
+  "note": "push rod, 33.00 mm between ball centres: cup with the mouth up on the horn ball, the other on the Link ball"
+ },
+ "Rod_middle_M2": {
+  "group": "hand",
+  "qty": 1,
+  "up": [
+   0,
+   0,
+   1
+  ],
+  "note": "push rod, 33.00 mm between ball centres: cup with the mouth up on the horn ball, the other on the Link ball"
+ },
+ "Rod_ring_M1": {
+  "group": "hand",
+  "qty": 1,
+  "up": [
+   0,
+   0,
+   1
+  ],
+  "note": "push rod, 33.00 mm between ball centres: cup with the mouth up on the horn ball, the other on the Link ball"
+ },
+ "Rod_ring_M2": {
+  "group": "hand",
+  "qty": 1,
+  "up": [
+   0,
+   0,
+   1
+  ],
+  "note": "push rod, 33.00 mm between ball centres: cup with the mouth up on the horn ball, the other on the Link ball"
+ },
+ "Rod_pinky_M1": {
+  "group": "hand",
+  "qty": 1,
+  "up": [
+   0,
+   0,
+   1
+  ],
+  "note": "push rod, 33.00 mm between ball centres: cup with the mouth up on the horn ball, the other on the Link ball"
+ },
+ "Rod_pinky_M2": {
+  "group": "hand",
+  "qty": 1,
+  "up": [
+   0,
+   0,
+   1
+  ],
+  "note": "push rod, 33.00 mm between ball centres: cup with the mouth up on the horn ball, the other on the Link ball"
+ },
+ "Rod_thumb_M1": {
+  "group": "hand",
+  "qty": 1,
+  "up": [
+   0,
+   0,
+   1
+  ],
+  "note": "push rod, 33.00 mm between ball centres: cup with the mouth up on the horn ball, the other on the Link ball"
+ },
+ "Rod_thumb_M2": {
+  "group": "hand",
+  "qty": 1,
+  "up": [
+   0,
+   0,
+   1
+  ],
+  "note": "push rod, 33.00 mm between ball centres: cup with the mouth up on the horn ball, the other on the Link ball"
+ },
+ "Dummy_STS3215": {
+  "group": "wrist",
+  "qty": 2,
+  "up": null,
+  "note": "STS3215 stand-in (make_wrist's servo box) with a plain d6 output stub"
+ },
+ "Disc_Horn": {
+  "group": "wrist",
+  "qty": 2,
+  "up": null,
+  "note": "25T disc horn stand-in: slides onto the Dummy_STS3215 stub; the Wrist_Horn_Arm pegs onto it"
+ },
+ "Peg_M2.5x6": {
+  "group": "wrist",
+  "qty": 8,
+  "up": null,
+  "note": "Wrist_Horn_Arm -> Disc_Horn (4 per arm)"
+ },
+ "Bushing_F683": {
+  "group": "wrist",
+  "qty": 4,
+  "up": null,
+  "note": "F683ZZ flanged bearing stand-in (4 lugs)"
+ },
+ "Pin_D3_L10": {
+  "group": "wrist",
+  "qty": 4,
+  "up": null,
+  "note": "d3 x 10 gimbal pin (press into the ring)"
+ },
+ "Ball_Stud_Top": {
+  "group": "wrist",
+  "qty": 2,
+  "up": null,
+  "note": "M3 ball stud stand-in: shank presses into the lever bar's insert hole"
+ },
+ "Ball_Stud_Arm": {
+  "group": "wrist",
+  "qty": 2,
+  "up": null,
+  "note": "M3 ball stud stand-in: shank presses through the horn arm (no nut)"
+ },
+ "Rod_Wrist_M1": {
+  "group": "wrist",
+  "qty": 1,
+  "up": [
+   0,
+   0,
+   1
+  ],
+  "note": "wrist push rod, 66.0 mm between ball centres (cups snap onto the studs)"
+ },
+ "Rod_Wrist_M2": {
+  "group": "wrist",
+  "qty": 1,
+  "up": [
+   0,
+   0,
+   1
+  ],
+  "note": "wrist push rod, 96.0 mm between ball centres (cups snap onto the studs)"
+ },
+ "Insert_M3": {
+  "group": "wrist",
+  "qty": 12,
+  "up": null,
+  "note": "M3 heat-set insert stand-in, pressed into the d4.0 insert holes (the bar's 2 take the ball studs)"
+ },
+ "Peg_M3x10": {
+  "group": "wrist",
+  "qty": 8,
+  "up": null,
+  "note": "fork cap 4, elbow flange 4"
+ },
+ "Peg_M3x8_CSK": {
+  "group": "wrist",
+  "qty": 4,
+  "up": null,
+  "note": "servo frame"
+ }
+}

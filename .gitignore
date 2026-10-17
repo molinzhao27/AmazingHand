@@ -1,3 +1,7 @@
 .venv/
 __pycache__/
 .DS_Store
+
+# mock-up slicing scratch (oriented STLs, G-code, presets per plate)
+cad/five_finger/mockup/plates/.work/
+cad/five_finger/mockup/plates/*.3mf
