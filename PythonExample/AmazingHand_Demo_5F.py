@@ -10,7 +10,8 @@ AmazingHand_Demo.py (rustypot, MiddlePos, one function per pose), plus the limit
 * 3-phalanx fingers, with f = (m1 - m2)/2 and a = (m1 + m2)/2 (> 0 towards the index), in degrees:
   straight at f = -56; f >= -60 (m1 - m2 >= -120: P1 meets the finger frame from f ~ -65); |a| <= 90 - |f| (both motors
   within +-90); |a| <= 30 towards a neighbour (the index and the pinky may spread outward up to 90 - |f|); neighbours
-  converge by <= 15 (a of the pinky-side finger - a of the index-side finger <= 15).
+  converge by <= 15 (a of the pinky-side finger - a of the index-side finger), rising linearly to 30 as the more curled
+  of the two goes from f = 60 to f = 90 (converge_limit; Demo/AHSimulation/ultimate_finger/reports/neighbour_sweep.txt).
 * max_torque_limit (EEPROM addr 16) = 800 on IDs 1-6 and 9-10 (--cores: lower for PETG or PLA cores, ultimate_finger
   README section 5), read back before the torque goes on. The thumb keeps its own.
 * Moves are streamed at 50 Hz along a straight line in command space, so the fingers' limits (a convex set) hold all the
@@ -61,6 +62,8 @@ F_MAX = 90.0
 M_MAX = 90.0
 A_INNER = 30.0
 CONVERGE_MAX = 15.0
+CONVERGE_CURLED = 30.0                  # when the more curled finger of the pair is at f >= CURL_FULL
+CURL_FROM, CURL_FULL = 60.0, 90.0       # the limit rises linearly from CONVERGE_MAX to CONVERGE_CURLED between these
 TOL = 1e-6
 
 STREAM_HZ = 50
@@ -139,12 +142,23 @@ def abduction_range(finger, f):
     return lo, hi
 
 
+def converge_limit(f_left, f_right):
+    """How far a neighbour pair may converge (a_right - a_left, deg): CONVERGE_MAX, rising linearly to CONVERGE_CURLED
+    as the more curled of the two goes from f = CURL_FROM to CURL_FULL. Swept on AH_Right_5F_3S over both fingers'
+    whole range (Demo/AHSimulation/ultimate_finger/reports/neighbour_sweep.txt): the pose pairs this allows beyond 15
+    keep >= 3 mm, more than inside the 15 deg limit (1.3 mm); with both fingers at f <= 0, 25-40 deg of convergence
+    makes them touch."""
+    s = min(max((max(f_left, f_right) - CURL_FROM) / (CURL_FULL - CURL_FROM), 0.0), 1.0)
+    return CONVERGE_MAX + (CONVERGE_CURLED - CONVERGE_MAX) * s
+
+
 def clamp_hand(cmd):
     """A whole-hand command {digit: (m1, m2)} (deg) moved inside every limit. A command already inside comes back
     unchanged. Fingers: f clipped to [F_MIN, F_MAX], then a to abduction_range(); a neighbour pair converging by more
-    than CONVERGE_MAX is pulled apart by turning back whichever of the two is swung towards the other, in proportion to
-    how far. That only ever moves an abduction towards 0, so it never breaks the per-finger limits, and a fix can only
-    push a violation further out along the row (a finger's a keeps its sign), so a few passes settle it."""
+    than converge_limit() is pulled apart by turning back whichever of the two is swung towards the other, in proportion
+    to how far. That only ever moves an abduction towards 0 and never changes f (so a pair's limit stays put), so it
+    never breaks the per-finger limits, and a fix can only push a violation further out along the row (a finger's a
+    keeps its sign), so a few passes settle it."""
     for d in DIGITS:
         if not all(math.isfinite(float(v)) for v in cmd[d]):
             raise ValueError(f"{d}: non-finite command {cmd[d]}")
@@ -160,11 +174,12 @@ def clamp_hand(cmd):
         changed = False
         for left, right in zip(FINGERS, FINGERS[1:]):
             a0, a1 = fa[left][1], fa[right][1]
-            if a1 - a0 <= CONVERGE_MAX + eps:
+            lim = converge_limit(fa[left][0], fa[right][0])
+            if a1 - a0 <= lim + eps:
                 continue
             p, n = max(0.0, a1), max(0.0, -a0)       # how far each is swung towards the other
             rest = min(0.0, a1) - max(0.0, a0)        # <= 0
-            k = (CONVERGE_MAX - rest) / (p + n)       # 0 <= k < 1
+            k = (lim - rest) / (p + n)                # 0 <= k < 1
             if a0 < 0:
                 fa[left][1], moved[left] = -n * k, True
             if a1 > 0:
@@ -193,17 +208,18 @@ def check_hand(cmd):
             return bad
         if abs(m1) > M_MAX + TOL or abs(m2) > M_MAX + TOL:
             bad.append(f"{d}: ({m1:.2f}, {m2:.2f}) beyond +-{M_MAX:g}")
-    a = {}
+    f, a = {}, {}
     for k in FINGERS:
-        f, a[k] = finger_fa(*cmd[k])
-        lo, hi = abduction_range(k, f)
-        if f < F_MIN - TOL or f > F_MAX + TOL:
-            bad.append(f"{k}: flexion f = {f:.2f} outside [{F_MIN:g}, {F_MAX:g}]")
-        if abs(a[k]) > M_MAX - abs(f) + TOL or not lo - TOL <= a[k] <= hi + TOL:
-            bad.append(f"{k}: abduction a = {a[k]:.2f} outside [{lo:.2f}, {hi:.2f}] at f = {f:.2f}")
+        f[k], a[k] = finger_fa(*cmd[k])
+        lo, hi = abduction_range(k, f[k])
+        if f[k] < F_MIN - TOL or f[k] > F_MAX + TOL:
+            bad.append(f"{k}: flexion f = {f[k]:.2f} outside [{F_MIN:g}, {F_MAX:g}]")
+        if abs(a[k]) > M_MAX - abs(f[k]) + TOL or not lo - TOL <= a[k] <= hi + TOL:
+            bad.append(f"{k}: abduction a = {a[k]:.2f} outside [{lo:.2f}, {hi:.2f}] at f = {f[k]:.2f}")
     for left, right in zip(FINGERS, FINGERS[1:]):
-        if a[right] - a[left] > CONVERGE_MAX + TOL:
-            bad.append(f"{left}/{right}: converging by {a[right] - a[left]:.2f} > {CONVERGE_MAX:g}")
+        lim = converge_limit(f[left], f[right])
+        if a[right] - a[left] > lim + TOL:
+            bad.append(f"{left}/{right}: converging by {a[right] - a[left]:.2f} > {lim:.2f}")
     if not thumb_command_ok(*cmd["thumb"]):
         bad.append(f"thumb: ({cmd['thumb'][0]:.2f}, {cmd['thumb'][1]:.2f}) outside the slim-mount envelope")
     return bad
@@ -225,19 +241,26 @@ def thumb_path(t0, t1):
 
 
 def trajectory(start, goal, speed):
-    """Frames (whole-hand commands) from start to goal at speed (rad/s), STREAM_HZ apart, every one clamped."""
+    """Frames (whole-hand commands) from start to goal at speed (rad/s), STREAM_HZ apart, every one clamped. Where the
+    clamps move a finger faster than the straight line does (a curled neighbour uncurling shrinks converge_limit under
+    it), the move gets more frames, so no motor steps more than speed / STREAM_HZ between frames."""
     v = math.degrees(speed)
     xs, ys, cum = thumb_path(start["thumb"], goal["thumb"])
     d_fingers = max(abs(goal[k][j] - start[k][j]) for k in FINGERS for j in (0, 1))
-    n = max(1, int(math.ceil(max(d_fingers, cum[-1]) / v * STREAM_HZ)))
-    frames = []
-    for i in range(1, n + 1):
-        s = i / n
-        cmd = {k: tuple(start[k][j] + (goal[k][j] - start[k][j]) * s for j in (0, 1)) for k in FINGERS}
-        cmd["thumb"] = (float(np.interp(s * cum[-1], cum, xs)), float(np.interp(s * cum[-1], cum, ys)))
-        frames.append(clamp_hand(cmd))
-    frames[-1] = goal
-    return frames
+    n = n0 = max(1, int(math.ceil(max(d_fingers, cum[-1]) / v * STREAM_HZ)))
+    ref = clamp_hand(start)  # start may be outside the limits (where the hand is at power-on): its first frame jumps
+    while True:
+        frames = []
+        for i in range(1, n + 1):
+            s = i / n
+            cmd = {k: tuple(start[k][j] + (goal[k][j] - start[k][j]) * s for j in (0, 1)) for k in FINGERS}
+            cmd["thumb"] = (float(np.interp(s * cum[-1], cum, xs)), float(np.interp(s * cum[-1], cum, ys)))
+            frames.append(clamp_hand(cmd))
+        frames[-1] = goal
+        step = max(max(abs(b[d][j] - a[d][j]) for d in DIGITS for j in (0, 1)) for a, b in zip([ref] + frames, frames))
+        if step <= v / STREAM_HZ * (1 + 1e-9) or n >= 4 * n0:
+            return frames
+        n = min(4 * n0, max(n + 1, int(math.ceil(n * step / (v / STREAM_HZ)))))
 
 
 def fmt(cmd, middle_pos=MiddlePos):
@@ -503,7 +526,8 @@ def self_test(n=20000, seed=0):
         else:  # f, a near their limits, the thumb near its envelope's edge
             v = np.zeros((5, 2))
             for j in range(4):
-                f = rng.choice([F_MIN, F_STRAIGHT, 0.0, F_MAX, rng.uniform(-70, 95)]) + rng.normal(0, 2)
+                f = rng.choice([F_MIN, F_STRAIGHT, 0.0, CURL_FROM, (CURL_FROM + CURL_FULL) / 2, F_MAX,
+                                rng.uniform(-70, 95)]) + rng.normal(0, 2)
                 a = rng.choice([-1, 1]) * rng.choice([A_INNER, M_MAX - abs(f), rng.uniform(0, 40)]) + rng.normal(0, 2)
                 v[j] = finger_m(f, a)
             m1 = rng.uniform(-75, 95)
@@ -511,6 +535,11 @@ def self_test(n=20000, seed=0):
                     + rng.normal(0, 2))
         return {d: (float(v[j, 0]), float(v[j, 1])) for j, d in enumerate(DIGITS)}
 
+    for fl, fr, want in ((F_STRAIGHT, F_STRAIGHT, CONVERGE_MAX), (CURL_FROM, F_STRAIGHT, CONVERGE_MAX),
+                         (F_STRAIGHT, (CURL_FROM + CURL_FULL) / 2, (CONVERGE_MAX + CONVERGE_CURLED) / 2),
+                         (F_MAX, F_MIN, CONVERGE_CURLED), (F_MAX, F_MAX, CONVERGE_CURLED)):
+        expect(abs(converge_limit(fl, fr) - want) < 1e-12 and converge_limit(fr, fl) == converge_limit(fl, fr),
+               f"converge_limit({fl}, {fr}) = {converge_limit(fl, fr)}, want {want}")
     changed = 0
     for i in range(n):
         cmd = rand_cmd(i % 3)
@@ -558,7 +587,8 @@ def self_test(n=20000, seed=0):
     expect(worst <= 1.05, f"a frame steps {worst:.2f} x speed / rate")
     print(f"trajectory: 400 random moves, every frame inside the limits; largest step {worst:.3f} x speed / {STREAM_HZ} Hz")
 
-    # 4. the poses are hand_poses.json's, and what the clamps do to them
+    # 4. the poses are hand_poses.json's, and every one is inside the limits, so the clamps leave it as it is (Victory
+    # and Peace converge the straight middle onto the fully curled ring by 25 / 30 deg: allowed by converge_limit)
     data = json.loads((repo / "Demo/AHSimulation/ultimate_finger/data/hand_poses.json").read_text())
     expect(set(data) == set(POSES), f"poses differ: {sorted(set(data) ^ set(POSES))}")
     for name, pose in data.items():
@@ -568,6 +598,8 @@ def self_test(n=20000, seed=0):
             if out[d] != POSES[name][d]:
                 print(f"  note: {name} {d} {POSES[name][d]} -> ({out[d][0]:.1f}, {out[d][1]:.1f}) by the clamps "
                       f"({'; '.join(check_hand(POSES[name]))})")
+        expect(out == POSES[name], f"pose {name} is changed by the clamps")
+    print(f"poses: all {len(POSES)} of hand_poses.json are inside the limits and pass the clamps unchanged")
 
     # 5. the whole demo as it would run, on a bus that checks every write itself
     class CheckBus(DryBus):

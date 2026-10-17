@@ -1,0 +1,197 @@
+== neighbour-convergence sweep, AH_Right_5F_3S (3-phalanx index, middle, ring, pinky on the parallel 30 mm layout): f = (m1 - m2)/2, a = (m1 + m2)/2 (> 0 towards the index), c = a_pinky_side - a_index_side
+   rule under test: AmazingHand_Demo_5F.converge_limit = 15, rising linearly to 30 as max(f_left, f_right) goes from 60 to 90
+
+== 1. grid: 258 (f, a) poses per finger, f in [-60, -56, -52.5, -45, -37.5, -30, -22.5, -15, -7.5, 0, 7.5, 15, 22.5, 30, 37.5, 45, 52.5, 60, 67.5, 75, 82.5, 90], a every 5 deg (and +-(90 - |f|)) within |a| <= min(30, 90 - |f|); settled in 2.0 s, max loop error 0.0056 mm
+   258 x 258 = 66564 pose pairs per finger pair, surface samples every 1 mm, 0.3 mm below 3 mm; clearances over 5 mm are shown as '>5'
+   surface samples built in 9.0 s, footprint 2.99 GB
+   199692 pose pairs measured in 987 s (6 workers), peak footprint 4.84 GB
+
+== 2. min clearance (mm) by flexion and convergence c (bins (lo, hi] in deg)
+
+  index/middle: inside c <= 15 (any flexion) the min is  1.31 mm at index (f -22.5, a -20.0) / middle (f +7.5, a -5.0)  [rotule_lever / rotule_lever]; pose pairs touching (< 0.225 mm) there: 0/49154
+  by f of the more curled finger, max(f_index, f_middle) (rows), the other finger anywhere:
+     f       (-60,0]    (0,15]   (15,20]   (20,25]   (25,30]   (30,35]   (35,40]   (40,45]   (45,60]
+     -60.0      4.97      4.57      4.43      4.33      3.26      1.51      0.01      0.00      0.00
+     -56.0      4.96      4.49      4.17      3.88      1.96      0.02      0.00      0.00      0.00
+     -52.5      4.95      4.06      3.76      2.99      0.84      0.00      0.00      0.00      0.00
+     -45.0      4.06      3.23      2.98      1.51      0.00      0.00      0.00      0.00      0.00
+     -37.5      3.22      2.54      2.33      0.52      0.00      0.00      0.00      0.00      0.00
+     -30.0      2.53      2.00      1.85      0.38      0.00      0.00      0.00      0.00      0.00
+     -22.5      1.99      1.61      1.53      0.75      0.00      0.00      0.00      0.00      0.00
+     -15.0      1.61      1.39      1.37      1.33      0.00      0.00      0.00      0.00      0.00
+      -7.5      1.39      1.32      1.33      1.33      0.56      0.00      0.00      0.00      0.00
+       0.0      1.32      1.32      1.32      1.32      1.32      0.30      0.00      0.00      0.00
+       7.5      1.31      1.31      1.32      1.32      1.34      1.42      0.01      0.00      0.00
+      15.0      1.31      1.32      1.33      1.38      1.49      1.64      1.02      0.01      0.00
+      22.5      1.31      1.33      1.42      1.55      1.71      1.92      2.03      0.85      0.00
+      30.0      1.31      1.33      1.64      1.83      2.05      2.32      2.63      2.30      0.01
+      37.5      1.34      1.42      1.92      2.16      2.46      2.78      3.14      3.52      0.72
+      45.0      1.47      1.64      2.33      2.63      2.97      3.33      3.72      4.12      2.46
+      52.5      1.70      1.92      2.78      3.13      3.52      3.91      4.32      4.74      3.85
+      60.0      2.05      2.33      3.34      3.73      4.13      4.54      4.95       >5        >5 
+      67.5      2.95      2.95      3.91      4.32      4.73       >5        >5        >5        >5 
+      75.0      4.11      4.12      4.54      4.92       >5        >5        >5        >5        -  
+      82.5      4.64      4.93       >5        >5        >5        >5        >5        -         -  
+      90.0      4.73       >5        >5        >5        >5        -         -         -         -  
+  middle curled at f (rows), index anywhere:
+     f       (-60,0]    (0,15]   (15,20]   (20,25]   (25,30]   (30,35]   (35,40]   (40,45]   (45,60]
+      30.0      1.31      1.33      1.64      1.83      2.05      2.32      2.63      2.52      0.01
+      37.5      1.34      1.42      1.92      2.16      2.46      2.78      3.14      3.52      1.46
+      45.0      1.47      1.64      2.33      2.63      2.97      3.33      3.72      4.12      2.96
+      52.5      1.70      1.92      2.78      3.13      3.52      3.91      4.32      4.74      4.53
+      60.0      2.05      2.33      3.34      3.73      4.13      4.54      4.96       >5        >5 
+      67.5      2.95      2.95      3.91      4.32      4.73       >5        >5        >5        >5 
+      75.0      4.11      4.12      4.54      4.96       >5        >5        >5        >5        -  
+      82.5      4.65      4.93       >5        >5        >5        >5        >5        -         -  
+      90.0      4.74       >5        >5        >5        >5        -         -         -         -  
+  index curled at f (rows), middle anywhere:
+     f       (-60,0]    (0,15]   (15,20]   (20,25]   (25,30]   (30,35]   (35,40]   (40,45]   (45,60]
+      30.0      1.33      1.41      1.76      1.95      2.19      2.47      2.78      2.30      0.01
+      37.5      1.45      1.57      2.09      2.34      2.63      2.95      3.31      3.54      0.72
+      45.0      1.60      1.77      2.45      2.76      3.11      3.44      3.82      4.20      2.46
+      52.5      1.88      2.10      2.95      3.28      3.63      4.00      4.40      4.79      3.85
+      60.0      2.19      2.46      3.42      3.79      4.16      4.56      4.95       >5        >5 
+      67.5      3.12      3.12      3.99      4.38      4.75       >5        >5        >5        >5 
+      75.0      4.16      4.16      4.54      4.92       >5        >5        >5        >5        -  
+      82.5      4.64      4.94       >5        >5        >5        >5        >5        -         -  
+      90.0      4.73       >5        >5        >5        >5        -         -         -         -  
+
+  middle/ring: inside c <= 15 (any flexion) the min is  1.28 mm at middle (f +45.0, a +30.0) / ring (f -7.5, a -5.0)  [rotule_lever / rotule_lever]; pose pairs touching (< 0.225 mm) there: 0/49154
+  by f of the more curled finger, max(f_middle, f_ring) (rows), the other finger anywhere:
+     f       (-60,0]    (0,15]   (15,20]   (20,25]   (25,30]   (30,35]   (35,40]   (40,45]   (45,60]
+     -60.0       >5        >5       4.81      4.51      3.60      1.91      0.05      0.00      0.00
+     -56.0       >5       4.67      4.34      4.04      2.31      0.37      0.00      0.00      0.00
+     -52.5       >5       4.19      3.88      3.34      1.26      0.00      0.00      0.00      0.00
+     -45.0      4.22      3.37      3.10      1.88      0.01      0.00      0.00      0.00      0.00
+     -37.5      3.33      2.62      2.41      1.01      0.00      0.00      0.00      0.00      0.00
+     -30.0      2.62      2.06      1.90      0.88      0.00      0.00      0.00      0.00      0.00
+     -22.5      2.04      1.64      1.53      0.70      0.00      0.00      0.00      0.00      0.00
+     -15.0      1.61      1.38      1.32      1.30      0.00      0.00      0.00      0.00      0.00
+      -7.5      1.36      1.28      1.28      1.28      0.01      0.00      0.00      0.00      0.00
+       0.0      1.29      1.28      1.30      1.30      0.81      0.00      0.00      0.00      0.00
+       7.5      1.28      1.28      1.30      1.31      1.32      0.44      0.00      0.00      0.00
+      15.0      1.28      1.30      1.31      1.31      1.32      1.34      0.41      0.00      0.00
+      22.5      1.28      1.30      1.32      1.32      1.37      1.47      1.12      0.02      0.00
+      30.0      1.28      1.31      1.34      1.42      1.52      1.69      1.90      1.22      0.00
+      37.5      1.28      1.32      1.47      1.61      1.79      2.02      2.29      2.27      0.01
+      45.0      1.28      1.34      1.68      1.89      2.15      2.44      2.77      3.11      1.18
+      52.5      1.33      1.47      2.03      2.30      2.61      2.94      3.30      3.68      2.41
+      60.0      1.49      1.68      2.44      2.76      3.11      3.47      3.87      4.27      3.67
+      67.5      2.13      2.16      2.95      3.30      3.68      4.08      4.49      4.61      4.70
+      75.0      3.06      3.09      3.47      3.86      4.27      4.41      4.48      4.55       -  
+      82.5      4.26      4.27      4.29      4.29      4.36      4.40      4.42       -         -  
+      90.0      4.72      4.67      4.54      4.44      4.37       -         -         -         -  
+  ring curled at f (rows), middle anywhere:
+     f       (-60,0]    (0,15]   (15,20]   (20,25]   (25,30]   (30,35]   (35,40]   (40,45]   (45,60]
+      30.0      1.50      1.66      2.34      2.62      2.93      3.28      3.62      3.87      1.06
+      37.5      1.73      1.94      2.74      3.07      3.41      3.77      4.14      4.53      2.93
+      45.0      2.07      2.32      3.25      3.59      3.95      4.33      4.68      4.98      4.51
+      52.5      2.43      2.72      3.73      4.11      4.46      4.77       >5        >5        >5 
+      60.0      2.90      3.24      4.29      4.59      4.88       >5        >5        >5        >5 
+      67.5      3.90      3.90      4.69      4.98       >5        >5        >5        >5        >5 
+      75.0      4.83      4.83       >5        >5        >5        >5        >5        >5        -  
+      82.5       >5        >5        >5        >5        >5        >5        >5        -         -  
+      90.0       >5        >5        >5        >5        >5        -         -         -         -  
+  middle curled at f (rows), ring anywhere:
+     f       (-60,0]    (0,15]   (15,20]   (20,25]   (25,30]   (30,35]   (35,40]   (40,45]   (45,60]
+      30.0      1.28      1.31      1.34      1.42      1.52      1.69      1.90      1.22      0.00
+      37.5      1.28      1.32      1.47      1.61      1.79      2.02      2.29      2.27      0.01
+      45.0      1.28      1.34      1.68      1.89      2.15      2.44      2.77      3.11      1.18
+      52.5      1.33      1.47      2.03      2.30      2.61      2.94      3.30      3.68      2.41
+      60.0      1.49      1.68      2.44      2.76      3.11      3.47      3.87      4.27      3.67
+      67.5      2.13      2.16      2.95      3.30      3.68      4.08      4.49      4.61      4.70
+      75.0      3.06      3.09      3.47      3.86      4.27      4.41      4.48      4.55       -  
+      82.5      4.26      4.27      4.29      4.29      4.36      4.40      4.42       -         -  
+      90.0      4.72      4.67      4.54      4.44      4.37       -         -         -         -  
+
+  ring/pinky: inside c <= 15 (any flexion) the min is  2.89 mm at ring (f +52.5, a +30.0) / pinky (f -52.5, a +30.0)  [rotule_lever / rotule_lever]; pose pairs touching (< 0.225 mm) there: 0/49154
+  by f of the more curled finger, max(f_ring, f_pinky) (rows), the other finger anywhere:
+     f       (-60,0]    (0,15]   (15,20]   (20,25]   (25,30]   (30,35]   (35,40]   (40,45]   (45,60]
+     -60.0       >5        >5        >5        >5       4.75      3.03      1.25      0.00      0.00
+     -56.0       >5        >5        >5        >5       3.50      1.58      0.01      0.00      0.00
+     -52.5       >5        >5        >5       4.53      2.44      0.32      0.00      0.00      0.00
+     -45.0       >5       4.94      4.68      3.44      1.09      0.01      0.00      0.00      0.00
+     -37.5      4.93      4.24      4.05      2.43      0.00      0.00      0.00      0.00      0.00
+     -30.0      4.25      3.70      3.54      2.22      0.00      0.00      0.00      0.00      0.00
+     -22.5      3.71      3.29      3.21      2.35      0.00      0.00      0.00      0.00      0.00
+     -15.0      3.29      3.03      3.01      2.47      0.09      0.00      0.00      0.00      0.00
+      -7.5      3.06      2.95      2.95      2.85      0.80      0.00      0.00      0.00      0.00
+       0.0      2.96      2.95      2.94      2.89      1.15      0.01      0.00      0.00      0.00
+       7.5      2.95      2.93      2.93      2.91      1.36      0.01      0.00      0.00      0.00
+      15.0      2.95      2.94      2.92      2.92      1.56      0.18      0.01      0.00      0.00
+      22.5      2.93      2.92      2.92      2.91      1.96      0.71      0.01      0.01      0.00
+      30.0      2.93      2.91      2.91      2.92      2.47      1.47      0.49      0.01      0.00
+      37.5      2.91      2.90      2.93      3.02      3.13      2.30      1.44      0.56      0.00
+      45.0      2.90      2.90      3.07      3.18      3.36      3.18      2.52      1.81      0.00
+      52.5      2.89      2.92      3.27      3.46      3.68      3.94      3.47      2.88      0.71
+      60.0      2.95      3.06      3.56      3.80      4.08      4.40      4.41      3.93      2.01
+      67.5      3.33      3.34      3.94      4.24      4.57      4.65      4.71      4.77      4.02
+      75.0      4.06      4.07      4.39      4.53      4.56      4.60      4.65      4.70       -  
+      82.5      4.71      4.49      4.48      4.51      4.54      4.56      4.59       -         -  
+      90.0      4.94      4.57      4.52      4.51      4.54       -         -         -         -  
+  pinky curled at f (rows), ring anywhere:
+     f       (-60,0]    (0,15]   (15,20]   (20,25]   (25,30]   (30,35]   (35,40]   (40,45]   (45,60]
+      30.0      3.33      3.53      4.00      4.16      4.36      4.57      4.81       >5       3.68
+      37.5      3.58      3.75      4.19      4.38      4.61      4.84       >5        >5        >5 
+      45.0      3.77      3.91      4.45      4.67      4.90       >5        >5        >5        >5 
+      52.5      3.93      4.11      4.70      4.94       >5        >5        >5        >5        >5 
+      60.0      4.16      4.37       >5        >5        >5        >5        >5        >5        >5 
+      67.5      4.72      4.74       >5        >5        >5        >5        >5        >5        >5 
+      75.0       >5        >5        >5        >5        >5        >5        >5        >5        -  
+      82.5       >5        >5        >5        >5        >5        >5        >5        -         -  
+      90.0       >5        >5        >5        >5        >5        -         -         -         -  
+  ring curled at f (rows), pinky anywhere:
+     f       (-60,0]    (0,15]   (15,20]   (20,25]   (25,30]   (30,35]   (35,40]   (40,45]   (45,60]
+      30.0      2.93      2.91      2.91      2.92      2.47      1.47      0.49      0.01      0.00
+      37.5      2.91      2.90      2.93      3.02      3.13      2.30      1.44      0.56      0.00
+      45.0      2.90      2.90      3.07      3.18      3.36      3.18      2.52      1.81      0.00
+      52.5      2.89      2.92      3.27      3.46      3.68      3.94      3.47      2.88      0.71
+      60.0      2.95      3.06      3.56      3.80      4.08      4.40      4.41      3.93      2.01
+      67.5      3.33      3.34      3.94      4.24      4.57      4.65      4.71      4.77      4.02
+      75.0      4.06      4.07      4.39      4.53      4.56      4.60      4.65      4.70       -  
+      82.5      4.71      4.49      4.48      4.51      4.54      4.56      4.59       -         -  
+      90.0      4.94      4.57      4.52      4.51      4.54       -         -         -         -  
+
+== 3. converge_limit(): the pose pairs it allows beyond c = 15
+  index/middle: 761 grid pose pairs newly allowed; min  4.54 mm at index (f +75.0, a +10.0) / middle (f -22.5, a +30.0)  [rotule_lever / rotule_lever]; touching: 0
+  middle/ring: 761 grid pose pairs newly allowed; min  3.47 mm at middle (f +75.0, a +10.0) / ring (f -30.0, a +30.0)  [rotule_lever / rotule_lever]; touching: 0
+  ring/pinky: 761 grid pose pairs newly allowed; min  4.39 mm at ring (f +75.0, a +10.0) / pinky (f -45.0, a +30.0)  [rotule_lever / rotule_lever]; touching: 0
+  the same for other limits, as min clearance (mm) over the pose pairs each allows beyond 15 (cmax at f = 90, ramp start - end):
+    cmax 30, f 30-60: index/middle  2.33, middle/ring  1.68, ring/pinky  3.07
+    cmax 30, f 45-75: index/middle  3.34, middle/ring  2.44, ring/pinky  3.56
+    cmax 30, f 60-75: index/middle  3.91, middle/ring  2.95, ring/pinky  3.94
+    cmax 30, f 60-90: index/middle  4.54, middle/ring  3.47, ring/pinky  4.39
+    cmax 40, f 60-90: index/middle  3.91, middle/ring  2.95, ring/pinky  3.94
+    cmax 40, f 30-60: index/middle  1.92, middle/ring  1.47, ring/pinky  2.93
+  local refinement around the 8 closest per pair (f +-3.75 in 1.875 steps, a +-2.5 in 1.25 steps, both fingers): 283 poses settled (max loop error 0.0035 mm), 6394 newly allowed pose pairs
+    index/middle: min  3.97 mm over 2176 pairs at index (f -16.875, a -28.75) / middle (f +71.250, a -12.50), c +16.25 [rotule_lever / rotule_lever]
+    middle/ring: min  3.03 mm over 2428 pairs at middle (f +71.250, a +12.50) / ring (f -31.875, a +28.75), c +16.25 [rotule_lever / rotule_lever]
+    ring/pinky: min  4.03 mm over 1790 pairs at ring (f +71.250, a +12.50) / pinky (f -45.000, a +28.75), c +16.25 [rotule_lever / rotule_lever]
+
+== 4. the demo (AmazingHand_Demo_5F: start, demo(), stop): 489 bus frames and 29 holds played in real time; clearance after every frame and hold
+  index/middle: min  1.20 mm at frame 39 (index f -1.1 a +0.6, middle f +0.0 a +0.0) [rotule_lever / rotule_lever]; no frame converges by more than 15
+  middle/ring: min  1.80 mm at frame 40 (middle f +0.0 a +0.0, ring f +0.0 a +0.0) [rotule_lever / rotule_lever]; 44 frames converge by more than 15 (up to 30.0), min there   >5  mm
+  ring/pinky: min  3.77 mm at frame 276 (ring f -5.4 a +0.0, pinky f -5.4 a +0.0) [rotule_lever / rotule_lever]; no frame converges by more than 15
+  Victory: middle (-83.5, 33.5) (a -25.0), ring (90.0, -90.0): converging by 25.0, limit 30.0; clamp_hand leaves it unchanged: True
+  Peace: middle (-86.0, 26.0) (a -30.0), ring (90.0, -90.0): converging by 30.0, limit 30.0; clamp_hand leaves it unchanged: True
+
+== 5. exact min distance (manifold3d min_gap, full-resolution meshes, every geom pair of the two fingers but palm-fixed/palm-fixed), settled at each pose pair (the other fingers at (0, 0))
+  closest newly allowed (refined)    index (f -16.88, a -28.75) / middle (f +71.25, a -12.50), c +16.25: 3.95 mm [rotule_lever / rotule_lever]
+  closest newly allowed (refined)    middle (f +71.25, a +12.50) / ring (f -31.88, a +28.75), c +16.25: 3.13 mm [rotule_lever / rotule_lever]
+  closest newly allowed (refined)    ring (f +71.25, a +12.50) / pinky (f -45.00, a +28.75), c +16.25: 4.13 mm [rotule_lever / rotule_lever]
+  corner of the limit: c = 30 at f = 90 middle (f +90.00, a +0.00) / ring (f -45.00, a +30.00), c +30.00: 4.37 mm [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+  corner of the limit: c = 30 at f = 90 middle (f -45.00, a -30.00) / ring (f +90.00, a +0.00), c +30.00: 6.10 mm [rotule_lever / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+  Victory                            index (f -58.50, a +25.00) / middle (f -58.50, a -25.00), c -50.00: 6.35 mm [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+  Victory                            middle (f -58.50, a -25.00) / ring (f +90.00, a +0.00), c +25.00: 6.34 mm [rotule_lever / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+  Victory                            ring (f +90.00, a +0.00) / pinky (f +90.00, a +0.00), c +0.00: inf mm (> 8 mm)
+  Peace                              index (f -56.00, a +30.00) / middle (f -56.00, a -30.00), c -60.00: 6.71 mm [ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+  Peace                              middle (f -56.00, a -30.00) / ring (f +90.00, a +0.00), c +30.00: 6.18 mm [rotule_lever / ph_pan_head_screw_m2x0_40_x_10__2803432263e518bbd16bccbbef8784ed]
+  Peace                              ring (f +90.00, a +0.00) / pinky (f +90.00, a +0.00), c +0.00: inf mm (> 8 mm)
+
+== verdict (clearance, mm; >= 1 mm required for the pose pairs converge_limit adds)
+  index/middle: inside c <= 15  1.31; added by converge_limit: grid  4.54, refined  3.97, exact at the refined closest  3.95
+  middle/ring: inside c <= 15  1.28; added by converge_limit: grid  3.47, refined  3.03, exact at the refined closest  3.13; demo frames converging by more than 15:   >5 
+  ring/pinky: inside c <= 15  2.89; added by converge_limit: grid  4.39, refined  4.03, exact at the refined closest  4.13
+  -> converge_limit HOLDS: the closest pose pair it adds is 3.03 mm apart
+
+   peak footprint (main process + workers) 4.84 GB
