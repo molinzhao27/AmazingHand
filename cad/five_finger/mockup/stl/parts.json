@@ -67,19 +67,25 @@
    4.240638554791992e-17,
    1.0000000000000142
   ],
-  "note": "cross horn + M2 ball stud + nut in one piece; slides onto the Dummy_SCS0009 stub (friction)"
+  "note": "cross horn + the stud's nut; slides onto the Dummy_SCS0009 stub (friction)"
  },
- "Link_Ball": {
+ "Stud_Pin_D2.1_L8": {
   "group": "hand",
   "qty": 10,
   "up": null,
-  "note": "d5 ball pressed on the Link axle, one each side of the Link"
+  "note": "the horn's ball stud: pressed through the arm and its boss, flush below; a Ball_D5 pressed on top"
+ },
+ "Ball_D5": {
+  "group": "hand",
+  "qty": 20,
+  "up": null,
+  "note": "d5 ball, pressed flush on the end of a Link axle (2 per Link) or a horn's stud pin (1 per horn)"
  },
  "Axle_D2.1_L20": {
   "group": "hand",
   "qty": 5,
   "up": null,
-  "note": "through the Link's d2.2 ball-stud hole, a Link_Ball pressed on each end"
+  "note": "through the Link's d2.2 ball-stud hole, a Ball_D5 pressed on each end"
  },
  "Rod_index_M1": {
   "group": "hand",
@@ -215,13 +221,19 @@
   "group": "wrist",
   "qty": 2,
   "up": null,
-  "note": "M3 ball stud stand-in: shank presses into the lever bar's insert hole"
+  "note": "M3 ball stud stand-in, a pin printed lying down: shank presses into the lever bar's insert hole; a Ball_D5.8 pressed flush on the neck"
  },
  "Ball_Stud_Arm": {
   "group": "wrist",
   "qty": 2,
   "up": null,
-  "note": "M3 ball stud stand-in: shank presses through the horn arm (no nut)"
+  "note": "M3 ball stud stand-in, a pin printed lying down: shank presses through the horn arm (no nut); a Ball_D5.8 pressed flush on the neck"
+ },
+ "Ball_D5.8": {
+  "group": "wrist",
+  "qty": 4,
+  "up": null,
+  "note": "d5.8 ball, pressed flush on the end of a ball stud's neck"
  },
  "Rod_Wrist_M1": {
   "group": "wrist",

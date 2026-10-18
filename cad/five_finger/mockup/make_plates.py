@@ -9,6 +9,7 @@ test plates come first:
 
   00_test_fit_PLA          the real hole sizes in a gauge block + every stand-in fit in three sizes
   00_test_switch_PLA_TPU   a PLA base with a TPU 95A ribbed pad on top: one filament change (PLA -> TPU)
+  00_test_balls_PLA        just the fit test's two ball posts (block, stud pin, pressed-on ball) for the cups
 
 Orientation: the build notes' orientation where they give one (pins vertical for the finger cores, the wrist parts as
 make_wrist.PRINT_UP, covers standing on their proximal end), otherwise the direction with the least overhang among 400
@@ -232,8 +233,8 @@ def prepare(p, folder):
     name = Path(p["file"]).stem
     up = None
     if p["src"] == "standin":
-        up = p["up"] if p["up"] is not None else (0, 0, 1) if name.startswith(("Pin_", "Axle_", "Peg_", "Link_Ball",
-                                                                                 "Insert_")) else None
+        up = p["up"] if p["up"] is not None else (0, 0, 1) if name.startswith(("Pin_", "Axle_", "Peg_", "Ball_D5",
+                                                                                 "Stud_Pin_", "Ball_Stud_", "Insert_")) else None
     R = orient(m, p["rule"], name, up)
     m.apply_transform(np.block([[R, np.zeros((3, 1))], [np.zeros((1, 3)), np.ones((1, 1))]]))
     lo, hi = m.bounds
@@ -357,6 +358,13 @@ def main():
             if r[5]:
                 log(f"  WARNING {s.stem} would want a brim ({r[6]}); the test plate has none")
         jobs.append(dict(name="00_test_fit_PLA", items=items,
+                         kw=dict(material="PLA", colour="white", layer=0.12, supports=None)))
+    if "00_test_balls".startswith(args.only) or args.only.startswith("00_test_balls"):
+        f = WORK / "_oriented_tests"
+        f.mkdir(exist_ok=True)
+        items = [(prepare(dict(file=str(s.relative_to(REPO)), rule="auto", src="standin", up=(0, 0, 1)), f)[0], 0, 0,
+                  s.stem) for s in sorted([*test.glob("Fit_Ball_Hand_*.stl"), *test.glob("Fit_Ball_Wrist_*.stl")])]
+        jobs.append(dict(name="00_test_balls_PLA", items=items,
                          kw=dict(material="PLA", colour="white", layer=0.12, supports=None)))
     if "00_test_switch".startswith(args.only) or args.only.startswith("00_test_switch"):
         jobs.append(dict(name="00_test_switch_PLA_TPU",

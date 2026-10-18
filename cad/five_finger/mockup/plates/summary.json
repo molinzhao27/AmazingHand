@@ -2,8 +2,8 @@
  "00_test_fit_PLA": {
   "plates": [
    {
-    "time": "1h 22m 8s",
-    "grams": "12.87",
+    "time": "1h 24m 8s",
+    "grams": "13.23",
     "fits_bed": true,
     "filament_changes": 0
    }
@@ -17,11 +17,15 @@
    "Fit_Axle_D2.00",
    "Fit_Axle_D2.10",
    "Fit_Axle_D2.20",
-   "Fit_Ball_Hand",
+   "Fit_Ball_Hand_Ball",
+   "Fit_Ball_Hand_Pin",
+   "Fit_Ball_Hand_Post",
    "Fit_Ball_Hole_D1.90",
    "Fit_Ball_Hole_D2.00",
    "Fit_Ball_Hole_D2.10",
-   "Fit_Ball_Wrist",
+   "Fit_Ball_Wrist_Ball",
+   "Fit_Ball_Wrist_Pin",
+   "Fit_Ball_Wrist_Post",
    "Fit_Cup_Hand_Lip1.0",
    "Fit_Cup_Hand_Lip1.2",
    "Fit_Cup_Hand_Lip1.4",
@@ -187,26 +191,26 @@
  "05_standins_PLA_black": {
   "plates": [
    {
-    "time": "6h 3m 44s",
-    "grams": "74.92",
+    "time": "6h 10m 28s",
+    "grams": "75.61",
     "fits_bed": true,
     "filament_changes": 0
    },
    {
-    "time": "1h 14m 36s",
-    "grams": "12.11",
+    "time": "1h 30m 18s",
+    "grams": "13.60",
     "fits_bed": true,
     "filament_changes": 0
    },
    {
-    "time": "48m 21s",
-    "grams": "5.77",
+    "time": "41m 41s",
+    "grams": "5.33",
     "fits_bed": true,
     "filament_changes": 0
    },
    {
-    "time": "9m 35s",
-    "grams": "0.70",
+    "time": "49m 42s",
+    "grams": "5.30",
     "fits_bed": true,
     "filament_changes": 0
    }
@@ -215,13 +219,17 @@
   "filament_changes": 0,
   "parts": [
    "Axle_D2.1_L20",
+   "Ball_D5",
+   "Ball_D5.8",
+   "Ball_Stud_Arm",
+   "Ball_Stud_Top",
    "Bushing_0608",
    "Bushing_F683",
    "Disc_Horn",
    "Dummy_SCS0009",
    "Dummy_STS3215",
    "Insert_M3",
-   "Link_Ball",
+   "Mock_Horn",
    "Peg_2.5x16",
    "Peg_2.5x6",
    "Peg_2.5x8",
@@ -235,14 +243,15 @@
    "Pin_D3_L10",
    "Rod_Wrist_M1",
    "Rod_Wrist_M2",
+   "Stud_Pin_D2.1_L8",
    "Washer_M2.5"
   ]
  },
  "05_standins_PLA_black_brim": {
   "plates": [
    {
-    "time": "2h 32m 43s",
-    "grams": "17.28",
+    "time": "1h 25m 8s",
+    "grams": "10.39",
     "fits_bed": true,
     "filament_changes": 0
    }
@@ -250,9 +259,6 @@
   "ok": true,
   "filament_changes": 0,
   "parts": [
-   "Ball_Stud_Arm",
-   "Ball_Stud_Top",
-   "Mock_Horn",
    "Rod_index_M1",
    "Rod_index_M2",
    "Rod_middle_M1",
@@ -337,6 +343,26 @@
    "UF_P2_Pad_S088",
    "UF_P3_Pad",
    "UF_P3_Pad_S088"
+  ]
+ },
+ "00_test_balls_PLA": {
+  "plates": [
+   {
+    "time": "7m 32s",
+    "grams": "1.13",
+    "fits_bed": true,
+    "filament_changes": 0
+   }
+  ],
+  "ok": true,
+  "filament_changes": 0,
+  "parts": [
+   "Fit_Ball_Hand_Ball",
+   "Fit_Ball_Hand_Pin",
+   "Fit_Ball_Hand_Post",
+   "Fit_Ball_Wrist_Ball",
+   "Fit_Ball_Wrist_Pin",
+   "Fit_Ball_Wrist_Post"
   ]
  }
 }

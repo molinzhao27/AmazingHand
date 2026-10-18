@@ -11,10 +11,11 @@ snap-on ball cups at the exact ball-to-ball length of the sim.
   Dummy_SCS0009          x10  Feetech SCS0009                                 the sim's servo mesh, its output spline a plain
                                                                               d4 stub, ear holes for d1.75 filament pins
   Mock_Horn              x10  reworked cross horn + M2x9 ball stud + nut      the sim's horn mesh, its bore a friction fit on
-                                                                              the stub, the d5 ball printed on it
+                                                                              the stub, a nut-sized boss under the arm
+  Stud_Pin_D2.1_L8       x10  the M2 ball stud's shank                        d2.1 pin pressed through the horn arm
+  Ball_D5                x20  the M2 balls (2 per Link, 1 per horn)          d5 ball pressed on a d2.1 pin (Link axle, stud pin)
   Rod_<digit>_M1/M2      x10  2 M2 ball joints + M2x18 rod + spacer          one piece: snap-on cups at the sim's ball centres
-  Link_Ball              x10  the two ball studs on each finger's Link        d5 ball on a d2.1 axle through the Link
-  Pin_D2_L*, Axle_D2.1_L*     the d2 dowels (stock and 3-phalanx fingers)     printed pins, lying on a 0.15 mm flat
+  Pin_D2_L*, Axle_D2.1_L*     the d2 dowels (stock and 3-phalanx fingers)     printed pins, lying on a flat
   Bushing_0608           x10  igus bushing 0608-04                            the sim's mesh
   Washer_M2.5             x5  M2.5 large washer                               the sim's mesh
   Peg_2.5x6/8/16              2.5 mm thermoplastic screws                     d2.0 press peg with a pan head
@@ -23,7 +24,8 @@ snap-on ball cups at the exact ball-to-ball length of the sim.
   Peg_M2.5x6              x8  horn arm -> disc horn screws                    d2.4 press peg
   Bushing_F683            x4  F683ZZ flanged bearing                          printed flanged sleeve on the d3 pin
   Pin_D3_L10              x4  d3 x 10 dowel (gimbal ring)                     printed pin
-  Ball_Stud_Top/Arm       x2  M3 ball studs (d5.8)                            printed stud, press-fit shank
+  Ball_Stud_Top/Arm       x2  M3 ball studs                                   stepped pin lying down, press-fit shank
+  Ball_D5.8               x4  their d5.8 balls                                pressed on the stud's d3.3 neck
   Rod_Wrist_M1/M2         x1  2 M3 ball links + M3 rod                        one piece: snap-on cups, 66.0 / 96.0 mm
   Insert_M3              x14  M3 heat-set insert                              printed press sleeve
   Peg_M3x10 / Peg_M3x8_CSK    M3 socket head / countersunk screws             d3.0 press peg into the sleeve
@@ -32,6 +34,9 @@ Not replaced: the four servo screws per finger (2 x 7 mm self-tappers into d1.5 
 pin) take 1.75 mm filament pins through the dummy servo's ear holes (ream the frame's d1.5 holes to 1.8 mm), or are left
 out (the servo pair is trapped between the two finger frames and the plate). The M5 stand screws, cables and
 electronics are not part of the mock-up.
+
+No ball is printed on its stud. A d2-3.5 neck printed upright breaks across its layers as soon as a cup is levered on
+it: the first fit test's ball posts did. So every ball is a separate part, pressed onto a pin that prints lying down.
 
 Fits are parameters at the top. Print the fit test first (test_fit.3mf, see README.md), pick the variants that fit on
 your printer, set the parameters, and run this again.
@@ -71,7 +76,7 @@ TEST_DIR = HERE / "stl" / "test"
 # Tune these after printing test_fit.3mf: each one is printed there in three sizes (the value and +-0.1 mm).
 PIN_D = 2.00          # printed d2 dowel. Holes: d1.95 press (P1, P2, P3, Gimbal), d2.15 running (P2, P3, Link, L2)
 AXLE_D = 2.10         # axle through the Link's d2.2 ball-stud hole (and the horn's ball pin)
-BALL_HOLE = 2.00      # Link_Ball's hole on that axle (press)
+BALL_HOLE = 2.00      # Ball_D5's hole on that axle / stud pin (press); also the stud pin's hole in the horn arm
 PEG_D = 2.00          # 2.5 mm self-tapper stand-in: passes the d2.8 clearance holes, presses into the d1.9 pilots
 STUB_D = 4.00         # dummy SCS0009 output stub (the real spline is d4)
 HORN_BORE = 3.90      # Mock_Horn bore on the stub: friction that holds a pose
@@ -81,6 +86,9 @@ CUP_LIP = 1.20        # the cup's mouth plane above the ball centre: higher = ti
 CUP_SLITS = 2         # radial slits through the lip so it can open over the ball
 SLIT_W = 0.6
 WBALL_D = 5.80        # wrist ball studs
+WBALL_HOLE = 3.20     # Ball_D5.8's hole on the stud's d3.3 neck (press, as the arm stud in the horn arm's d3.2 hole)
+BALL_HALF = 2.00      # the balls are cut flat this far either side of the centre: they print on a flat, hole upright
+HORN_BOSS = 1.60      # nut-sized boss under the horn arm (where the real stud's nut sits), for a longer press
 WCUP_LIP = 1.40
 STS_STUB_D = 6.00     # dummy STS3215 output stub
 DISC_BORE = 5.90      # Disc_Horn bore on that stub (friction)
@@ -251,6 +259,25 @@ def peg(d, L, head_d, head_h, csk=False):
     return s.clean()
 
 
+def ball_part(d, hole):
+    """Ball of diameter d with a press hole along z, cut flat at +-BALL_HALF: it prints on a flat, hole upright."""
+    s = sphere((0, 0, 0), d / 2).intersect(MW.box(-d, d, -d, d, -BALL_HALF, BALL_HALF))
+    return s.cut(cyl((0, 0, -d), (0, 0, 1), hole / 2, 2 * d)).clean()
+
+
+def stud_pin(shank_d, depth, neck_d, H, collar_d=6.0, collar_t=1.5):
+    """Ball stud as a pin lying along x (seat at x = 0): shank_d into the part to x = -depth, a collar on the seat, the
+    neck_d neck to the end of a ball centred at x = H. Flat at -z, shallow on the neck, so it all touches the bed."""
+    end = H + BALL_HALF
+    s = MW.fuse(cyl((-depth, 0, 0), (1, 0, 0), shank_d / 2, depth + 0.01), cyl((0, 0, 0), (1, 0, 0), collar_d / 2, collar_t),
+                cyl((collar_t - 0.01, 0, 0), (1, 0, 0), neck_d / 2, end - collar_t + 0.01))
+    for x0, r, sgn in ((-depth, shank_d / 2, -1), (end, neck_d / 2, 1)):   # chamfered ends
+        s = s.cut(cyl((x0 - sgn * 0.3, 0, 0), (sgn, 0, 0), r + 1, 1.3)).fuse(
+            cq.Solid.makeCone(r, r - 0.3, 0.3, pnt=V(x0 - sgn * 0.3, 0, 0), dir=V(sgn, 0, 0)))
+    zf = -neck_d / 2 + FLAT / 2
+    return s.cut(MW.box(-depth - 1, end + 1, -collar_d, collar_d, -collar_d, zf)).clean()
+
+
 def pin_place(geom_mesh, T):
     """Part frame of a printed pin -> the sim pin (its long axis, centred on its mid point)."""
     v = apply(T, geom_mesh.vertices)
@@ -347,7 +374,20 @@ def build_hand(sim):
     # the stud: from the ball centre towards the horn (along the servo axis), into the horn arm
     hv = hm.vertices
     toward = axis_f if np.dot(hv.mean(0) - ball_f, axis_f) > 0 else -axis_f
-    H = H + mf.Manifold.sphere(BALL_D / 2, 96).translate(tuple(ball_f)) + mcyl(ball_f, ball_f + toward * 4.0, 1.1)
+    # the stud: a d2.1 pin pressed through the arm and a nut-sized boss under it, a Ball_D5 pressed on its end.
+    # (Printed on the horn, a d2.2 neck stands across the layers and snaps.) The arm, from rays beside the axis:
+    u = np.cross(toward, (0, 1, 0) if abs(toward[1]) < 0.9 else (1, 0, 0)); u /= np.linalg.norm(u)
+    w, hits = np.cross(toward, u), []
+    for a in np.linspace(0, 2 * np.pi, 8, endpoint=False):
+        o = ball_f + 1.2 * (np.cos(a) * u + np.sin(a) * w)
+        loc, _, _ = hm.ray.intersects_location([o], [toward])
+        if len(loc):
+            hits.append(np.sort((loc - o) @ toward)[[0, -1]])
+    arm_top, arm_bot = min(h[0] for h in hits), max(h[1] for h in hits)
+    boss_end = arm_bot + HORN_BOSS
+    H = (H + mcyl(ball_f + toward * (arm_bot - 0.01), ball_f + toward * boss_end, 2.0)
+         - mcyl(ball_f + toward * (arm_top - 1.0), ball_f + toward * (boss_end + 1.0), BALL_HOLE / 2))
+    log(f"horn arm {arm_top:.2f}-{arm_bot:.2f} mm below the ball centre, boss to {boss_end:.2f}")
     # friction bore on the stub: a sleeve inside the horn's d4 bore
     hb = (hv - anchor_f) @ axis_f
     face = anchor_f + axis_f * (hb.max() if np.dot(axis_f, toward) > 0 else hb.min())   # the face on the servo
@@ -355,7 +395,12 @@ def build_hand(sim):
     sleeve = mcyl(face - inward * 0.01, face + inward * 2.8, 2.3) - mcyl(face - inward, face + inward * 4, HORN_BORE / 2)
     H = H + sleeve
     add("Mock_Horn", "hand", unman(H), [g.T for g in horns], up=tuple(-toward),   # prints on its hub face
-        note="cross horn + M2 ball stud + nut in one piece; slides onto the Dummy_SCS0009 stub (friction)")
+        note="cross horn + the stud's nut; slides onto the Dummy_SCS0009 stub (friction)")
+    L = round((boss_end + BALL_HALF) * 2) / 2
+    Ps = tf(frame(toward)[:, [2, 0, 1]], ball_f + toward * (boss_end - BALL_HALF) / 2)   # pin centre, x = axis
+    add(f"Stud_Pin_D2.1_L{L:g}", "hand", to_mesh(pin(AXLE_D, L)), [g.T @ Ps for g in horns],
+        note="the horn's ball stud: pressed through the arm and its boss, flush below; a Ball_D5 pressed on top")
+    horn_balls = [g.T @ tf(frame(-toward), ball_f) for g in horns]
 
     # Link balls and their axles
     lb, axles = [], {}
@@ -373,12 +418,11 @@ def build_hand(sim):
         L = np.linalg.norm(C[1] - C[0]) + 2 * 2.0
         P = tf(frame(u)[:, [2, 0, 1]], 0.5 * (C[0] + C[1]))
         axles.setdefault(round(L * 2) / 2, []).append(P)
-    s = sphere((0, 0, 0), BALL_D / 2).intersect(MW.box(-3, 3, -3, 3, -2.0, 2.0))
-    s = s.cut(cyl((0, 0, -3), (0, 0, 1), BALL_HOLE / 2, 6)).clean()
-    add("Link_Ball", "hand", to_mesh(s), lb, note="d5 ball pressed on the Link axle, one each side of the Link")
+    add("Ball_D5", "hand", to_mesh(ball_part(BALL_D, BALL_HOLE)), lb + horn_balls,
+        note="d5 ball, pressed flush on the end of a Link axle (2 per Link) or a horn's stud pin (1 per horn)")
     for L, places in sorted(axles.items()):
         add(f"Axle_D2.1_L{L:g}", "hand", to_mesh(pin(AXLE_D, L)), places,
-            note="through the Link's d2.2 ball-stud hole, a Link_Ball pressed on each end")
+            note="through the Link's d2.2 ball-stud hole, a Ball_D5 pressed on each end")
 
     # one-piece push rods
     for dig in ("index", "middle", "ring", "pinky", "thumb"):
@@ -503,9 +547,9 @@ def build_wrist(sim):
 
     # ball studs
     arm_in = wd.X_TOP_FACE + wd.HORN_GAP + wd.HORN_T
+    wballs = []
     for kind, H, shank, depth in (("Top", wd.STUD_TOP_H, STUD_TOP_SHANK, 5.5), ("Arm", wd.STUD_ARM_H, STUD_ARM_SHANK, wd.ARM_T)):
-        s = MW.fuse(cyl((0, 0, 0), (0, 0, 1), 3.0, 1.5), cyl((0, 0, 0), (0, 0, 1), 1.75, H),
-                    sphere((0, 0, H), WBALL_D / 2), cyl((0, 0, -depth), (0, 0, 1), shank / 2, depth + 0.01))
+        s = stud_pin(shank, depth, STUD_ARM_SHANK, H)
         places = []
         for i in (1, 2):
             sg = wd.SIDE[i]
@@ -514,10 +558,14 @@ def build_wrist(sim):
             else:
                 bot = wd.ball_bottom(i, 0.0)
                 seat, ball = np.array([sg * arm_in, bot[1], bot[2]]), bot
-            places.append(P1 @ tf(frame(ball - seat), seat))
+            places.append(P1 @ tf(frame(ball - seat)[:, [2, 0, 1]], seat))           # part x = stud axis
+            wballs.append(P1 @ tf(frame(ball - seat), ball))
         add(f"Ball_Stud_{kind}", "wrist", to_mesh(s), places,
-            note="M3 ball stud stand-in: " + ("shank presses into the lever bar's insert hole" if kind == "Top"
-                                               else "shank presses through the horn arm (no nut)"))
+            note="M3 ball stud stand-in, a pin printed lying down: " +
+                 ("shank presses into the lever bar's insert hole" if kind == "Top"
+                  else "shank presses through the horn arm (no nut)") + "; a Ball_D5.8 pressed flush on the neck")
+    add("Ball_D5.8", "wrist", to_mesh(ball_part(WBALL_D, WBALL_HOLE)), wballs,
+        note="d5.8 ball, pressed flush on the end of a ball stud's neck")
 
     # one-piece rods
     for i in (1, 2):
@@ -577,10 +625,16 @@ def build_tests():
                                                             cyl((0, 0, -1), (0, 0, 1), (DISC_BORE + dd) / 2, 5))
     out["Fit_Servo_Stub"] = MW.fuse(MW.box(-6, 6, -6, 6, 0, 4), cyl((0, 0, 4), (0, 0, 1), STUB_D / 2, 3.2))
     out["Fit_STS_Stub"] = MW.fuse(MW.box(-8, 8, -8, 8, 0, 4), cyl((0, 0, 4), (0, 0, 1), STS_STUB_D / 2, 3.5))
-    # ball posts and cups (three mouth heights each): the cup prints mouth up and snaps down onto the post's ball
+    # ball posts, made like the real studs: a block with the press hole (horn arm + boss / wrist horn arm), the stud pin
+    # and the ball pressed on its end. Then the cups (three mouth heights each), printed mouth up, snap onto the ball
+    hand_post = 1.5 + HORN_BOSS                                      # the horn arm (1.5) and its boss
+    out["Fit_Ball_Hand_Post"] = MW.cut(MW.box(-5, 5, -5, 5, 0, hand_post), cyl((0, 0, -1), (0, 0, 1), BALL_HOLE / 2, 9))
+    out["Fit_Ball_Hand_Pin"] = pin(AXLE_D, round((hand_post + 0.9 + 2 * BALL_HALF) * 2) / 2)   # arm 0.9 below the ball
+    out["Fit_Ball_Hand_Ball"] = ball_part(BALL_D, BALL_HOLE)
+    out["Fit_Ball_Wrist_Post"] = MW.cut(MW.box(-6, 6, -6, 6, 0, wd.ARM_T), cyl((0, 0, -1), (0, 0, 1), 3.2 / 2, 9))
+    out["Fit_Ball_Wrist_Pin"] = stud_pin(STUD_ARM_SHANK, wd.ARM_T, STUD_ARM_SHANK, wd.STUD_ARM_H)
+    out["Fit_Ball_Wrist_Ball"] = ball_part(WBALL_D, WBALL_HOLE)
     for bd, lip, rout, floor, tag in ((BALL_D, CUP_LIP, 3.75, 0.8, "Hand"), (WBALL_D, WCUP_LIP, 4.75, 1.0, "Wrist")):
-        out[f"Fit_Ball_{tag}"] = MW.fuse(MW.box(-5, 5, -5, 5, 0, 3), cyl((0, 0, 3), (0, 0, 1), 1.1, 1.0 + bd / 2),
-                                          sphere((0, 0, 4.0 + bd / 2), bd / 2))
         for dl in (-0.2, 0.0, 0.2):
             c = np.array([0, 0, bd / 2 + CUP_CLEAR + floor])
             o, t = cup(c, (0, 0, 1), bd, rout, lip + dl, floor, CUP_SLITS, SLIT_W, (1, 0, 0))

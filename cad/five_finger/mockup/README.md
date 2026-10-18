@@ -19,6 +19,7 @@ A version of the final hand (`AH_Right_5F_3S_Wrist`: 3-phalanx fingers, slim thu
 
 1. **`00_test_fit_PLA.3mf`** (PLA, about 1 h 20 min). The real hole sizes, plus every stand-in fit in three sizes. Work through the table below and note the size that fits.
 2. **`00_test_switch_PLA_TPU.3mf`** (PLA + TPU 95A, about 9 min). A PLA base with a TPU ribbed pad on top, with exactly one filament change. It checks that your Kobra X feeds TPU 95A and swaps PLA → TPU cleanly, and how well the two bond.
+   - **`00_test_balls_PLA.3mf`** (PLA, a few minutes) is just the two ball posts. It is for re-testing the cups when your first fit test still had the old one-piece posts, whose Ø2.2 necks snap off.
 3. Set the fits you picked at the top of `make_mockup.py`, then regenerate (see [Regenerate](#regenerate)).
 4. Print the projects `01_…` to `09_…`.
 
@@ -26,7 +27,14 @@ A version of the final hand (`AH_Right_5F_3S_Wrist`: 3-phalanx fingers, slim thu
 
 The hole gauge has a notch at one corner. Its holes, from the notch: **1.50, 1.90, 1.95, 2.15, 2.20, 2.30, 2.70, 2.80, 2.90, 3.20, 4.00, 7.00, 8.15** mm. These are the holes of the real parts, printed the way the cores print (vertical).
 
-Every other piece comes in three sizes: the current parameter and ±0.1 mm. Its object name in the slicer gives its size.
+Every other piece comes in three sizes: the current parameter and ±0.1 mm (the cups' lips ±0.2 mm). The pieces carry no size marks, and [fit_test_pieces.png](fit_test_pieces.png) shows each shape.
+
+Sort each group of three by size before testing. Use calipers (measure across the round, not the flat), or try all three in the same hole or on the same stub:
+- The loosest pin is the smallest.
+- The loosest ring has the largest hole.
+- The tallest cup has the highest lip.
+
+The 12 mm pins are the `Fit_Pin` and `Fit_Axle` sets together: six pins of 1.9, 2.0, 2.0, 2.1, 2.1 and 2.2 mm.
 
 | Pieces | Try them in | Right when | Parameter |
 |---|---|---|---|
@@ -35,8 +43,8 @@ Every other piece comes in three sizes: the current parameter and ±0.1 mm. Its 
 | `Fit_Axle_D*` | `Fit_Ball_Hole_D*` rings | It presses in and holds | `BALL_HOLE` |
 | `Fit_Peg_D*` | 2.80, then 1.90 | It passes 2.80 and presses into 1.90 (the 2.5 mm self-tapping screws' pilot holes) | `PEG_D` |
 | `Fit_Horn_Bore_D*` | `Fit_Servo_Stub` | It turns by hand but holds its angle | `HORN_BORE` |
-| `Fit_Cup_Hand_Lip*` | `Fit_Ball_Hand` | It snaps on with a click, swivels freely and does not fall off. A higher lip snaps tighter | `CUP_LIP` |
-| `Fit_Cup_Wrist_Lip*` | `Fit_Ball_Wrist` | Same | `WCUP_LIP` |
+| `Fit_Cup_Hand_Lip*` | the hand ball post: press `Fit_Ball_Hand_Pin` through `Fit_Ball_Hand_Post` (flush underneath), then `Fit_Ball_Hand_Ball` flush onto its top | It snaps on with a click, swivels freely and does not fall off. A higher lip snaps tighter | `CUP_LIP` |
+| `Fit_Cup_Wrist_Lip*` | the wrist ball post: `Fit_Ball_Wrist_Pin` (shank first, collar down) into `Fit_Ball_Wrist_Post`, `Fit_Ball_Wrist_Ball` flush onto its neck | Same | `WCUP_LIP` |
 | `Fit_Pin3_D*` | 2.90 | It presses in (the wrist's gimbal ring) | `PIN3_D` |
 | `Fit_F683_OD*` | 7.00 | It presses in (the wrist's bearing seats) | `F683_OD` |
 | `Fit_Insert_OD*` | 4.00 | It presses in (the heat-set insert holes) | `INSERT_OD` |
@@ -47,16 +55,21 @@ Every other piece comes in three sizes: the current parameter and ±0.1 mm. Its 
 
 Also try a piece of 1.75 mm filament in 1.95, 2.15 and 2.20. It is the fallback for any Ø2 pin, and it is how the dummy servos are pinned to the finger frames (below).
 
+**Checked on a Kobra X in PLA (2026-10-17):** every fit works at the value now in `make_mockup.py`, and so do the cups on the new ball posts.
+
 ## Stand-ins
+
+No ball is printed on its stud. A thin neck printed upright breaks across its layers as soon as a cup is levered on it, as the first fit test's ball posts did. So every ball is a separate part, pressed onto a pin that prints lying down, so its layers run along it. The ball's press fit is the same as the fit test's ball rings on the axle pins.
 
 [report.txt](report.txt) has every stand-in with its quantity and its deepest overlap with a real printed part when placed where the sim has the bought part. Only the press fits should show there.
 
 | Stand-in | Qty | Replaces |
 |---|---|---|
 | `Dummy_SCS0009` | 10 | Feetech SCS0009. The sim's servo mesh, its spline a plain Ø4 stub. Its ears keep their Ø2.0 holes. |
-| `Mock_Horn` | 10 | The reworked cross horn, plus the M2 ball stud and nut, in one piece. It slides onto the stub. |
+| `Mock_Horn` | 10 | The reworked cross horn, with a nut-sized boss under its arm where the stud's nut sits. It slides onto the stub. |
+| `Stud_Pin_D2.1_L8` + `Ball_D5` | 10 + 10 | The horn's M2 ball stud. The pin presses up through the boss and the arm, flush underneath. A ball presses onto its top, flush with the pin end. |
 | `Rod_<digit>_M1/M2` | 10 | Two M2 ball joints, the M2 × 18 rod and the printed spacer. One piece, 33.0 mm between ball centres. The cup with its mouth up goes on the horn ball. |
-| `Link_Ball` + `Axle_D2.1_L20` | 10 + 5 | The two ball studs on each finger's Link. The axle goes through the Link's Ø2.2 hole, with a ball pressed on each end. |
+| `Axle_D2.1_L20` + `Ball_D5` | 5 + 10 | The two ball studs on each finger's Link. The axle goes through the Link's Ø2.2 hole, with a ball pressed flush on each end. |
 | `Pin_D2_L8/10/12/16` | 8 / 6 / 12 / 6 | The Ø2 dowels. |
 | `Bushing_0608` | 10 | igus bushing 0608-04 (same shape). |
 | `Washer_M2.5` | 5 | M2.5 large washer (same shape). |
@@ -67,7 +80,7 @@ Also try a piece of 1.75 mm filament in 1.95, 2.15 and 2.20. It is the fallback 
 | `Peg_M2.5x6` | 8 | Horn arm → disc horn. |
 | `Bushing_F683` | 4 | F683ZZ flanged bearings (running on the pins). |
 | `Pin_D3_L10` | 4 | Ø3 × 10 gimbal pins. |
-| `Ball_Stud_Top` / `Ball_Stud_Arm` | 2 / 2 | M3 ball studs. The top ones press straight into the lever bar's insert holes, the arm ones through the horn arm (no nut). |
+| `Ball_Stud_Top` / `Ball_Stud_Arm` + `Ball_D5.8` | 2 / 2 + 4 | M3 ball studs. The top ones press straight into the lever bar's insert holes, the arm ones through the horn arm (no nut). A ball presses flush onto each neck. |
 | `Rod_Wrist_M1/M2` | 1 / 1 | Two M3 ball links and the M3 rod. One piece, 66.0 / 96.0 mm between ball centres. |
 | `Insert_M3` | 12 | M3 heat-set inserts (press sleeves). |
 | `Peg_M3x10` / `Peg_M3x8_CSK` | 8 / 4 | M3 screws: fork cap 4, elbow flange 4 / servo frame 4. |
@@ -120,21 +133,22 @@ The back shell can't print "open side down with no supports", as FIVE_FINGER.md 
 
 | Project | Plates | Material | Time per plate | Filament | Contents |
 |---|---|---|---|---|---|
-| `00_test_fit_PLA.3mf` | 1 | PLA | 1 h 22 min | 13 g | Fit test: hole gauge + every stand-in fit in three sizes |
+| `00_test_fit_PLA.3mf` | 1 | PLA | 1 h 24 min | 13 g | Fit test: hole gauge + every stand-in fit in three sizes |
+| `00_test_balls_PLA.3mf` | 1 | PLA | 8 min | 1 g | Just the two ball posts of the fit test (block, stud pin, ball), to re-test the cups |
 | `00_test_switch_PLA_TPU.3mf` | 1 | PLA + TPU 95A | 8 min | 3 g | PLA / TPU 95A switch test (one filament change) |
 | `01_hand_cores_PLA_white.3mf` | 2 | PLA | 7 h 52 min, 46 min | 76 g | Finger cores (3-phalanx and thumb), finger frames, gimbals |
 | `01_hand_cores_PLA_white_brim.3mf` | 1 | PLA | 1 h 27 min | 10 g | The finger Links (UF_Link, stock thumb Link) |
 | `02_palm_PLA_white.3mf` | 2 | PLA | 4 h 28 min, 4 h 48 min | 151 g | Palm plate, back shell, hand adapter |
 | `03_wrist_PLA_white.3mf` | 1 | PLA | 3 h 58 min | 91 g | Gimbal ring, wrist fork, servo frame, horn arms, elbow flange |
 | `04_forearm_PLA_white_brim.3mf` | 1 | PLA | 5 h 8 min | 173 g | Forearm front and back (standing, 183 mm) |
-| `05_standins_PLA_black.3mf` | 4 | PLA | 6 h 3 min, 1 h 14 min, 48 min, 9 min | 94 g | Stand-ins: both kinds of dummy servo, pins, pegs, bushings, washers, Link balls and axles, inserts, wrist rods and disc horns |
-| `05_standins_PLA_black_brim.3mf` | 1 | PLA | 2 h 32 min | 17 g | Stand-ins: the 10 finger push rods, the horns, the wrist ball studs |
+| `05_standins_PLA_black.3mf` | 4 | PLA | 6 h 10 min, 1 h 30 min, 42 min, 50 min | 100 g | Stand-ins: both kinds of dummy servo, horns, pins, pegs, bushings, washers, balls, Link axles and horn stud pins, wrist ball studs, inserts, wrist rods and disc horns |
+| `05_standins_PLA_black_brim.3mf` | 1 | PLA | 1 h 25 min | 10 g | Stand-ins: the 10 finger push rods |
 | `06_TPU95A_white_palm.3mf` | 1 | TPU 95A | 11 h 12 min | 106 g | Palm shell (rim down, supports inside) |
 | `07_TPU95A_black_pad_brim.3mf` | 1 | TPU 95A | 3 h 7 min | 26 g | Palm grip pad |
 | `08_TPU95A_white_covers_brim.3mf` | 1 | TPU 95A | 1 h 41 min | 15 g | Finger and thumb cover backs (white) |
 | `09_TPU95A_black_gloves_brim.3mf` | 1 | TPU 95A | 2 h 16 min | 21 g | Finger and thumb gloves (black) |
 
-In all: 13 projects and 18 plates, about 59 h of printing. That is 624 g of PLA and 168 g of TPU 95A, plus 3 g for the switch test.
+In all: 14 projects and 19 plates, about 59 h of printing. That is 623 g of PLA and 168 g of TPU 95A, plus 3 g for the switch test.
 
 ## Things to watch while assembling
 
