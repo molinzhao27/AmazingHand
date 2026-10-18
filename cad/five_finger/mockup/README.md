@@ -21,7 +21,7 @@ A version of the final hand (`AH_Right_5F_3S_Wrist`: 3-phalanx fingers, slim thu
 2. **`00_test_switch_PLA_TPU.3mf`** (PLA + TPU 95A, about 9 min). A PLA base with a TPU ribbed pad on top, with exactly one filament change. It checks that your Kobra X feeds TPU 95A and swaps PLA → TPU cleanly, and how well the two bond.
    - **`00_test_balls_PLA.3mf`** (PLA, a few minutes) is just the two ball posts. It is for re-testing the cups when your first fit test still had the old one-piece posts, whose Ø2.2 necks snap off.
 3. Set the fits you picked at the top of `make_mockup.py`, then regenerate (see [Regenerate](#regenerate)).
-4. Print the projects `01_…` to `09_…`.
+4. Print the projects `01_…` to `08_…`.
 
 ## The fit test
 
@@ -95,10 +95,10 @@ No ball is printed on its stud. A thin neck printed upright breaks across its la
 
 - **One swap per print needs a flat boundary.** The Kobra X changes filament on every layer that has both materials. A part prints with a single swap only if its two materials meet on one flat layer, as in the switch test.
   - The palm pad sits in a recess on a curved palm, so it would cost a swap on every layer it spans. It prints on its own.
-- **Finger covers print as separate halves**, white back and black glove, as designed. A fused one-piece cover cannot be fitted to its core:
+- **Finger covers print as separate halves**, a white PLA back and a black TPU glove. A fused one-piece cover cannot be fitted to its core:
   - On the proximal and middle phalanges and the thumb's proximal, sliding the core in from either end runs into 160–480 mm³ of cover. Those are also the covers whose seam is flat enough for one swap.
   - The fingertip and thumb-tip covers could go on in one piece, but their glove wraps over the tip, so they need a swap on dozens of layers.
-  - The halves snap on from above and below the pinned core. That is enough for the mock-up; glue them for the real hand.
+  - The halves go on from above and below the pinned core. The covers were designed in TPU, so a PLA back won't flex to snap on: check one finger's set first, and glue them if they don't hold.
 - **TPU through the colour unit:**
   - Anycubic lists TPU 95A for the Kobra X only as a single material, and multi-material only with TPU 68D. Reviewers report 95A works through the colour unit, which is what the switch test checks.
   - The design's Filaflex 82A is not on Anycubic's list for this printer.
@@ -106,55 +106,60 @@ No ball is printed on its stud. A thin neck printed upright breaks across its la
 
 ## Plates
 
-All rigid parts are PLA (real parts white, stand-ins black). The covers, palm shell and pad are TPU 95A.
+Every real part is white PLA except the finger gloves and the palm pad, which are black TPU 95A. The stand-ins are black PLA.
 
 | Settings | Value |
 |---|---|
-| Layer height | 0.12 mm for the small precise parts, 0.20 mm for the big ones, 0.16 mm for TPU |
+| Layer height | 0.12 mm for the small precise parts and the cover backs, 0.20 mm for the big ones, 0.16 mm for TPU |
 | Walls | 3 |
 | Infill | 20 % gyroid |
 | PLA temperature | 200 °C (210 °C first layer) |
 | Avoid crossing walls | on |
-| Supports | tree supports from the bed only. The palm plate, the shells and the pad also get them on their own surfaces. |
+| Supports | tree supports from the bed only, at the presets' threshold (20° at 0.12 mm, 30° at 0.16 and 0.20 mm). The palm plate, the shells and the pad also get them on their own surfaces. |
 | Brims | only on parts that need one (tall and slender, a small base, or a line contact), on their own `_brim` plates |
 
-Parts lie in the orientation from the build notes where there is one: finger cores with pin axes vertical, wrist parts as `make_wrist.PRINT_UP`, covers standing on their proximal end. Otherwise they take the direction with the least overhang that still sits on a flat face.
+Parts lie in the orientation from the build notes where there is one: finger cores with their pin axes vertical, so the pin holes print round, and wrist parts as `make_wrist.PRINT_UP`. Other parts take the direction with the least overhang that still sits on a flat face and doesn't stand tall and thin.
 
-The big curved parts have fixed orientations:
+The big curved parts and the covers were oriented by slicing every axis plus the best few candidates from a support-volume estimate. Each keeps the least support among the orientations that are safe to print: low on the bed, or standing on a real base.
 
-| Part | Orientation |
-|---|---|
-| Palm plate | Back face down |
-| Back shell | Open side down, supports inside |
-| Palm shell | Rim down, supports inside |
-| Pad | Ribs up |
+| Part | Orientation | Support |
+|---|---|---|
+| Palm plate | Back face down | 11 g (every other side 40 g or more) |
+| Back shell | Roof down, 13 mm tall | 17 g, 3 h 30 min (open side down: 28 g, 4 h 25 min). The outside of the back sits on the supports, so expect marks there. |
+| Palm shell | Rim up, with a brim | 31 g, 5 h 30 min (rim down: 46 g, 6 h 30 min). The palm face sits on the supports; the pad covers most of it. |
+| Pad | Ribs up | 9 g. Standing on edge would need 1 g, but an 85 mm-tall TPU sheet wobbles. |
+| Cover backs (PLA) | On their seam, dome up | 0.1–0.3 g each, inside where it doesn't show |
+| Gloves (TPU) | On their outside, seam up | 0.1–0.4 g each: a few tips that peel off |
 
-The back shell can't print "open side down with no supports", as FIVE_FINGER.md says: that leaves a 130 mm-wide roof with nothing under it.
+Standing either shell on its wrist end would need less support (7 g and 22 g), but it would be about 135 mm tall on a point (back shell, 0.1 mm² first layer) or on a 9 mm² sliver (palm shell). The back shell can't print "open side down with no supports", as FIVE_FINGER.md says: that leaves a 130 mm-wide roof with nothing under it.
+
+Support in all: 136 g out of 716 g, down from 191 g out of 779 g. Most of it is under the palm shell, the back shell, the forearm halves and the palm plate.
 
 | Project | Plates | Material | Time per plate | Filament | Contents |
 |---|---|---|---|---|---|
 | `00_test_fit_PLA.3mf` | 1 | PLA | 1 h 24 min | 13 g | Fit test: hole gauge + every stand-in fit in three sizes |
 | `00_test_balls_PLA.3mf` | 1 | PLA | 8 min | 1 g | Just the two ball posts of the fit test (block, stud pin, ball), to re-test the cups |
 | `00_test_switch_PLA_TPU.3mf` | 1 | PLA + TPU 95A | 8 min | 3 g | PLA / TPU 95A switch test (one filament change) |
-| `01_hand_cores_PLA_white.3mf` | 2 | PLA | 7 h 52 min, 46 min | 76 g | Finger cores (3-phalanx and thumb), finger frames, gimbals |
-| `01_hand_cores_PLA_white_brim.3mf` | 1 | PLA | 1 h 27 min | 10 g | The finger Links (UF_Link, stock thumb Link) |
-| `02_palm_PLA_white.3mf` | 2 | PLA | 4 h 28 min, 4 h 48 min | 151 g | Palm plate, back shell, hand adapter |
-| `03_wrist_PLA_white.3mf` | 1 | PLA | 3 h 58 min | 91 g | Gimbal ring, wrist fork, servo frame, horn arms, elbow flange |
-| `04_forearm_PLA_white_brim.3mf` | 1 | PLA | 5 h 8 min | 173 g | Forearm front and back (standing, 183 mm) |
-| `05_standins_PLA_black.3mf` | 4 | PLA | 6 h 10 min, 1 h 30 min, 42 min, 50 min | 100 g | Stand-ins: both kinds of dummy servo, horns, pins, pegs, bushings, washers, balls, Link axles and horn stud pins, wrist ball studs, inserts, wrist rods and disc horns |
-| `05_standins_PLA_black_brim.3mf` | 1 | PLA | 1 h 25 min | 10 g | Stand-ins: the 10 finger push rods |
-| `06_TPU95A_white_palm.3mf` | 1 | TPU 95A | 11 h 12 min | 106 g | Palm shell (rim down, supports inside) |
-| `07_TPU95A_black_pad_brim.3mf` | 1 | TPU 95A | 3 h 7 min | 26 g | Palm grip pad |
-| `08_TPU95A_white_covers_brim.3mf` | 1 | TPU 95A | 1 h 41 min | 15 g | Finger and thumb cover backs (white) |
-| `09_TPU95A_black_gloves_brim.3mf` | 1 | TPU 95A | 2 h 16 min | 21 g | Finger and thumb gloves (black) |
+| `01_hand_cores_PLA_white.3mf` | 2 | PLA white | 7 h 48 min, 46 min | 76 g | Finger cores (3-phalanx and thumb), finger frames, gimbals |
+| `01_hand_cores_PLA_white_brim.3mf` | 1 | PLA white | 1 h 5 min | 10 g | The finger Links (UF_Link, stock thumb Link) |
+| `02_palm_PLA_white.3mf` | 2 | PLA white | 3 h 30 min, 4 h 34 min | 133 g | Back shell (roof down); palm plate and hand adapter |
+| `02_palm_PLA_white_brim.3mf` | 1 | PLA white | 5 h 33 min | 75 g | Palm shell (rim up) |
+| `03_wrist_PLA_white.3mf` | 1 | PLA white | 3 h 53 min | 90 g | Gimbal ring, wrist fork, servo frame, horn arms, elbow flange |
+| `04_forearm_PLA_white_brim.3mf` | 1 | PLA white | 5 h 6 min | 172 g | Forearm front and back (standing, 183 mm) |
+| `05_standins_PLA_black.3mf` | 4 | PLA black | 6 h 2 min, 1 h 30 min, 42 min, 50 min | 99 g | Stand-ins: both kinds of dummy servo, horns, pins, pegs, bushings, washers, balls, Link axles and horn stud pins, wrist ball studs, inserts, wrist rods and disc horns |
+| `05_standins_PLA_black_brim.3mf` | 1 | PLA black | 1 h 25 min | 10 g | Stand-ins: the 10 finger push rods |
+| `06_covers_PLA_white.3mf` | 1 | PLA white | 1 h 9 min | 10 g | Cover backs of the proximal and middle phalanges and the thumb |
+| `06_covers_PLA_white_brim.3mf` | 1 | PLA white | 19 min | 2 g | Fingertip cover backs |
+| `07_TPU95A_black_pad_brim.3mf` | 1 | TPU 95A black | 2 h 34 min | 21 g | Palm grip pad (ribs up) |
+| `08_TPU95A_black_gloves_brim.3mf` | 1 | TPU 95A black | 2 h 16 min | 20 g | Finger and thumb gloves |
 
-In all: 14 projects and 19 plates, about 59 h of printing. That is 623 g of PLA and 168 g of TPU 95A, plus 3 g for the switch test.
+In all, without the test plates: 12 projects and 17 plates, about 49 h of printing. That is 567 g of white PLA, 109 g of black PLA and 40 g of TPU 95A.
 
 ## Things to watch while assembling
 
 - **Dummy servo vs finger frame 2.** The CAD servo's ears sit 0.6 mm inside Finger_Frame-2 in the stock model too. The dummy is trimmed to the frames with 0.15 mm clearance, so it goes in. A real servo's ears must be thinner than the model.
 - **Thumb at home.** In the sim's home pose the thumb's slim distal core sits 0.7 mm inside its proximal core, and so does the end of their 2 × 10 pin. The sim never collides parts, so this is most likely the pose being past the thumb's extension stop. Check that the thumb's distal swings freely near full extension.
-- **TPU covers.** These are the hardest prints: thin 1.3 mm skins, standing on their domed ends with a brim and light supports. Print one finger's set first.
+- **Covers.** These are the hardest prints: thin 1.3 mm skins. They lie low now, so they no longer stand on a rim. They were designed in TPU, so a PLA back is stiffer than intended. Print one finger's set first and check that it goes on.
 
 ## Regenerate
 

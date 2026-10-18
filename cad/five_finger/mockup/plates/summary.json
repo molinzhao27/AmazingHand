@@ -64,6 +64,26 @@
    "Fit_Servo_Stub"
   ]
  },
+ "00_test_balls_PLA": {
+  "plates": [
+   {
+    "time": "7m 32s",
+    "grams": "1.13",
+    "fits_bed": true,
+    "filament_changes": 0
+   }
+  ],
+  "ok": true,
+  "filament_changes": 0,
+  "parts": [
+   "Fit_Ball_Hand_Ball",
+   "Fit_Ball_Hand_Pin",
+   "Fit_Ball_Hand_Post",
+   "Fit_Ball_Wrist_Ball",
+   "Fit_Ball_Wrist_Pin",
+   "Fit_Ball_Wrist_Post"
+  ]
+ },
  "00_test_switch_PLA_TPU": {
   "plates": [
    {
@@ -83,8 +103,8 @@
  "01_hand_cores_PLA_white": {
   "plates": [
    {
-    "time": "7h 52m 23s",
-    "grams": "69.04",
+    "time": "7h 48m 7s",
+    "grams": "68.51",
     "fits_bed": true,
     "filament_changes": 0
    },
@@ -116,8 +136,8 @@
  "01_hand_cores_PLA_white_brim": {
   "plates": [
    {
-    "time": "1h 27m 4s",
-    "grams": "10.20",
+    "time": "1h 4m 36s",
+    "grams": "9.56",
     "fits_bed": true,
     "filament_changes": 0
    }
@@ -133,14 +153,14 @@
  "02_palm_PLA_white": {
   "plates": [
    {
-    "time": "4h 28m 54s",
-    "grams": "57.42",
+    "time": "3h 30m 8s",
+    "grams": "43.36",
     "fits_bed": true,
     "filament_changes": 0
    },
    {
-    "time": "4h 48m 45s",
-    "grams": "93.09",
+    "time": "4h 33m 48s",
+    "grams": "89.90",
     "fits_bed": true,
     "filament_changes": 0
    }
@@ -153,11 +173,26 @@
    "R-Wrist_Hand_Adapter"
   ]
  },
+ "02_palm_PLA_white_brim": {
+  "plates": [
+   {
+    "time": "5h 32m 47s",
+    "grams": "74.57",
+    "fits_bed": true,
+    "filament_changes": 0
+   }
+  ],
+  "ok": true,
+  "filament_changes": 0,
+  "parts": [
+   "R-Palm_Shell_5F"
+  ]
+ },
  "03_wrist_PLA_white": {
   "plates": [
    {
-    "time": "3h 58m 50s",
-    "grams": "91.05",
+    "time": "3h 52m 44s",
+    "grams": "89.96",
     "fits_bed": true,
     "filament_changes": 0
    }
@@ -175,8 +210,8 @@
  "04_forearm_PLA_white_brim": {
   "plates": [
    {
-    "time": "5h 8m 31s",
-    "grams": "172.84",
+    "time": "5h 6m 17s",
+    "grams": "171.98",
     "fits_bed": true,
     "filament_changes": 0
    }
@@ -191,14 +226,14 @@
  "05_standins_PLA_black": {
   "plates": [
    {
-    "time": "6h 10m 28s",
-    "grams": "75.61",
+    "time": "6h 2m 29s",
+    "grams": "74.72",
     "fits_bed": true,
     "filament_changes": 0
    },
    {
-    "time": "1h 30m 18s",
-    "grams": "13.60",
+    "time": "1h 29m 37s",
+    "grams": "13.53",
     "fits_bed": true,
     "filament_changes": 0
    },
@@ -250,8 +285,8 @@
  "05_standins_PLA_black_brim": {
   "plates": [
    {
-    "time": "1h 25m 8s",
-    "grams": "10.39",
+    "time": "1h 24m 44s",
+    "grams": "10.25",
     "fits_bed": true,
     "filament_changes": 0
    }
@@ -271,41 +306,11 @@
    "Rod_thumb_M2"
   ]
  },
- "06_TPU95A_white_palm": {
+ "06_covers_PLA_white": {
   "plates": [
    {
-    "time": "11h 12m 41s",
-    "grams": "105.99",
-    "fits_bed": true,
-    "filament_changes": 0
-   }
-  ],
-  "ok": true,
-  "filament_changes": 0,
-  "parts": [
-   "R-Palm_Shell_5F"
-  ]
- },
- "07_TPU95A_black_pad_brim": {
-  "plates": [
-   {
-    "time": "3h 7m 13s",
-    "grams": "25.90",
-    "fits_bed": true,
-    "filament_changes": 0
-   }
-  ],
-  "ok": true,
-  "filament_changes": 0,
-  "parts": [
-   "R-Palm_Pad_Palm_5F"
-  ]
- },
- "08_TPU95A_white_covers_brim": {
-  "plates": [
-   {
-    "time": "1h 41m 5s",
-    "grams": "15.19",
+    "time": "1h 9m 10s",
+    "grams": "9.84",
     "fits_bed": true,
     "filament_changes": 0
    }
@@ -318,16 +323,45 @@
    "UF_P1_Shell",
    "UF_P1_Shell_S088",
    "UF_P2_Shell",
-   "UF_P2_Shell_S088",
+   "UF_P2_Shell_S088"
+  ]
+ },
+ "06_covers_PLA_white_brim": {
+  "plates": [
+   {
+    "time": "18m 49s",
+    "grams": "2.34",
+    "fits_bed": true,
+    "filament_changes": 0
+   }
+  ],
+  "ok": true,
+  "filament_changes": 0,
+  "parts": [
    "UF_P3_Shell",
    "UF_P3_Shell_S088"
   ]
  },
- "09_TPU95A_black_gloves_brim": {
+ "07_TPU95A_black_pad_brim": {
   "plates": [
    {
-    "time": "2h 16m 1s",
+    "time": "2h 33m 49s",
     "grams": "20.57",
+    "fits_bed": true,
+    "filament_changes": 0
+   }
+  ],
+  "ok": true,
+  "filament_changes": 0,
+  "parts": [
+   "R-Palm_Pad_Palm_5F"
+  ]
+ },
+ "08_TPU95A_black_gloves_brim": {
+  "plates": [
+   {
+    "time": "2h 16m 12s",
+    "grams": "19.66",
     "fits_bed": true,
     "filament_changes": 0
    }
@@ -343,26 +377,6 @@
    "UF_P2_Pad_S088",
    "UF_P3_Pad",
    "UF_P3_Pad_S088"
-  ]
- },
- "00_test_balls_PLA": {
-  "plates": [
-   {
-    "time": "7m 32s",
-    "grams": "1.13",
-    "fits_bed": true,
-    "filament_changes": 0
-   }
-  ],
-  "ok": true,
-  "filament_changes": 0,
-  "parts": [
-   "Fit_Ball_Hand_Ball",
-   "Fit_Ball_Hand_Pin",
-   "Fit_Ball_Hand_Post",
-   "Fit_Ball_Wrist_Ball",
-   "Fit_Ball_Wrist_Pin",
-   "Fit_Ball_Wrist_Post"
   ]
  }
 }

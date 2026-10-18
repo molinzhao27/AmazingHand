@@ -12,8 +12,10 @@ test plates come first:
   00_test_balls_PLA        just the fit test's two ball posts (block, stud pin, pressed-on ball) for the cups
 
 Orientation: the build notes' orientation where they give one (pins vertical for the finger cores, the wrist parts as
-make_wrist.PRINT_UP, covers standing on their proximal end), otherwise the direction with the least overhang among 400
-(below 45 deg, discounting faces on the bed) that keeps a usable bed contact.
+make_wrist.PRINT_UP). The big curved parts (ORIENT) and the covers were chosen by slicing the candidates and keeping
+the least support that still prints safely. Every other part takes the direction with the least overhang among 400
+(below 45 deg, discounting faces on the bed) that keeps a usable bed contact and does not stand it tall and thin.
+Supports use the presets' threshold (20 deg at 0.12 mm, 30 at 0.16 / 0.20).
 
 Brims only where a part needs one (needs_brim): tall and slender (height > 3 x the narrow side of its first layer
 and > 10 mm), a small base with height (first layer < 20 mm2 and > 6 mm tall), or a line contact (no first-layer
@@ -21,9 +23,9 @@ island wider than 1.2 mm). Those parts go in their own project (suffix _brim) wi
 so it snaps off; every other plate has none. PLA and TPU 95A on the Kobra X's PEI plate do not warp enough to need
 one otherwise.
 
-Colours are a suggestion: real parts white, stand-ins black (they look like the hardware they replace), TPU covers as
-designed (white backs, black gloves and pad). The mock-up only tests fit and shape, so every rigid part is PLA here
-(the real build wants PA-CF / PETG for some, see FIVE_FINGER.md).
+Materials: every real part is white PLA except the finger gloves and the palm pad, which are black TPU 95A. The
+stand-ins are black PLA (they look like the hardware they replace). The mock-up only tests fit and shape, so every
+rigid part is PLA here (the real build wants PA-CF / PETG for some, see FIVE_FINGER.md).
 
 Usage: .venv/bin/python cad/five_finger/mockup/make_plates.py [--only NAME_PREFIX] [--no-slice]
 """
@@ -72,11 +74,12 @@ REAL = [
     (f"{C}/slim_fingers/stl/Distal_Slim.stl", 1, "PLA", "white", "pins"),
 ] + [(f"{UF}/UF_{n}{s}.stl", 3 if not s else 1, "PLA", "white", "pins")
      for n in ("Link", "P1_Proximal", "P2_Middle", "P3_Distal", "L2_Coupler") for s in ("", "_S088")] + [
-    (f"{UF}/UF_{p}_{k}{s}.stl", 3 if not s else 1, "TPU", "white" if k == "Shell" else "black", "cover")
+    # covers: the back (Shell) white PLA, the glove (Pad) black TPU 95A
+    (f"{UF}/UF_{p}_{k}{s}.stl", 3 if not s else 1, *(("PLA", "white") if k == "Shell" else ("TPU", "black")), "cover")
     for p in ("P1", "P2", "P3") for k in ("Shell", "Pad") for s in ("", "_S088")] + [
-    (f"{UF}/Thumb_{p}_{k}.stl", 1, "TPU", "white" if k == "Shell" else "black", "cover")
+    (f"{UF}/Thumb_{p}_{k}.stl", 1, *(("PLA", "white") if k == "Shell" else ("TPU", "black")), "cover")
     for p in ("Proximal", "Distal") for k in ("Shell", "Pad")] + [
-    (f"{C}/stl/R-Palm_Shell_5F.stl", 1, "TPU", "white", "auto"),
+    (f"{C}/stl/R-Palm_Shell_5F.stl", 1, "PLA", "white", "auto"),
     (f"{C}/stl/R-Palm_Pad_Palm_5F.stl", 1, "TPU", "black", "auto"),
     (f"{C}/wrist/stl/Wrist_Gimbal_Ring.stl", 1, "PLA", "white", "wrist"),
     (f"{C}/wrist/stl/R-Wrist_Fork.stl", 1, "PLA", "white", "wrist"),
@@ -87,13 +90,16 @@ REAL = [
     (f"{C}/wrist/stl/R-Forearm_Back.stl", 1, "PLA", "white", "wrist"),
 ]
 
-# the big, curved parts: no orientation is free of overhang, and standing them on an edge (what the overhang score
-# alone picks) is the bigger risk, so they lie on their widest side with supports (where they hide, if possible)
+# the big, curved parts, from slicing every axis and the best few of a support-volume estimate (0.20 mm, supports
+# everywhere), keeping the least support among the orientations that are safe to print (low, or on a real base):
 ORIENT = {
-    "R-Hand_Plate_5F": (0, 0, -1),      # back face down (212 mm2 on the bed)
-    "R-Top_Shell_5F": (0, 0, 1),        # open side down: the supports are inside, under the back of the hand
-    "R-Palm_Shell_5F": (0, 0, -1),      # rim down (2540 mm2 on the bed), supports inside the palm
-    "R-Palm_Pad_Palm_5F": (0, 0, -1),   # ribs up (as FIVE_FINGER.md)
+    "R-Hand_Plate_5F": (0, 0, -1),      # back face down: 11 g support (every other side 40+ g)
+    "R-Top_Shell_5F": (0, 0, -1),       # roof down, 13 mm tall: 14 g support, 3 h 20 min (open side down: 28 g,
+                                        # 4 h 25 min, a 130 mm roof on supports). Standing on its wrist end needs only
+                                        # 7 g but would stand 135 mm tall on a point (0.1 mm2 first layer)
+    "R-Palm_Shell_5F": (0, 0, 1),       # rim up, 58 mm tall: 31 g, 5 h 30 min (rim down: 46 g, 6 h 30 min). Standing
+                                        # on its wrist end needs 22 g but is 137 mm tall on a 9 mm2 first layer
+    "R-Palm_Pad_Palm_5F": (0, 0, -1),   # ribs up: 9 g. On edge would be 1 g, but an 85 mm-tall sheet of TPU wobbles
 }
 BIG = tuple(ORIENT)
 
@@ -102,15 +108,14 @@ GROUPS = [
     ("01_hand_cores_PLA_white", "PLA", "white", 0.12, "plate", lambda p: p["src"] == "real" and p["rule"] in ("pins",)
      or p["file"].startswith("cad/stl/")),
     ("02_palm_PLA_white", "PLA", "white", 0.20, "all", lambda p: Path(p["file"]).stem in
-     ("R-Hand_Plate_5F", "R-Top_Shell_5F", "R-Wrist_Hand_Adapter")),
+     ("R-Hand_Plate_5F", "R-Top_Shell_5F", "R-Palm_Shell_5F", "R-Wrist_Hand_Adapter")),
     ("03_wrist_PLA_white", "PLA", "white", 0.20, "plate", lambda p: p["rule"] == "wrist" and "Forearm" not in p["file"]
      and "Hand_Adapter" not in p["file"]),
     ("04_forearm_PLA_white", "PLA", "white", 0.20, "plate", lambda p: "Forearm" in p["file"]),
     ("05_standins_PLA_black", "PLA", "black", 0.12, "plate", lambda p: p["src"] == "standin"),
-    ("06_TPU95A_white_palm", "TPU", "white", 0.16, "all", lambda p: Path(p["file"]).stem == "R-Palm_Shell_5F"),
+    ("06_covers_PLA_white", "PLA", "white", 0.12, "plate", lambda p: p["rule"] == "cover" and p["material"] == "PLA"),
     ("07_TPU95A_black_pad", "TPU", "black", 0.16, "all", lambda p: Path(p["file"]).stem == "R-Palm_Pad_Palm_5F"),
-    ("08_TPU95A_white_covers", "TPU", "white", 0.16, "plate", lambda p: p["material"] == "TPU" and p["colour"] == "white"),
-    ("09_TPU95A_black_gloves", "TPU", "black", 0.16, "plate", lambda p: p["material"] == "TPU" and p["colour"] == "black"),
+    ("08_TPU95A_black_gloves", "TPU", "black", 0.16, "plate", lambda p: p["rule"] == "cover" and p["material"] == "TPU"),
 ]
 
 
@@ -145,12 +150,24 @@ def flat_faces(m, n=40):
     return [-m.facets_normal[k] for k in order if m.facets_area[k] > 2.0]
 
 
+def slender(m, u):
+    """True if the part would stand tall and thin with `u` up: over 20 mm and over 3 x its footprint's short side."""
+    h = m.vertices @ u
+    e1 = np.cross(u, (1, 0, 0) if abs(u[0]) < 0.9 else (0, 1, 0))
+    e1 /= np.linalg.norm(e1)
+    xy = np.c_[m.vertices @ e1, m.vertices @ np.cross(u, e1)]
+    _, ext = trimesh.bounds.oriented_bounds_2D(xy)
+    H = h.max() - h.min()
+    return H > 20 and H > 3 * min(ext)
+
+
 def best_up(m, cands, min_contact=12.0):
     best = None
     for u in cands:
         u = np.asarray(u, float) / np.linalg.norm(u)
         over, contact = score(m, u)
         cost = over + (400.0 if contact < min_contact else 0.0) - 0.05 * contact
+        cost += 300.0 if min_contact and slender(m, u) else 0.0   # it would wobble: lie it down if that is cheap
         if best is None or cost < best[0]:
             best = (cost, u, over, contact)
     return best[1], best[2], best[3]
@@ -163,8 +180,9 @@ def orient(m, rule, name, up=None):
         u = np.asarray(up, float)
     elif rule == "pins":                       # pin axes vertical (cores print on a side face): +x or -x
         u = best_up(mm, [(1, 0, 0), (-1, 0, 0)], 0)[0]
-    elif rule == "cover":                      # standing on its proximal end (finger axis y vertical)
-        u = best_up(mm, [(0, 1, 0), (0, -1, 0)], 0)[0]
+    elif rule == "cover":   # low on the bed, not standing on an end (TPU wobbles): the back (Shell, PLA) on its seam,
+        # dome up, supports hidden inside; the glove (Pad, TPU) on its outside, a few support tips that peel off
+        u = np.array([0, 0, -1.0]) if "_Shell" in name else np.array([0, 0, 1.0])
     elif name in ORIENT:
         u = np.asarray(ORIENT[name], float)
     elif rule == "wrist":
@@ -282,7 +300,9 @@ def process_json(layer, supports, two_materials=False, brim=False):
                  "brim_type": "outer_only" if brim else "no_brim", "brim_width": "3", "brim_object_gap": "0.2",
                  "seam_position": "aligned", "reduce_crossing_wall": "1",   # avoid crossing walls
                  "enable_support": "1" if supports else "0", "support_type": "tree(auto)",
-                 "support_threshold_angle": "40", "support_on_build_plate_only": "0" if supports == "all" else "1",
+                 # support_threshold_angle: the preset's (20 deg at 0.12 mm, 30 at 0.16 / 0.20): steeper overhangs
+                 # print fine in PLA at these layer heights
+                 "support_on_build_plate_only": "0" if supports == "all" else "1",
                  # the Kobra X flushes at its purge station off the bed (machine change_filament_gcode,
                  # purge_in_prime_tower = 0): a one-change print needs no prime tower
                  "enable_prime_tower": "0"})
@@ -341,7 +361,8 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     WORK.mkdir(parents=True, exist_ok=True)
     sfile = OUT / "summary.json"
-    summary = json.loads(sfile.read_text()) if sfile.exists() else {}   # a partial run (--only) keeps the others
+    # a partial run (--only) keeps the others; a full run starts over (groups may have been renamed)
+    summary = json.loads(sfile.read_text()) if sfile.exists() and args.only else {}
     jobs = []
 
     # ---------------------------------------------------------------- tests
@@ -401,8 +422,8 @@ def main():
     if args.no_slice:
         log("\n".join(f"{j['name']}: {len(j['items'])} parts" for j in jobs))
         return
-    for f in OUT.glob("*.3mf"):   # stale plates of the groups being re-sliced
-        if any(f.stem.startswith(j["name"].replace("_brim", "")) for j in jobs):
+    for f in OUT.glob("*.3mf"):   # stale plates of the groups being re-sliced (all of them on a full run)
+        if not args.only or any(f.stem.startswith(j["name"].replace("_brim", "")) for j in jobs):
             f.unlink()
     from concurrent.futures import ThreadPoolExecutor
     with ThreadPoolExecutor(max_workers=args.jobs) as ex:
