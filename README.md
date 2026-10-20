@@ -2,7 +2,9 @@
 
 This fork adds a pinky to the stock hand and rebuilds it around slim, styled 3-phalanx fingers and a powered 2-DOF wrist. The final version is the right hand `AH_Right_5F_3S_Wrist`.
 
-![final hand](Demo/AHSimulation/five_finger/renders/beauty/hero.jpg)
+| Full hand | Without the palm shell | Without shell or finger covers |
+|:---:|:---:|:---:|
+| ![final hand](Demo/AHSimulation/five_finger/renders/beauty/hero.jpg) | ![final hand, no palm shell](Demo/AHSimulation/five_finger/renders/beauty/no_shells/hero.jpg) | ![final hand, no shell or covers](Demo/AHSimulation/five_finger/renders/beauty/no_covers/hero.jpg) |
 
 | What | Where |
 |---|---|
