@@ -10,6 +10,9 @@ Pipeline (one window, runs with plain `python` on macOS, no mjpython or dora nee
 The motor targets are exactly what the real hand takes (degrees per servo), so the
 same numbers can later go to the Feetech SCS0009 servos (see --log).
 
+The robot is the final 5-digit hand, AH_Right_5F_3S_Wrist (FIVE_FINGER.md), with its wrist held
+straight; --model stock5 / stock4 drives the stock hand that build_model.py sets up instead.
+
 Keys:  q/Esc quit   o calibrate OPEN (hand flat, fingers together)
        f calibrate FIST   r reset calibration   [ ] rotate robot view   v palm/back view
 """
@@ -39,14 +42,84 @@ CHAINS = {
 }
 # Which robot finger (MJCF "fingerN_motor1/2") each human digit drives.
 ROBOT_FINGER = {"index": 1, "middle": 2, "ring": 3, "thumb": 4, "pinky": 5}
+FINGERS = ["index", "middle", "ring", "pinky"]          # thumb side to little-finger side
 
 # Retargeting ranges, in degrees. Motor convention (matches the AmazingHand examples):
-#   motor1 = flex + abd, motor2 = -flex + abd. flex -35 ~ straight, +90 ~ fully closed.
+#   motor1 = flex + abd, motor2 = -flex + abd, i.e. flex = (m1 - m2)/2 and abd = (m1 + m2)/2.
+# Stock fingers: flex -35 ~ straight, +90 ~ fully closed.
 FLEX_OPEN, FLEX_CLOSED = -35.0, 90.0
 THUMB_FLEX_OPEN, THUMB_FLEX_CLOSED = -20.0, 80.0
 ABD_GAIN, ABD_MAX = 1.5, 35.0
 THUMB_ABD_GAIN, THUMB_ABD_MAX = 1.0, 40.0
 MOTOR_LIMIT = 90.0
+SERVO_SPEED = 600.0             # deg/s, the SCS0009's no-load speed (0.1 s per 60 deg)
+
+# Final hand (AH_Right_5F_3S_Wrist, FIVE_FINGER.md "Styled 3-phalanx fingers (final)"): the 3-phalanx fingers are
+# straight at flex -56 and must not go below -60. The sim does not collide the digits with each other, so the
+# mapping keeps them apart itself: spread is limited to the peace sign's +-30 and fades out by the time a finger is
+# curled as far as in the pinch, and neighbouring fingers may turn towards each other by at most FINAL_ABD_CONVERGE
+# in total (>= 1.3 mm apart).
+FINAL_FLEX_OPEN, FINAL_FLEX_CLOSED, FINAL_FLEX_MIN = -56.0, 90.0, -60.0
+FINAL_ABD_MAX, FINAL_ABD_CONVERGE = 30.0, 20.0
+# Its thumb sits on the slim mount and moves nothing like a finger, so it is blended between checked poses (m1, m2)
+# from Demo/AHSimulation/ultimate_finger/data/hand_poses.json and five_finger/hand_poses.py (TUCK, FIST_THUMB):
+THUMB_OPEN = (-52.5, 45.0)      # extended along the radial side of the palm (OpenHand)
+THUMB_TUCK = (48.0, 41.0)       # across the palm towards the curled ring and pinky (Victory)
+THUMB_POINT = (-1.0, 23.5)      # on the curled middle while the index points (Index_Pointing)
+THUMB_PINCH = (-7.5, 42.0)      # pad to pad with the index fingertip at flex 0 (Pinched)
+THUMB_FIST = (-19.5, 45.0)      # on the side of the curled index (CloseHand)
+S_PINCH = -FINAL_FLEX_OPEN / (FINAL_FLEX_CLOSED - FINAL_FLEX_OPEN)   # index curl of the pinch
+# How far the thumb may close (0..1 of the way from open to its rest pose) before it comes within 0.5 mm of a
+# finger, over the index curl (rows, 0..1 in eighths) and the middle curl (columns, in quarters), with the ring and
+# pinky curled and the index and middle spread towards the thumb as far as they can be. Recompute with
+# thumb_limits.py when the poses above change.
+THUMB_CLOSE_MAX = np.array([
+    [1.00, 1.00, 0.70, 0.85, 1.00],
+    [1.00, 1.00, 0.85, 0.95, 1.00],
+    [1.00, 1.00, 1.00, 1.00, 1.00],
+    [0.70, 0.70, 0.70, 0.70, 0.70],
+    [0.65, 0.65, 0.65, 0.65, 0.65],
+    [0.70, 0.70, 0.70, 0.70, 0.70],
+    [0.80, 0.80, 0.80, 0.80, 0.80],
+    [0.85, 0.85, 0.85, 0.85, 0.85],
+    [0.95, 0.95, 0.95, 0.95, 0.95],
+])
+# and kept inside the mount's envelope, m2_min(m1) <= m2 <= m2_max(m1), linear between the tabulated m1
+# (copied from THUMB_ENVELOPE["slim"] in cad/five_finger/layout.py).
+THUMB_ENV_M1 = np.arange(-67.5, 90.1, 7.5)
+THUMB_ENV_M2_MIN = np.array([30, 30, 30, 30, 30, 30, 30, 30, 22.5, 22.5, 22.5, 22.5, 22.5, 30, 30, 37.5, 45, 52.5, 60,
+                             67.5, 75, 82.5])
+THUMB_ENV_M2_MAX = np.array([30, 37.5, 45, 52.5, 67.5, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90,
+                             90])
+
+SIM_MODELS = HERE.parent / "AHSimulation" / "AHSimulation"
+
+
+@dataclass(frozen=True)
+class Robot:
+    """A simulated hand, the human digits it follows, and its finger ranges (deg). Defaults: the stock hand."""
+    scene: Path
+    digits: tuple = ("index", "middle", "ring", "thumb", "pinky")
+    flex_open: float = FLEX_OPEN        # finger flex that holds a finger straight
+    flex_closed: float = FLEX_CLOSED    # fully curled
+    flex_min: float = FLEX_OPEN         # never command less flex than this
+    abd_max: float = ABD_MAX
+    abd_fade_end: float = 1.0           # curl (0..1) by which a finger's abduction has faded out
+    abd_converge: float = np.inf        # most two neighbouring fingers may turn towards each other
+    thumb_poses: bool = False           # thumb blended between checked poses (final hand) instead of flex + abd
+    lookat: tuple = (0.02, -0.025, 0.085)   # render camera
+    distance: float = 0.30
+
+
+ROBOTS = {
+    "final": Robot(SIM_MODELS / "AH_Right_5F_3S_Wrist" / "mjcf" / "scene_shells.xml",
+                   flex_open=FINAL_FLEX_OPEN, flex_closed=FINAL_FLEX_CLOSED, flex_min=FINAL_FLEX_MIN,
+                   abd_max=FINAL_ABD_MAX, abd_fade_end=S_PINCH, abd_converge=FINAL_ABD_CONVERGE, thumb_poses=True,
+                   lookat=(0.015, -0.015, 0.105), distance=0.32),
+    "stock5": Robot(HERE / "models" / "AH_Right" / "scene_5f.xml"),
+    "stock4": Robot(HERE / "models" / "AH_Right" / "scene_4f.xml", digits=("index", "middle", "ring", "thumb"),
+                    lookat=(0.02, -0.01, 0.085)),
+}
 
 
 @dataclass
@@ -120,49 +193,117 @@ def hand_angles(p):
     return out
 
 
-def retarget(angles, calib, digits):
+def lerp(a, b, s):
+    return tuple(x + s * (y - x) for x, y in zip(a, b))
+
+
+def clamp_thumb(m1, m2):
+    """Nearest final-hand thumb command inside the slim mount's envelope, keeping m1 (deg)."""
+    m1 = float(np.clip(m1, THUMB_ENV_M1[0], THUMB_ENV_M1[-1]))
+    lo, hi = np.interp(m1, THUMB_ENV_M1, THUMB_ENV_M2_MIN), np.interp(m1, THUMB_ENV_M1, THUMB_ENV_M2_MAX)
+    return m1, float(np.clip(m2, lo, hi))
+
+
+def interp2(table, x, y):
+    """Bilinear lookup in a table spanning 0..1 on both axes."""
+    i, j = x * (table.shape[0] - 1), y * (table.shape[1] - 1)
+    i0, j0 = min(int(i), table.shape[0] - 2), min(int(j), table.shape[1] - 2)
+    u, v = i - i0, j - j0
+    return float((1 - u) * ((1 - v) * table[i0, j0] + v * table[i0, j0 + 1])
+                 + u * ((1 - v) * table[i0 + 1, j0] + v * table[i0 + 1, j0 + 1]))
+
+
+def thumb_rest(curls):
+    """Where the final-hand thumb rests when fully closed, by gesture: across the palm (index and middle straight,
+    peace sign), on the curled middle (index pointing), on the index fingertip (pinch), or on the side of the
+    curled index (fist)."""
+    si = curls.get("index", 1.0)
+    if si < S_PINCH:
+        return lerp(lerp(THUMB_TUCK, THUMB_POINT, curls.get("middle", 1.0)), THUMB_PINCH, si / S_PINCH)
+    return lerp(THUMB_PINCH, THUMB_FIST, (si - S_PINCH) / (1 - S_PINCH))
+
+
+def final_thumb(s, curls):
+    """Final-hand thumb command for thumb curl s: from open towards its rest pose, stopping short of the fingers."""
+    s = min(s, interp2(THUMB_CLOSE_MAX, curls.get("index", 1.0), curls.get("middle", 1.0)))
+    return clamp_thumb(*lerp(THUMB_OPEN, thumb_rest(curls), s))
+
+
+def limit_convergence(abd, limit, reach):
+    """Pull neighbouring fingers apart where they turn towards each other by more than `limit` in total.
+    abd is + towards the thumb, so the finger on the little-finger side may not exceed its neighbour by more.
+    Each finger's share of the move goes towards the thumb only as far as its reach allows."""
+    names = [n for n in FINGERS if n in abd]
+    for _ in range(len(names)):
+        for a, b in zip(names, names[1:]):
+            excess = abd[b] - abd[a] - limit
+            if excess > 0:
+                up = max(0.0, min(excess / 2, reach[a] - abd[a]))
+                abd[a] += up
+                abd[b] -= excess - up
+    return abd
+
+
+def to_motors(flex, a):
+    return (float(np.clip(flex + a, -MOTOR_LIMIT, MOTOR_LIMIT)), float(np.clip(-flex + a, -MOTOR_LIMIT, MOTOR_LIMIT)))
+
+
+def retarget(angles, calib, robot):
     """Human angles -> {robot_finger: (motor1_deg, motor2_deg)} plus normalised curl per digit."""
-    motors, curls = {}, {}
-    for name in digits:
-        curl, abd = angles[name]
+    curls, flex, abd, reach = {}, {}, {}, {}
+    for name in robot.digits:
+        curl, a = angles[name]
         lo, hi = calib.curl_open[name], calib.curl_fist[name]
-        s = float(np.clip((curl - lo) / max(hi - lo, 1e-3), 0.0, 1.0))
-        if name == "thumb":
-            flex = THUMB_FLEX_OPEN + s * (THUMB_FLEX_CLOSED - THUMB_FLEX_OPEN)
-            # Thumb moving in towards the index (smaller spread) = + abduction on the robot.
-            a = np.clip(THUMB_ABD_GAIN * (calib.abd_neutral[name] - abd), -THUMB_ABD_MAX, THUMB_ABD_MAX)
-        else:
-            flex = FLEX_OPEN + s * (FLEX_CLOSED - FLEX_OPEN)
+        s = curls[name] = float(np.clip((curl - lo) / max(hi - lo, 1e-3), 0.0, 1.0))
+        if name != "thumb":
+            flex[name] = max(robot.flex_open + s * (robot.flex_closed - robot.flex_open), robot.flex_min)
             # Abduction is unreliable on a curled finger, so fade it out as the finger closes.
-            a = np.clip(ABD_GAIN * (abd - calib.abd_neutral[name]) * (1 - s), -ABD_MAX, ABD_MAX)
-        m1 = float(np.clip(flex + a, -MOTOR_LIMIT, MOTOR_LIMIT))
-        m2 = float(np.clip(-flex + a, -MOTOR_LIMIT, MOTOR_LIMIT))
-        motors[ROBOT_FINGER[name]] = (m1, m2)
-        curls[name] = s
+            reach[name] = robot.abd_max * max(0.0, 1 - s / robot.abd_fade_end)
+            abd[name] = np.clip(ABD_GAIN * (a - calib.abd_neutral[name]), -robot.abd_max, robot.abd_max) \
+                * reach[name] / robot.abd_max
+        elif not robot.thumb_poses:
+            flex[name] = THUMB_FLEX_OPEN + s * (THUMB_FLEX_CLOSED - THUMB_FLEX_OPEN)
+            # Thumb moving in towards the index (smaller spread) = + abduction on the robot.
+            abd[name] = np.clip(THUMB_ABD_GAIN * (calib.abd_neutral[name] - a), -THUMB_ABD_MAX, THUMB_ABD_MAX)
+    if np.isfinite(robot.abd_converge):
+        limit_convergence(abd, robot.abd_converge, reach)
+    motors = {ROBOT_FINGER[n]: to_motors(flex[n], abd[n]) for n in flex}
+    if robot.thumb_poses and "thumb" in robot.digits:
+        motors[ROBOT_FINGER["thumb"]] = final_thumb(curls["thumb"], curls)
     return motors, curls
 
 
 class Sim:
-    def __init__(self, scene: Path, size: int):
-        self.m = mujoco.MjModel.from_xml_path(str(scene))
+    def __init__(self, robot: Robot, size: int):
+        self.m = mujoco.MjModel.from_xml_path(str(robot.scene))
         self.d = mujoco.MjData(self.m)
-        self.n_fingers = self.m.nu // 2
-        self.act = {k: (self.m.actuator(f"finger{k}_motor1").id, self.m.actuator(f"finger{k}_motor2").id)
-                    for k in range(1, self.n_fingers + 1)}
+        if self.m.nkey:
+            mujoco.mj_resetDataKeyframe(self.m, self.d, 0)     # the settled rest pose (final hand)
+        # Only the finger servos are driven; anything else (the final hand's wrist) holds its rest command.
+        self.act = {ROBOT_FINGER[n]: (self.m.actuator(f"finger{ROBOT_FINGER[n]}_motor1").id,
+                                      self.m.actuator(f"finger{ROBOT_FINGER[n]}_motor2").id) for n in robot.digits}
+        self.target = self.d.ctrl.copy()
+        for b in range(self.m.nbody):                          # hide the IK target markers
+            if self.m.body_mocapid[b] >= 0:
+                self.m.geom_rgba[self.m.body_geomadr[b]:self.m.body_geomadr[b] + self.m.body_geomnum[b], 3] = 0
         mujoco.mj_forward(self.m, self.d)
+        vis = self.m.vis.global_
+        vis.offwidth, vis.offheight = max(vis.offwidth, size), max(vis.offheight, size)
         self.renderer = mujoco.Renderer(self.m, size, size)
         self.cam = mujoco.MjvCamera()
-        self.cam.lookat[:] = [0.02, -0.025 if self.n_fingers == 5 else -0.01, 0.085]
-        self.cam.distance, self.cam.azimuth, self.cam.elevation = 0.30, 180.0, -12.0
+        self.cam.lookat[:] = robot.lookat
+        self.cam.distance, self.cam.azimuth, self.cam.elevation = robot.distance, 180.0, -12.0
 
     def command(self, motors_deg):
         for k, (m1, m2) in motors_deg.items():
             if k in self.act:
-                self.d.ctrl[self.act[k][0]] = np.radians(m1)
-                self.d.ctrl[self.act[k][1]] = np.radians(m2)
+                self.target[list(self.act[k])] = np.radians([m1, m2])
 
     def advance(self, seconds):
-        for _ in range(max(1, int(min(seconds, 0.05) / self.m.opt.timestep))):
+        # The servos move at most SERVO_SPEED, like the real ones, so a jump in the command doesn't kick the sim.
+        step = np.radians(SERVO_SPEED) * self.m.opt.timestep
+        for _ in range(max(1, int(seconds / self.m.opt.timestep))):
+            self.d.ctrl[:] += np.clip(self.target - self.d.ctrl, -step, step)
             mujoco.mj_step(self.m, self.d)
 
     def render(self):
@@ -251,8 +392,9 @@ def main():
     ap.add_argument("--tracker", choices=("mediapipe", "wilor"), default="mediapipe",
                     help="hand tracker: mediapipe (fast) or wilor (robust to occlusion, needs requirements-wilor.txt)")
     ap.add_argument("--record", help="also save the raw camera video to this .mp4 (one file per camera)")
-    ap.add_argument("--fingers", type=int, choices=(4, 5), default=5,
-                    help="4 = stock AmazingHand, 5 = with added pinky (default)")
+    ap.add_argument("--model", choices=tuple(ROBOTS), default="final",
+                    help="final = the 5-digit hand AH_Right_5F_3S_Wrist (default); stock5 / stock4 = the stock hand "
+                         "with / without the placeholder pinky from build_model.py")
     ap.add_argument("--hand", choices=("any", "right", "left"), default="any",
                     help="which of your hands to track (default: whichever the first camera sees)")
     ap.add_argument("--log", help="write motor commands (deg) to this CSV")
@@ -264,10 +406,11 @@ def main():
     if args.list_cameras:
         list_cameras()
         return
-    scene = HERE / "models" / "AH_Right" / f"scene_{args.fingers}f.xml"
-    if not scene.exists():
-        raise SystemExit(f"{scene} missing: run `python build_model.py` first")
-    digits = ["index", "middle", "ring", "thumb"] + (["pinky"] if args.fingers == 5 else [])
+    robot = ROBOTS[args.model]
+    if not robot.scene.exists():
+        hint = "" if args.model == "final" else ": run `python build_model.py` first"
+        raise SystemExit(f"{robot.scene} missing{hint}")
+    digits = robot.digits
 
     sources = open_sources(args)
     n_views = len(sources)
@@ -282,7 +425,7 @@ def main():
     writer = None
     log = csv.writer(open(args.log, "w", newline="")) if args.log else None
     if log:
-        log.writerow(["t"] + [f"finger{k}_motor{j}" for k in range(1, args.fingers + 1) for j in (1, 2)])
+        log.writerow(["t"] + [f"finger{k}_motor{j}" for k in range(1, len(digits) + 1) for j in (1, 2)])
 
     t_start = last = time.monotonic()
     fps = 0.0
@@ -301,7 +444,7 @@ def main():
         if sim is None:
             first = next(f for ok, f in frames if ok)
             panel_h = first.shape[0] if n_views == 1 else 360
-            sim = Sim(scene, panel_h)
+            sim = Sim(robot, panel_h)
 
         target = None if args.hand == "any" else args.hand
         views, view_cams, panels, headers = [], [], [], []
@@ -339,12 +482,13 @@ def main():
                     headers[i] = (f"{headers[i][0]}, trust {share * 100:.0f}%", headers[i][1])
             else:
                 angles = views[0][0]
-            motors, curls = retarget(angles, calib, digits)
+            motors, curls = retarget(angles, calib, robot)
             sim.command(motors)
 
         now = time.monotonic()
-        sim.advance(now - last)
-        robot = sim.render()
+        # A still image gets time to settle; live, the sim follows the clock (at most 50 ms per frame).
+        sim.advance(0.5 if args.image else min(now - last, 0.05))
+        robot_view = sim.render()
         latency_ms = (time.monotonic() - t_cap) * 1000
         fps = 0.9 * fps + 0.1 / max(now - last, 1e-3) if frame_i else 0.0
         last = now
@@ -361,7 +505,7 @@ def main():
                 put(main_panel, f"{name:6s} curl {curl:4.0f} ({curls[name]*100:3.0f}%) abd {abd:+4.0f} "
                                 f"servos {m1:+4.0f} {m2:+4.0f}", 70 + 22 * i)
         put(main_panel, "o=open  f=fist  r=reset  [ ]=rotate  v=view  q=quit", panel_h - 12, (200, 200, 200))
-        view = np.hstack(panels + [robot])
+        view = np.hstack(panels + [robot_view])
 
         if log and motors:
             log.writerow([f"{now - t_start:.3f}"] + [f"{v:.1f}" for k in sorted(motors) for v in motors[k]])

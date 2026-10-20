@@ -14,7 +14,7 @@ This fork adds a pinky to the stock hand and rebuilds it around slim, styled 3-p
 | 3-phalanx fingers and thumb (STEP + STL) | [cad/five_finger/ultimate_finger/](cad/five_finger/ultimate_finger/) |
 | Wrist and forearm base (STEP + STL) | [cad/five_finger/wrist/](cad/five_finger/wrist/) |
 | MuJoCo model | [Demo/AHSimulation/AHSimulation/AH_Right_5F_3S_Wrist/mjcf/](Demo/AHSimulation/AHSimulation/AH_Right_5F_3S_Wrist/mjcf/) |
-| Webcam teleop (sim; still drives the stock hand with a placeholder pinky) | [Demo/Teleop/](Demo/Teleop/) |
+| Webcam teleop (sim; drives the final hand, wrist held straight) | [Demo/Teleop/](Demo/Teleop/) |
 
 ```bash
 python -m mujoco.viewer --mjcf=Demo/AHSimulation/AHSimulation/AH_Right_5F_3S_Wrist/mjcf/scene_shells.xml
